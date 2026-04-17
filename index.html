@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Organizador de Quartos — Encontros</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+
+  <!-- CDN Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+
+  <style>
+    :root {
+      --bg-page: #F3F4F6;
+      --bg-card: #FFFFFF;
+      --text-primary: #1F2937;
+      --text-secondary: #6B7280;
+      --text-light: #9CA3AF;
+      --border: #E5E7EB;
+      --border-light: #F0F0F0;
+      --primary: #3B82F6;
+      --primary-dark: #2563EB;
+      --primary-light: #EFF6FF;
+      --success: #10B981;
+      --success-light: #ECFDF5;
+      --warning: #F59E0B;
+      --warning-light: #FEF3C7;
+      --danger: #EF4444;
+      --danger-light: #FEE2E2;
+      --radius-sm: 8px;
+      --radius: 12px;
+      --radius-lg: 20px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+      --transition: all 0.2s ease;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+      background: var(--bg-page);
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
+    h2 { font-size: 20px; font-weight: 600; }
+    h3 { font-size: 16px; font-weight: 600; }
+
+    .app-header {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+      background: rgba(255,255,255,0.95);
+    }
+
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-cross { font-size: 24px; color: var(--primary); }
+    .logo-title { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+    .logo-sub { font-size: 10px; font-weight: 500; color: var(--text-secondary); letter-spacing: 0.5px; }
+
+    .header-nav {
+      display: flex;
+      gap: 6px;
+      background: var(--bg-page);
+      padding: 4px;
+      border-radius: 40px;
+    }
+
+    .nav-step {
+      background: transparent;
+      border: none;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border-radius: 32px;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: 'Inter', sans-serif;
+    }
+
+    .nav-step:hover { background: var(--border); color: var(--text-primary); }
+    .nav-step.active { background: var(--primary); color: white; box-shadow: var(--shadow); }
+
+    .app-main { max-width: 1400px; margin: 0 auto; padding: 32px 24px 48px; }
+
+    .screen { display: none; animation: fadeIn 0.25s ease; }
+    .screen.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .screen-header { margin-bottom: 28px; }
+    .screen-header h1 { color: var(--text-primary); margin-bottom: 4px; }
+    .screen-header p { color: var(--text-secondary); font-size: 14px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      background: transparent;
+    }
+
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: var(--shadow); }
+    .btn-outline { border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary); }
+    .btn-outline:hover { border-color: var(--primary); background: var(--primary-light); }
+    .btn-ghost { color: var(--text-secondary); }
+    .btn-ghost:hover { background: var(--bg-page); color: var(--text-primary); }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-sm { padding: 6px 14px; font-size: 13px; }
+    .btn-lg { padding: 12px 28px; font-size: 15px; }
+    .btn-icon { padding: 6px 8px; background: transparent; border-radius: var(--radius-sm); font-size: 16px; }
+    .btn-icon:hover { background: var(--bg-page); }
+    .btn-back { background: none; border: none; color: var(--primary); font-size: 14px; font-weight: 500; cursor: pointer; padding: 0; margin-bottom: 16px; display: inline-flex; align-items: center; gap: 6px; }
+
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+
+    .encontro-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      transition: var(--transition);
+    }
+
+    .encontro-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+    .encontro-card h3 { font-size: 18px; margin-bottom: 4px; }
+    .card-date { font-size: 12px; color: var(--text-secondary); margin-bottom: 16px; }
+    .card-stats { display: flex; gap: 20px; margin-bottom: 20px; }
+    .card-stat { display: flex; flex-direction: column; }
+    .card-stat strong { font-size: 22px; font-weight: 700; color: var(--text-primary); }
+    .card-stat span { font-size: 11px; color: var(--text-secondary); }
+    .card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); display: none; }
+    .empty-state.visible { display: block; }
+    .empty-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
+
+    .form-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+
+    .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+
+    input, select, textarea {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      transition: var(--transition);
+      background: var(--bg-card);
+    }
+
+    input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+
+    .table-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      overflow-x: auto;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .data-table th {
+      text-align: left;
+      padding: 14px 16px;
+      background: var(--bg-page);
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .data-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-light);
+      vertical-align: middle;
+    }
+
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: var(--bg-page); }
+
+    .import-area {
+      background: var(--bg-card);
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-lg);
+      padding: 48px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      margin-bottom: 24px;
+    }
+
+    .import-area:hover, .import-area.drag-over { border-color: var(--primary); background: var(--primary-light); }
+    .import-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.6; }
+    .import-area h3 { margin-bottom: 8px; }
+    .import-area p { color: var(--text-secondary); font-size: 13px; margin-bottom: 16px; }
+
+    .quartos-alocar-grid,
+    .quartos-distribuir-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 20px;
+    }
+
+    .quarto-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .quarto-card:hover { box-shadow: var(--shadow-lg); }
+
+    .quarto-card-header {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .quarto-card-title { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .color-badge { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+    .quarto-card-meta { font-size: 12px; color: var(--text-secondary); background: var(--bg-page); padding: 4px 10px; border-radius: 20px; }
+    .quarto-card-body { padding: 20px; }
+
+    .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 12px; }
+
+    .lideres-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .lider-chip { background: var(--primary-light); color: var(--primary-dark); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 500; }
+
+    .encontristas-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-height: 100px;
+      background: var(--bg-page);
+      border-radius: var(--radius-sm);
+      padding: 8px;
+    }
+
+    .pessoa-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      background: var(--bg-card);
+      border-radius: var(--radius-sm);
+      cursor: grab;
+      transition: var(--transition);
+      border: 1px solid var(--border);
+    }
+
+    .pessoa-item:hover { border-color: var(--primary); background: var(--primary-light); }
+    .drag-handle { color: var(--text-light); cursor: grab; font-size: 14px; }
+    .pessoa-nome { flex: 1; font-size: 13px; font-weight: 500; }
+    .pessoa-idade { font-size: 11px; color: var(--text-secondary); background: var(--bg-page); padding: 2px 8px; border-radius: 20px; }
+
+    .vaga-bar { margin-top: 16px; display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-secondary); }
+    .vaga-progress { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .vaga-progress-fill { height: 100%; background: var(--success); border-radius: 3px; transition: width 0.3s ease; }
+    .vaga-progress-fill.full { background: var(--danger); }
+
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+    .badge-warning { background: var(--warning-light); color: var(--warning); }
+    .badge-info { background: var(--primary-light); color: var(--primary); }
+    .badge-success { background: var(--success-light); color: var(--success); }
+
+    .actions-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin: 20px 0; }
+    .counter { font-size: 13px; color: var(--text-secondary); background: var(--bg-page); padding: 6px 14px; border-radius: 20px; }
+    .section-title { display: flex; align-items: center; justify-content: space-between; margin: 24px 0 16px; }
+    .distribuir-toolbar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; padding: 20px; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px solid var(--border); }
+    .legend { display: flex; gap: 20px; margin-bottom: 20px; font-size: 12px; color: var(--text-secondary); flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      animation: slideUp 0.2s ease;
+    }
+
+    .modal-lg { max-width: 720px; }
+    .modal-sm { max-width: 380px; }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header { padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+    .modal-header h3 { font-size: 18px; }
+    .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary); padding: 4px 8px; border-radius: var(--radius-sm); }
+    .modal-close:hover { background: var(--bg-page); }
+    .modal-body { padding: 24px; }
+    .modal-footer { padding: 16px 24px 24px; display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--border); }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .span-2 { grid-column: span 2; }
+
+    .quarto-checkbox { width: 18px; height: 18px; margin-right: 8px; cursor: pointer; }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--text-primary);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 40px;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 1100;
+      transition: transform 0.3s ease;
+      white-space: nowrap;
+      max-width: 90vw;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.success { background: var(--success); }
+    .toast.error { background: var(--danger); }
+    .toast.warning { background: var(--warning); }
+
+    .sortable-drag { opacity: 0.5; background: var(--primary-light) !important; }
+
+    @media (max-width: 768px) {
+      .app-main { padding: 20px 16px; }
+      .header-nav { display: none; }
+      .form-row, .form-grid { grid-template-columns: 1fr; }
+      .span-2 { grid-column: span 1; }
+      .quartos-alocar-grid, .quartos-distribuir-grid { grid-template-columns: 1fr; }
+      .data-table { display: block; overflow-x: auto; white-space: nowrap; }
+      .distribuir-toolbar { flex-direction: column; }
+      .actions-bar { flex-direction: column; align-items: stretch; }
+      .btn { justify-content: center; }
+    }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-page); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-light); }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-cross">⛺</span>
+      <div class="logo-text">
+        <span class="logo-title">Organizador</span>
+        <span class="logo-sub">de Quartos</span>
+      </div>
+    </div>
+    <nav class="header-nav" id="stepNav">
+      <button class="nav-step active" data-step="encontros">Encontros</button>
+      <button class="nav-step" data-step="config">Configurar</button>
+      <button class="nav-step" data-step="participantes">Participantes</button>
+      <button class="nav-step" data-step="lideres">Líderes</button>
+      <button class="nav-step" data-step="alocar">Alocar</button>
+      <button class="nav-step" data-step="distribuir">Distribuição</button>
+    </nav>
+  </div>
+</header>
+
+<main class="app-main">
+
+  <!-- TELA 1: Encontros -->
+  <section class="screen active" id="screen-encontros">
+    <div class="screen-header">
+      <h1>Meus Encontros</h1>
+      <p>Gerencie os acampamentos e encontros da sua igreja</p>
+    </div>
+    <div class="actions-bar">
+      <button class="btn btn-primary" id="btnNovoEncontro"><span>+</span> Novo Encontro</button>
+      <button class="btn btn-outline" id="btnImportarBackup">↑ Importar Backup</button>
+    </div>
+    <div class="cards-grid" id="encontrosGrid"></div>
+    <div class="empty-state" id="emptyEncontros">
+      <div class="empty-icon">🏕️</div>
+      <h3>Nenhum encontro ainda</h3>
+      <p>Clique em "Novo Encontro" para começar</p>
+    </div>
+  </section>
+
+  <!-- TELA 2: Configurar -->
+  <section class="screen" id="screen-config">
+    <div class="screen-header">
+      <button class="btn-back" id="backFromConfig">← Voltar</button>
+      <h1>Configurar Encontro</h1>
+    </div>
+    <div class="form-card">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nome do Encontro</label>
+          <input type="text" id="nomeEncontro" placeholder="Ex: Encontro com Deus Jovens 2026" />
+        </div>
+        <div class="form-group">
+          <label>Data Início</label>
+          <input type="date" id="dataInicioEncontro" />
+        </div>
+        <div class="form-group">
+          <label>Data Fim</label>
+          <input type="date" id="dataFimEncontro" />
+        </div>
+        <div class="form-group">
+          <label>Tipo de Evento</label>
+          <select id="tipoEvento">
+            <option value="misto">🏕️ Misto (Acampamento/Jovens)</option>
+            <option value="feminino">👩 Feminino (Encontro de Mulheres)</option>
+            <option value="masculino">👨 Masculino (Encontro de Homens)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      <h2>Quartos</h2>
+      <button class="btn btn-primary btn-sm" id="btnAddQuarto">+ Adicionar Quarto</button>
+    </div>
+
+    <div class="table-card">
+      <table class="data-table" id="quartosTable">
+        <thead>
+          <tr><th>Cor / Nome</th><th>Capacidade</th><th>Tipo do Quarto</th><th>Prioridade</th><th>Líderes</th><th>Ações</th></tr>
+        </thead>
+        <tbody id="quartosTbody"></tbody>
+      </table>
+    </div>
+
+    <div class="actions-bar">
+      <button class="btn btn-ghost" id="btnExportBackup">↓ Exportar Backup</button>
+      <button class="btn btn-primary" id="btnSalvarConfig">Salvar e Continuar →</button>
+    </div>
+  </section>
+
+  <!-- TELA 3: Participantes -->
+  <section class="screen" id="screen-participantes">
+    <div class="screen-header">
+      <button class="btn-back" id="backFromParticipantes">← Voltar</button>
+      <h1>Participantes</h1>
+      <p>Importe do Excel (recomendado)</p>
+    </div>
+
+    <div class="import-area" id="pdfDropZone">
+      <div class="import-icon">📊</div>
+      <h3>Importar arquivo</h3>
+      <p>Arraste um arquivo Excel (.xlsx) ou clique para selecionar</p>
+      <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none" />
+      <button class="btn btn-outline" id="btnSelectFile">Selecionar Arquivo</button>
+    </div>
+
+    <div class="actions-bar">
+      <span class="counter" id="contParticipantes">0 participantes</span>
+      <button class="btn btn-outline" id="btnAddParticipante">+ Adicionar Manualmente</button>
+    </div>
+
+    <div class="table-card">
+      <table class="data-table" id="participantesTable">
+        <thead>
+          <tr><th>Nome</th><th>Idade</th><th>Gênero</th><th>Unidade</th><th>Célula</th><th>Tel. Emergência</th><th>Restrição</th><th>Ações</th></tr>
+        </thead>
+        <tbody id="participantesTbody"></tbody>
+      </table>
+    </div>
+
+    <div class="actions-bar">
+      <button class="btn btn-primary" id="btnIrLideres">Continuar para Líderes →</button>
+    </div>
+  </section>
+
+  <!-- TELA 4: Líderes -->
+  <section class="screen" id="screen-lideres">
+    <div class="screen-header">
+      <button class="btn-back" id="backFromLideres">← Voltar</button>
+      <h1>Líderes</h1>
+      <p>Cadastre os líderes do encontro</p>
+    </div>
+
+    <div class="actions-bar">
+      <span class="counter" id="contLideres">0 líderes</span>
+      <button class="btn btn-primary" id="btnAddLider">+ Adicionar Líder</button>
+    </div>
+
+    <div class="table-card">
+      <table class="data-table" id="lideresTable">
+        <thead><tr><th>Nome</th><th>Ações</th></tr></thead>
+        <tbody id="lideresTbody"></tbody>
+      </table>
+    </div>
+
+    <div class="actions-bar">
+      <button class="btn btn-primary" id="btnIrAlocar">Continuar para Alocar →</button>
+    </div>
+  </section>
+
+  <!-- TELA 5: Alocar Líderes -->
+  <section class="screen" id="screen-alocar">
+    <div class="screen-header">
+      <button class="btn-back" id="backFromAlocar">← Voltar</button>
+      <h1>Alocar Líderes</h1>
+      <p>Defina quais líderes ficam em cada quarto</p>
+    </div>
+    <div class="quartos-alocar-grid" id="quartosAlocarGrid"></div>
+    <div class="actions-bar">
+      <button class="btn btn-primary" id="btnIrDistribuir">Continuar para Distribuição →</button>
+    </div>
+  </section>
+
+  <!-- TELA 6: Distribuição -->
+  <section class="screen" id="screen-distribuir">
+    <div class="screen-header">
+      <button class="btn-back" id="backFromDistribuir">← Voltar</button>
+      <h1>Distribuição</h1>
+    </div>
+
+    <div class="distribuir-toolbar">
+      <button class="btn btn-primary btn-lg" id="btnDistribuir">🎲 Executar Distribuição Automática</button>
+      <button class="btn btn-success btn-lg" id="btnGerarPDFs">📄 Gerar PDFs de Todos</button>
+      <button class="btn btn-outline btn-lg" id="btnGerarPDFsSelecionados">📄 Gerar PDFs Selecionados</button>
+    </div>
+
+    <div class="legend">
+      <span class="legend-item"><span class="badge badge-warning">⚠</span> Arraste para mover entre quartos</span>
+      <span class="legend-item"><span class="badge badge-info">⣿</span> Selecione quartos com checkbox</span>
+    </div>
+
+    <div class="quartos-distribuir-grid" id="quartosDistribuirGrid"></div>
+  </section>
+
+</main>
+
+<!-- MODAIS -->
+<div class="modal-overlay" id="modalNovoEncontro">
+  <div class="modal">
+    <div class="modal-header"><h3>Novo Encontro</h3><button class="modal-close" data-close="modalNovoEncontro">×</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>Nome do Encontro</label><input type="text" id="modalNomeEncontro" placeholder="Ex: Encontro com Deus Jovens 2026" /></div>
+      <div class="form-row">
+        <div class="form-group"><label>Data Início</label><input type="date" id="modalDataInicio" /></div>
+        <div class="form-group"><label>Data Fim</label><input type="date" id="modalDataFim" /></div>
+      </div>
+      <div class="form-group"><label>Tipo de Evento</label><select id="modalTipoEvento"><option value="misto">Misto (Acampamento/Jovens)</option><option value="feminino">Feminino</option><option value="masculino">Masculino</option></select></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" data-close="modalNovoEncontro">Cancelar</button><button class="btn btn-primary" id="btnCriarEncontro">Criar Encontro</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalAddParticipante">
+  <div class="modal modal-lg">
+    <div class="modal-header"><h3>Adicionar Participante</h3><button class="modal-close" data-close="modalAddParticipante">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Nome</label><input type="text" id="addNome" /></div>
+        <div class="form-group"><label>Sobrenome</label><input type="text" id="addSobrenome" /></div>
+        <div class="form-group"><label>Idade</label><input type="number" id="addIdade" /></div>
+        <div class="form-group"><label>Gênero</label><select id="addGenero"><option value="MASCULINO">Masculino</option><option value="FEMININO">Feminino</option></select></div>
+        <div class="form-group"><label>Unidade</label><input type="text" id="addUnidade" placeholder="Ex: Núcleo da Fé - Sede" /></div>
+        <div class="form-group"><label>Célula</label><input type="text" id="addCelula" placeholder="Ex: WWJD Noroeste" /></div>
+        <div class="form-group"><label>Tel. Contato</label><input type="text" id="addTelContato" /></div>
+        <div class="form-group"><label>Tel. Emergência</label><input type="text" id="addTelEmergencia" /></div>
+        <div class="form-group span-2"><label>Restrição Médica/Alimentar</label><input type="text" id="addRestricao" /></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" data-close="modalAddParticipante">Cancelar</button><button class="btn btn-primary" id="btnSalvarAddParticipante">Salvar</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalAddLider">
+  <div class="modal">
+    <div class="modal-header"><h3>Adicionar Líder</h3><button class="modal-close" data-close="modalAddLider">×</button></div>
+    <div class="modal-body"><div class="form-group"><label>Nome</label><input type="text" id="addLiderNome" /></div></div>
+    <div class="modal-footer"><button class="btn btn-ghost" data-close="modalAddLider">Cancelar</button><button class="btn btn-primary" id="btnSalvarAddLider">Salvar</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalCapacidadeInsuficiente">
+  <div class="modal">
+    <div class="modal-header"><h3>⚠️ Capacidade Insuficiente</h3><button class="modal-close" data-close="modalCapacidadeInsuficiente">×</button></div>
+    <div class="modal-body">
+      <p id="capacidadeMsg"></p>
+      <p style="margin-top: 12px;">Por favor, adicione mais quartos antes de distribuir os participantes.</p>
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" data-close="modalCapacidadeInsuficiente">OK</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// ORGANIZADOR DE QUARTOS - VERSÃO COMPLETA COM TODAS AS REGRAS
+// PDFs SEM INFORMAÇÕES INTERNAS (tipo de quarto não aparece)
+// ============================================================
+
+console.log('🚀 Script iniciado');
+
+let encontros = [];
+let encontroAtual = null;
+
+const CORES_PADRAO = {
+    'Azul': '#3b82f6', 'Verde': '#22c55e', 'Vermelho': '#ef4444',
+    'Amarelo': '#eab308', 'Roxo': '#a855f7', 'Laranja': '#f97316',
+    'Rosa': '#ec4899', 'Ciano': '#06b6d4', 'Marrom': '#92400e', 'Cinza': '#6b7280'
+};
+
+function uuid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+function salvar() { localStorage.setItem('organizador_quartos', JSON.stringify(encontros)); console.log('💾 Dados salvos'); }
+function carregar() { const dados = localStorage.getItem('organizador_quartos'); if (dados) { encontros = JSON.parse(dados); console.log('📂 Dados carregados:', encontros.length, 'encontros'); } }
+function normSobrenome(s) { return (s || '').trim().toLowerCase(); }
+function normTel(t) { return (t || '').replace(/\D/g, ''); }
+function toast(msg, tipo = 'info') { const el = document.getElementById('toast'); if (!el) return; el.textContent = msg; el.className = `toast show ${tipo}`; setTimeout(() => el.classList.remove('show'), 3000); }
+function formatarData(iso) { if (!iso) return '—'; const [y, m, d] = iso.split('-'); return `${d}/${m}/${y}`; }
+function getEncontroAtual() { return encontros.find(e => e.id === encontroAtual); }
+function getNomeQuarto(q) { return `Quarto ${q.corNome || q.cor || 'Sem cor'}`; }
+function getVagasEncontristas(q) { return (q.capacidade || 12) - (q.lideresPorQuarto || 2); }
+
+function irParaTela(telaId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    const tela = document.getElementById(`screen-${telaId}`);
+    if (tela) tela.classList.add('active');
+    document.querySelectorAll('.nav-step').forEach(btn => { btn.classList.toggle('active', btn.dataset.step === telaId); });
+    if (telaId === 'encontros') renderEncontros();
+    if (telaId === 'config' && encontroAtual) renderConfig();
+    if (telaId === 'participantes' && encontroAtual) renderParticipantes();
+    if (telaId === 'lideres' && encontroAtual) renderLideres();
+    if (telaId === 'alocar' && encontroAtual) renderAlocar();
+    if (telaId === 'distribuir' && encontroAtual) renderDistribuir();
+}
+
+function abrirModal(id) { const modal = document.getElementById(id); if (modal) modal.classList.add('open'); }
+function fecharModal(id) { const modal = document.getElementById(id); if (modal) modal.classList.remove('open'); }
+
+function renderEncontros() {
+    const grid = document.getElementById('encontrosGrid');
+    const empty = document.getElementById('emptyEncontros');
+    if (!encontros.length) { empty.classList.add('visible'); grid.innerHTML = ''; return; }
+    empty.classList.remove('visible');
+    grid.innerHTML = encontros.map(enc => `
+        <div class="encontro-card">
+            <h3>${enc.nome || 'Sem nome'}</h3>
+            <div class="card-date">📅 ${formatarData(enc.dataInicio)} - ${formatarData(enc.dataFim)}</div>
+            <div class="card-stats">
+                <div class="card-stat"><strong>${enc.participantes?.length || 0}</strong><span>Part.</span></div>
+                <div class="card-stat"><strong>${enc.lideres?.length || 0}</strong><span>Líderes</span></div>
+                <div class="card-stat"><strong>${enc.quartos?.length || 0}</strong><span>Quartos</span></div>
+            </div>
+            <div class="card-actions">
+                <button class="btn btn-primary btn-sm" onclick="abrirEncontro('${enc.id}')">Abrir</button>
+                <button class="btn btn-outline btn-sm" onclick="duplicarEncontro('${enc.id}')">Duplicar</button>
+                <button class="btn btn-ghost btn-sm" onclick="excluirEncontro('${enc.id}')">Excluir</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function criarEncontro() {
+    const nome = document.getElementById('modalNomeEncontro').value.trim();
+    if (!nome) { toast('Digite um nome', 'error'); return; }
+    const novo = {
+        id: uuid(), nome: nome,
+        dataInicio: document.getElementById('modalDataInicio').value,
+        dataFim: document.getElementById('modalDataFim').value,
+        tipoEvento: document.getElementById('modalTipoEvento').value,
+        quartos: [], participantes: [], lideres: [], distribuicaoFeita: false
+    };
+    encontros.unshift(novo);
+    salvar();
+    fecharModal('modalNovoEncontro');
+    document.getElementById('modalNomeEncontro').value = '';
+    abrirEncontro(novo.id);
+}
+
+function abrirEncontro(id) { encontroAtual = id; irParaTela('config'); }
+function duplicarEncontro(id) { const original = encontros.find(e => e.id === id); if (!original) return; const copia = JSON.parse(JSON.stringify(original)); copia.id = uuid(); copia.nome = original.nome + ' (cópia)'; copia.quartos.forEach(q => q.encontristas = []); encontros.unshift(copia); salvar(); renderEncontros(); toast('Encontro duplicado!'); }
+function excluirEncontro(id) { if (!confirm('Tem certeza?')) return; encontros = encontros.filter(e => e.id !== id); if (encontroAtual === id) encontroAtual = null; salvar(); renderEncontros(); toast('Encontro excluído'); }
+
+function renderConfig() {
+    const enc = getEncontroAtual();
+    if (!enc) return;
+    document.getElementById('nomeEncontro').value = enc.nome || '';
+    document.getElementById('dataInicioEncontro').value = enc.dataInicio || '';
+    document.getElementById('dataFimEncontro').value = enc.dataFim || '';
+    document.getElementById('tipoEvento').value = enc.tipoEvento || 'misto';
+
+    const tbody = document.getElementById('quartosTbody');
+    if (!enc.quartos.length) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:28px">Nenhum quarto. Clique em "+ Adicionar Quarto"</td></tr>`;
+        return;
+    }
+    tbody.innerHTML = enc.quartos.map((q, i) => {
+        const corHex = q.corHex || CORES_PADRAO[q.cor] || CORES_PADRAO['Azul'];
+        const corNome = q.corNome || q.cor || 'Azul';
+        const tipoQuarto = q.tipoQuarto || 'normal';
+        return `<tr>
+            <td><div style="display:flex;gap:8px;align-items:center"><input type="color" id="corPicker_${i}" value="${corHex}" onchange="updateQuarto(${i}, 'corHex', this.value)" style="width:40px;height:32px;border-radius:8px"><input type="text" id="corNome_${i}" value="${corNome}" placeholder="Nome" onchange="updateQuarto(${i}, 'corNome', this.value)" style="width:100px;padding:6px;border-radius:8px"></div></td>
+            <td><input type="number" value="${q.capacidade || 12}" min="2" max="50" onchange="updateQuarto(${i}, 'capacidade', +this.value)" style="width:70px;padding:6px;border-radius:8px"></td>
+            <td><select onchange="updateQuarto(${i}, 'tipoQuarto', this.value)" style="padding:6px;border-radius:8px"><option value="novas" ${tipoQuarto === 'novas' ? 'selected' : ''}>🟢 Quarto de NOVAS</option><option value="velhas" ${tipoQuarto === 'velhas' ? 'selected' : ''}>🔴 Quarto de VELHAS</option><option value="normal" ${tipoQuarto === 'normal' ? 'selected' : ''}>⚪ Quarto NORMAL</option></select></td>
+            <td><select onchange="updateQuarto(${i}, 'prioridade', this.value)" style="padding:6px;border-radius:8px"><option value="novos" ${q.prioridade === 'novos' ? 'selected' : ''}>👶 Mais novos</option><option value="velhos" ${q.prioridade === 'velhos' ? 'selected' : ''}>👴 Mais velhos</option></select></td>
+            <td><select onchange="updateQuarto(${i}, 'lideresPorQuarto', +this.value)" style="padding:6px;border-radius:8px"><option value="1" ${q.lideresPorQuarto === 1 ? 'selected' : ''}>1 líder</option><option value="2" ${q.lideresPorQuarto === 2 ? 'selected' : ''}>2 líderes</option><option value="3" ${q.lideresPorQuarto === 3 ? 'selected' : ''}>3 líderes</option></select></td>
+            <td><button class="btn-icon" onclick="removerQuarto(${i})" style="background:none;border:none;font-size:18px;cursor:pointer">🗑</button></td>
+        </tr>`;
+    }).join('');
+}
+
+function updateQuarto(idx, campo, valor) { const enc = getEncontroAtual(); if (enc && enc.quartos[idx]) { enc.quartos[idx][campo] = valor; salvar(); toast('Quarto atualizado'); } }
+function adicionarQuarto() { const enc = getEncontroAtual(); if (!enc) return; enc.quartos.push({ id: uuid(), corHex: '#3b82f6', corNome: 'Azul', capacidade: 12, tipoQuarto: 'normal', prioridade: 'novos', lideresPorQuarto: 2, lideresAlocados: [], encontristas: [] }); salvar(); renderConfig(); toast('Quarto adicionado!'); }
+function removerQuarto(idx) { const enc = getEncontroAtual(); if (enc) { enc.quartos.splice(idx, 1); salvar(); renderConfig(); toast('Quarto removido'); } }
+function salvarConfig() { const enc = getEncontroAtual(); if (!enc) return; enc.nome = document.getElementById('nomeEncontro').value; enc.dataInicio = document.getElementById('dataInicioEncontro').value; enc.dataFim = document.getElementById('dataFimEncontro').value; enc.tipoEvento = document.getElementById('tipoEvento').value; salvar(); irParaTela('participantes'); toast('Configuração salva!'); }
+
+function renderParticipantes() {
+    const enc = getEncontroAtual();
+    if (!enc) return;
+    document.getElementById('contParticipantes').textContent = `${enc.participantes.length} participantes`;
+    const tbody = document.getElementById('participantesTbody');
+    if (!enc.participantes.length) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:28px">Nenhum participante</td></tr>`; return; }
+    tbody.innerHTML = enc.participantes.map((p, i) => `<tr>
+        <td><strong>${p.nome}</strong> ${p.sobrenome || ''}</td>
+        <td>${p.idade}</td>
+        <td>${p.genero === 'MASCULINO' ? '♂' : p.genero === 'FEMININO' ? '♀' : '—'}</td>
+        <td>${p.unidade || '—'}</td>
+        <td>${p.celula || '—'}</td>
+        <td>${p.telEmergencia || '—'}</td>
+        <td>${p.remedio || p.alergia || '—'}</td>
+        <td><button class="btn-icon" onclick="removerParticipante(${i})">🗑</button></td>
+    </tr>`).join('');
+}
+
+function adicionarParticipante() { abrirModal('modalAddParticipante'); }
+function salvarAddParticipante() {
+    const enc = getEncontroAtual();
+    if (!enc) return;
+    const nome = document.getElementById('addNome').value.trim();
+    if (!nome) { toast('Nome é obrigatório', 'error'); return; }
+    const idade = parseInt(document.getElementById('addIdade').value);
+    if (!idade) { toast('Idade inválida', 'error'); return; }
+    enc.participantes.push({
+        id: uuid(), nome: nome, sobrenome: document.getElementById('addSobrenome').value || '',
+        idade: idade, genero: document.getElementById('addGenero').value,
+        unidade: document.getElementById('addUnidade').value || '',
+        celula: document.getElementById('addCelula').value || '',
+        telContato: document.getElementById('addTelContato').value || '',
+        telEmergencia: document.getElementById('addTelEmergencia').value || '',
+        remedio: document.getElementById('addRestricao').value || 'Nenhuma',
+        alergia: document.getElementById('addRestricao').value || 'Nenhuma'
+    });
+    salvar();
+    renderParticipantes();
+    fecharModal('modalAddParticipante');
+    document.getElementById('addNome').value = '';
+    document.getElementById('addSobrenome').value = '';
+    document.getElementById('addIdade').value = '';
+    document.getElementById('addGenero').value = 'MASCULINO';
+    document.getElementById('addUnidade').value = '';
+    document.getElementById('addCelula').value = '';
+    document.getElementById('addTelContato').value = '';
+    document.getElementById('addTelEmergencia').value = '';
+    document.getElementById('addRestricao').value = '';
+    toast('Participante adicionado!');
+}
+function removerParticipante(idx) { const enc = getEncontroAtual(); if (enc) { enc.participantes.splice(idx, 1); salvar(); renderParticipantes(); toast('Participante removido'); } }
+
+async function processarExcel(file) {
+    toast('Processando Excel...', 'default');
+    try {
+        const data = await file.arrayBuffer();
+        const workbook = XLSX.read(data);
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet);
+        console.log('📊 Colunas encontradas:', Object.keys(rows[0] || {}));
+
+        const colunasEmergencia = ['Telefone de contato da pessoa indicada', 'Telefone de contato da pessoa indicada.', 'Telefone família', 'Telefone familiar', 'Tel. Emergência', 'Telefone emergência', 'Emergência'];
+
+        const participantes = [];
+        let ignorados = 0;
+
+        for (const row of rows) {
+            const nomeCompleto = row['Nome Completo'] || row['NOME COMPLETO'] || row['Nome'] || row['NOME'] || '';
+            if (!nomeCompleto || nomeCompleto.length < 3) { ignorados++; continue; }
+            const partes = nomeCompleto.trim().split(' ');
+            const primeiroNome = partes[0] || '';
+            const sobrenome = partes.slice(1).join(' ') || '';
+
+            let idade = row['Idade'] || row['IDADE'] || 0;
+            if (typeof idade === 'string') { const match = idade.match(/\d+/); idade = match ? parseInt(match[0]) : 0; }
+            if (typeof idade !== 'number') idade = parseInt(idade) || 0;
+            if (idade < 5 || idade > 100) { ignorados++; continue; }
+
+            let telContato = row['Celular do comprador'] || row['Celular'] || row['Telefone'] || '';
+            telContato = telContato.toString().replace(/\D/g, '');
+
+            let telEmergencia = '';
+            for (const col of colunasEmergencia) { const valor = row[col]; if (valor && valor.toString().trim() !== '') { telEmergencia = valor.toString().replace(/\D/g, ''); if (telEmergencia) break; } }
+
+            let genero = row['Sexo'] || row['Gênero'] || '';
+            genero = genero.toString().toUpperCase();
+            if (genero.includes('MASC') || genero.includes('M')) genero = 'MASCULINO';
+            else if (genero.includes('FEM') || genero.includes('F')) genero = 'FEMININO';
+            else genero = 'NAO_INFORMADO';
+
+            let unidade = row['Qual unidade do Núcleo da Fé você participa?'] || row['Unidade'] || '';
+            let celula = row['Participa de célula? Qual?'] || row['Célula'] || '';
+
+            let restricao = row['Tem restrição médica ou alimentar?'] || '';
+            if (!restricao || restricao === 'Não' || restricao === 'nao' || restricao === 'não') restricao = 'Nenhuma';
+
+            participantes.push({
+                id: uuid(), nome: primeiroNome, sobrenome: sobrenome, idade: idade,
+                genero: genero, unidade: unidade, celula: celula,
+                telContato: telContato, telEmergencia: telEmergencia,
+                remedio: restricao, alergia: restricao
+            });
+        }
+
+        if (!participantes.length) { toast(`Nenhum participante encontrado. ${ignorados} ignorados.`, 'warning'); return; }
+        const enc = getEncontroAtual();
+        enc.participantes.push(...participantes);
+        salvar();
+        renderParticipantes();
+        toast(`${participantes.length} participantes importados!`, 'success');
+    } catch (err) { console.error(err); toast('Erro ao processar Excel', 'error'); }
+}
+
+function processarArquivo(file) { if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) processarExcel(file); else toast('Formato não suportado. Use .xlsx', 'error'); }
+function irParaLideres() { irParaTela('lideres'); }
+
+function renderLideres() {
+    const enc = getEncontroAtual();
+    if (!enc) return;
+    document.getElementById('contLideres').textContent = `${enc.lideres.length} líderes`;
+    const tbody = document.getElementById('lideresTbody');
+    if (!enc.lideres.length) { tbody.innerHTML = `<tr><td colspan="2" style="text-align:center;padding:28px">Nenhum líder</td></tr>`; return; }
+    tbody.innerHTML = enc.lideres.map((l, i) => `<tr><td><strong>${l.nome}</strong></td><td><button class="btn-icon" onclick="removerLider(${i})">🗑</button></td></tr>`).join('');
+}
+
+function adicionarLider() { abrirModal('modalAddLider'); }
+function salvarAddLider() { const nome = document.getElementById('addLiderNome').value.trim(); if (!nome) { toast('Nome obrigatório', 'error'); return; } const enc = getEncontroAtual(); if (enc) { enc.lideres.push({ id: uuid(), nome: nome }); salvar(); renderLideres(); fecharModal('modalAddLider'); document.getElementById('addLiderNome').value = ''; toast('Líder adicionado!'); } }
+function removerLider(idx) { const enc = getEncontroAtual(); if (enc) { enc.lideres.splice(idx, 1); salvar(); renderLideres(); toast('Líder removido'); } }
+function irParaAlocar() { irParaTela('alocar'); }
+
+function renderAlocar() {
+    const enc = getEncontroAtual();
+    if (!enc) return;
+    const grid = document.getElementById('quartosAlocarGrid');
+    if (!enc.quartos.length) { grid.innerHTML = '<p style="text-align:center;padding:28px">Nenhum quarto configurado</p>'; return; }
+    grid.innerHTML = enc.quartos.map((q, i) => {
+        const corHex = q.corHex || CORES_PADRAO[q.cor] || CORES_PADRAO['Azul'];
+        const lideresAlocados = (q.lideresAlocados || []);
+        const maxLideres = q.lideresPorQuarto || 2;
+        const lideresJaAlocados = enc.quartos.filter((_, idx) => idx !== i).flatMap(qq => qq.lideresAlocados || []);
+        const disponiveis = enc.lideres.filter(l => !lideresJaAlocados.includes(l.id) && !lideresAlocados.includes(l.id));
+        const vagasEncontristas = getVagasEncontristas(q);
+        const tipoQuarto = q.tipoQuarto || 'normal';
+        const tipoLabel = tipoQuarto === 'novas' ? '🟢 Quarto de NOVAS' : tipoQuarto === 'velhas' ? '🔴 Quarto de VELHAS' : '⚪ Quarto NORMAL';
+        return `<div style="border:1px solid #e5e7eb;border-radius:16px;padding:16px;margin-bottom:20px;background:white">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+                <span style="display:inline-block;width:16px;height:16px;border-radius:50%;background:${corHex}"></span>
+                <h3 style="margin:0">${getNomeQuarto(q)}</h3>
+                <span style="margin-left:auto;background:#f3f4f6;padding:4px 12px;border-radius:20px;font-size:12px">${tipoLabel}</span>
+            </div>
+            <div style="margin-bottom:12px"><strong>Vagas:</strong> ${vagasEncontristas} encontristas (${q.lideresPorQuarto} líderes)</div>
+            <div style="margin-bottom:16px">
+                ${lideresAlocados.map(lid => { const lider = enc.lideres.find(l => l.id === lid); return lider ? `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f0f0"><span>👤 ${lider.nome}</span><button class="btn-icon" onclick="removerLiderDoQuarto(${i}, '${lid}')" style="background:none;border:none;cursor:pointer">❌</button></div>` : ''; }).join('')}
+                ${lideresAlocados.length === 0 ? '<div style="color:#9ca3af;font-size:13px;padding:8px 0">Nenhum líder alocado</div>' : ''}
+            </div>
+            ${lideresAlocados.length < maxLideres ? `<div style="display:flex;gap:8px"><select id="selectLider_${i}" style="flex:1;padding:8px;border-radius:8px"><option value="">-- Selecionar --</option>${disponiveis.map(l => `<option value="${l.id}">${l.nome}</option>`).join('')}</select><button class="btn btn-primary btn-sm" onclick="adicionarLiderAoQuarto(${i})">Adicionar</button></div>` : '<div style="background:#ecfdf5;color:#059669;padding:8px;border-radius:8px;text-align:center;font-size:13px">✓ Máximo de líderes</div>'}
+        </div>`;
+    }).join('');
+}
+
+function adicionarLiderAoQuarto(qi) { const sel = document.getElementById(`selectLider_${qi}`); if (!sel || !sel.value) { toast('Selecione um líder', 'warning'); return; } const enc = getEncontroAtual(); if (!enc) return; const q = enc.quartos[qi]; if (!q.lideresAlocados) q.lideresAlocados = []; const max = q.lideresPorQuarto || 2; if (q.lideresAlocados.length >= max) { toast(`Máximo de ${max} líderes`, 'warning'); return; } q.lideresAlocados.push(sel.value); salvar(); renderAlocar(); toast('Líder alocado!'); }
+function removerLiderDoQuarto(qi, lid) { const enc = getEncontroAtual(); if (enc && enc.quartos[qi]) { enc.quartos[qi].lideresAlocados = enc.quartos[qi].lideresAlocados.filter(l => l !== lid); salvar(); renderAlocar(); toast('Líder removido'); } }
+function irParaDistribuir() { irParaTela('distribuir'); }
+
+function renderDistribuir() {
+    const enc = getEncontroAtual();
+    if (!enc) return;
+    const grid = document.getElementById('quartosDistribuirGrid');
+    if (!enc.quartos.length) { grid.innerHTML = '<p style="text-align:center;padding:28px">Nenhum quarto configurado</p>'; return; }
+    grid.innerHTML = enc.quartos.map((q, i) => {
+        const corHex = q.corHex || CORES_PADRAO[q.cor] || CORES_PADRAO['Azul'];
+        const total = (q.encontristas || []).length;
+        const vagasEncontristas = getVagasEncontristas(q);
+        const pct = Math.min(100, Math.round(total / vagasEncontristas * 100));
+        const lideresNomes = (q.lideresAlocados || []).map(lid => enc.lideres.find(l => l.id === lid)).filter(Boolean);
+
+        return `<div class="quarto-card" data-quarto-idx="${i}">
+            <div class="quarto-card-header">
+                <div class="quarto-card-title">
+                    <input type="checkbox" class="quarto-checkbox" data-quarto-idx="${i}" id="selectQuarto_${i}">
+                    <span class="color-badge" style="background:${corHex}"></span>
+                    <span>${getNomeQuarto(q)}</span>
+                </div>
+                <div class="quarto-card-meta">${total}/${vagasEncontristas}</div>
+            </div>
+            <div class="quarto-card-body">
+                <div class="section-label">LÍDERES</div>
+                <div class="lideres-list">${lideresNomes.length ? lideresNomes.map(l => `<span class="lider-chip">${l.nome}</span>`).join('') : '<span style="color:#9ca3af;font-size:13px">Nenhum líder alocado</span>'}</div>
+                <div class="section-label">ENCONTRISTAS</div>
+                <div class="encontristas-list" data-quarto-idx="${i}">
+                    ${(q.encontristas || []).map(p => `<div class="pessoa-item" data-id="${p.id}"><span class="drag-handle">⠿</span><span class="pessoa-nome">👤 ${p.nome} ${p.sobrenome || ''}</span><span class="pessoa-idade">${p.idade}a</span><span>${p.genero === 'MASCULINO' ? '♂' : p.genero === 'FEMININO' ? '♀' : ''}</span></div>`).join('') || '<div style="color:#9ca3af;text-align:center;padding:20px">Vazio</div>'}
+                </div>
+                <div class="vaga-bar"><span>${total} pessoas</span><div class="vaga-progress"><div class="vaga-progress-fill ${total >= vagasEncontristas ? 'full' : ''}" style="width:${pct}%"></div></div><span>${vagasEncontristas - total} vagas</span></div>
+            </div>
+        </div>`;
+    }).join('');
+
+    setTimeout(() => {
+        document.querySelectorAll('.encontristas-list').forEach(zone => {
+            new Sortable(zone, { group: 'quartos', animation: 200, ghostClass: 'sortable-ghost', handle: '.drag-handle',
+                onEnd: function(evt) { const pessoaId = evt.item.dataset.id; const origemIdx = parseInt(evt.from.dataset.quartoIdx); const destinoIdx = parseInt(evt.to.dataset.quartoIdx); if (!isNaN(origemIdx) && !isNaN(destinoIdx) && origemIdx !== destinoIdx && pessoaId) moverPessoaEntreQuartos(pessoaId, origemIdx, destinoIdx); }
+            });
+        });
+    }, 100);
+}
+
+function moverPessoaEntreQuartos(pessoaId, origemIdx, destinoIdx) {
+    const enc = getEncontroAtual(); if (!enc) return;
+    const qOrigem = enc.quartos[origemIdx]; const qDestino = enc.quartos[destinoIdx];
+    const pessoaIdx = (qOrigem.encontristas || []).findIndex(p => p.id === pessoaId);
+    if (pessoaIdx === -1) return;
+    const pessoa = qOrigem.encontristas[pessoaIdx];
+    const vagasDestino = getVagasEncontristas(qDestino);
+    if ((qDestino.encontristas || []).length >= vagasDestino) { toast(`${getNomeQuarto(qDestino)} está cheio!`, 'error'); renderDistribuir(); return; }
+    qOrigem.encontristas.splice(pessoaIdx, 1);
+    if (!qDestino.encontristas) qDestino.encontristas = [];
+    qDestino.encontristas.push(pessoa);
+    salvar();
+    renderDistribuir();
+    toast(`${pessoa.nome} movido`);
+}
+
+function executarDistribuicao() {
+    const enc = getEncontroAtual();
+    if (!enc) return;
+    if (!enc.participantes.length) { toast('Nenhum participante!', 'error'); return; }
+    if (!enc.quartos.length) { toast('Nenhum quarto!', 'error'); return; }
+
+    let capacidadeTotal = 0;
+    for (const q of enc.quartos) { capacidadeTotal += getVagasEncontristas(q); }
+    if (capacidadeTotal < enc.participantes.length) {
+        document.getElementById('capacidadeMsg').innerHTML = `Capacidade total: ${capacidadeTotal} vagas<br>Participantes: ${enc.participantes.length}<br><strong>Faltam ${enc.participantes.length - capacidadeTotal} vagas.</strong>`;
+        abrirModal('modalCapacidadeInsuficiente');
+        return;
+    }
+
+    enc.quartos.forEach(q => q.encontristas = []);
+    const tipo = enc.tipoEvento || 'misto';
+    const avisos = [];
+
+    const idadesOrdenadas = [...enc.participantes].map(p => p.idade).sort((a,b) => a-b);
+    const total = idadesOrdenadas.length;
+    const limiteNovo = Math.ceil(total * 0.3);
+    const limiteVelho = Math.floor(total * 0.7);
+    const idadeMaxNova = idadesOrdenadas[limiteNovo - 1] || 0;
+    const idadeMinVelha = idadesOrdenadas[limiteVelho] || 999;
+
+    for (const p of enc.participantes) {
+        if (p.idade <= idadeMaxNova) p.faixa = 'nova';
+        else if (p.idade >= idadeMinVelha) p.faixa = 'velha';
+        else p.faixa = 'adulta';
+    }
+
+    if (tipo === 'misto') {
+        distribuirMisto(enc, avisos);
+        resolverConflitosMisto(enc, avisos);
+    } else {
+        distribuirSeparado(enc, tipo, avisos);
+        resolverConflitosSeparado(enc, avisos);
+    }
+
+    equalizarDistribuicao(enc, avisos);
+    validarVariacaoIdade(enc, avisos);
+    validarIdadesProximas(enc, avisos);
+
+    if (avisos.length) { toast(`⚠️ ${avisos.length} aviso(s)`, 'warning'); console.log('Avisos:', avisos); }
+    enc.distribuicaoFeita = true;
+    salvar();
+    renderDistribuir();
+    toast('Distribuição concluída!');
+}
+
+function equalizarDistribuicao(enc, avisos) {
+    let todosParticipantes = [];
+    for (const q of enc.quartos) {
+        if (q.encontristas && q.encontristas.length) {
+            todosParticipantes.push(...q.encontristas);
+            q.encontristas = [];
+        }
+    }
+    todosParticipantes.sort((a,b) => a.idade - b.idade);
+    const totalQuartos = enc.quartos.length;
+    const base = Math.floor(todosParticipantes.length / totalQuartos);
+    const resto = todosParticipantes.length % totalQuartos;
+    let idx = 0;
+    for (let i = 0; i < totalQuartos; i++) {
+        const vagas = getVagasEncontristas(enc.quartos[i]);
+        let quantidade = base + (i < resto ? 1 : 0);
+        if (quantidade > vagas) quantidade = vagas;
+        enc.quartos[i].encontristas = todosParticipantes.slice(idx, idx + quantidade);
+        idx += quantidade;
+        if (quantidade === 0) avisos.push(`⚠️ ${getNomeQuarto(enc.quartos[i])} ficou vazio!`);
+    }
+}
+
+function distribuirMisto(enc, avisos) {
+    const homens = enc.participantes.filter(p => p.genero === 'MASCULINO');
+    const mulheres = enc.participantes.filter(p => p.genero === 'FEMININO');
+    homens.sort((a,b) => a.idade - b.idade);
+    mulheres.sort((a,b) => a.idade - b.idade);
+    const quartosHomens = enc.quartos.filter((_, i) => i % 2 === 0);
+    const quartosMulheres = enc.quartos.filter((_, i) => i % 2 === 1);
+    if (homens.length && !quartosHomens.length) avisos.push('⚠️ Homens inscritos mas sem quartos designados');
+    if (mulheres.length && !quartosMulheres.length) avisos.push('⚠️ Mulheres inscritas mas sem quartos designados');
+    distribuirPorGenero(homens, quartosHomens.length ? quartosHomens : enc.quartos, enc);
+    distribuirPorGenero(mulheres, quartosMulheres.length ? quartosMulheres : enc.quartos, enc);
+}
+
+function distribuirPorGenero(pessoas, quartos, enc) {
+    if (!pessoas.length || !quartos.length) return;
+    const totalQuartos = quartos.length;
+    const base = Math.floor(pessoas.length / totalQuartos);
+    const resto = pessoas.length % totalQuartos;
+    let idx = 0;
+    for (let i = 0; i < totalQuartos; i++) {
+        const vagas = getVagasEncontristas(quartos[i]);
+        let quantidade = base + (i < resto ? 1 : 0);
+        if (quantidade > vagas) quantidade = vagas;
+        quartos[i].encontristas = pessoas.slice(idx, idx + quantidade);
+        idx += quantidade;
+    }
+}
+
+function distribuirSeparado(enc, tipo, avisos) {
+    let pessoas = enc.participantes.filter(p => p.genero === (tipo === 'feminino' ? 'FEMININO' : 'MASCULINO') || p.genero === 'NAO_INFORMADO');
+    if (!pessoas.length) { toast(`Nenhum participante do gênero ${tipo}`, 'error'); return; }
+
+    const novas = pessoas.filter(p => p.faixa === 'nova');
+    const adultas = pessoas.filter(p => p.faixa === 'adulta');
+    const velhas = pessoas.filter(p => p.faixa === 'velha');
+    const quartosNovas = enc.quartos.filter(q => q.tipoQuarto === 'novas');
+    const quartosVelhas = enc.quartos.filter(q => q.tipoQuarto === 'velhas');
+    const quartosNormais = enc.quartos.filter(q => q.tipoQuarto === 'normal' || !q.tipoQuarto);
+
+    let idxNovas = 0;
+    for (const q of quartosNovas) {
+        const vagas = getVagasEncontristas(q);
+        const maxNovas = Math.min(5, vagas);
+        const qtdNovas = Math.min(maxNovas, novas.length - idxNovas);
+        q.encontristas = novas.slice(idxNovas, idxNovas + qtdNovas);
+        idxNovas += qtdNovas;
+        const vagasRestantes = vagas - q.encontristas.length;
+        if (vagasRestantes > 0 && adultas.length) {
+            const qtdAdultas = Math.min(vagasRestantes, adultas.length);
+            q.encontristas.push(...adultas.slice(0, qtdAdultas));
+            adultas.splice(0, qtdAdultas);
+        }
+    }
+
+    let idxVelhas = 0;
+    for (const q of quartosVelhas) {
+        const vagas = getVagasEncontristas(q);
+        const maxVelhas = Math.min(4, vagas);
+        const qtdVelhas = Math.min(maxVelhas, velhas.length - idxVelhas);
+        q.encontristas = velhas.slice(idxVelhas, idxVelhas + qtdVelhas);
+        idxVelhas += qtdVelhas;
+        const vagasRestantes = vagas - q.encontristas.length;
+        if (vagasRestantes > 0 && adultas.length) {
+            const qtdAdultas = Math.min(vagasRestantes, adultas.length);
+            q.encontristas.push(...adultas.slice(0, qtdAdultas));
+            adultas.splice(0, qtdAdultas);
+        }
+    }
+
+    const restantes = [...novas.slice(idxNovas), ...velhas.slice(idxVelhas), ...adultas];
+    restantes.sort((a,b) => a.idade - b.idade);
+    let idxRestante = 0;
+    for (const q of quartosNormais) {
+        const vagas = getVagasEncontristas(q);
+        let novasNoQuarto = 0, velhasNoQuarto = 0;
+        const quartoPessoas = [];
+        while (quartoPessoas.length < vagas && idxRestante < restantes.length) {
+            const p = restantes[idxRestante];
+            if (p.faixa === 'nova' && novasNoQuarto >= 5) { idxRestante++; continue; }
+            if (p.faixa === 'velha' && velhasNoQuarto >= 5) { idxRestante++; continue; }
+            quartoPessoas.push(p);
+            if (p.faixa === 'nova') novasNoQuarto++;
+            if (p.faixa === 'velha') velhasNoQuarto++;
+            idxRestante++;
+        }
+        q.encontristas = quartoPessoas;
+    }
+}
+
+function resolverConflitosMisto(enc, avisos) {
+    let mudou = true; let tentativas = 0;
+    while (mudou && tentativas < 50) {
+        mudou = false; tentativas++;
+        for (let i = 0; i < enc.quartos.length; i++) {
+            const q = enc.quartos[i]; const pessoas = q.encontristas || [];
+            for (let a = 0; a < pessoas.length; a++) {
+                for (let b = a + 1; b < pessoas.length; b++) {
+                    const pA = pessoas[a]; const pB = pessoas[b];
+                    const mesmoTel = normTel(pA.telEmergencia) === normTel(pB.telEmergencia) && normTel(pA.telEmergencia) !== '';
+                    const mesmaCelula = pA.celula && pB.celula && pA.celula === pB.celula && pA.celula !== '';
+                    if (mesmoTel && !mesmaCelula) {
+                        for (let j = 0; j < enc.quartos.length; j++) {
+                            if (i === j) continue;
+                            const qDestino = enc.quartos[j];
+                            const vagas = getVagasEncontristas(qDestino);
+                            if (qDestino.encontristas.length >= vagas) continue;
+                            const temParente = qDestino.encontristas.some(p => normTel(p.telEmergencia) === mesmoTel);
+                            if (!temParente) { qDestino.encontristas.push(pA); q.encontristas.splice(a, 1); mudou = true; avisos.push(`⚠️ ${pA.nome} movido (parente)`); break; }
+                        }
+                        if (mudou) break;
+                    }
+                }
+                if (mudou) break;
+            }
+            if (mudou) break;
+        }
+    }
+}
+
+function resolverConflitosSeparado(enc, avisos) {
+    let mudou = true; let tentativas = 0;
+    while (mudou && tentativas < 100) {
+        mudou = false; tentativas++;
+        for (let i = 0; i < enc.quartos.length; i++) {
+            const q = enc.quartos[i]; const pessoas = q.encontristas || [];
+            for (let a = 0; a < pessoas.length; a++) {
+                for (let b = a + 1; b < pessoas.length; b++) {
+                    const pA = pessoas[a]; const pB = pessoas[b];
+                    const mesmoSobrenome = normSobrenome(pA.sobrenome) === normSobrenome(pB.sobrenome) && normSobrenome(pA.sobrenome) !== '';
+                    const mesmoTel = normTel(pA.telEmergencia) === normTel(pB.telEmergencia) && normTel(pA.telEmergencia) !== '';
+                    const mesmaUnidade = pA.unidade && pB.unidade && pA.unidade === pB.unidade && pA.unidade !== '';
+                    const mesmaCelula = pA.celula && pB.celula && pA.celula === pB.celula && pA.celula !== '';
+                    if (mesmoSobrenome || mesmoTel || mesmaUnidade || mesmaCelula) {
+                        for (let j = 0; j < enc.quartos.length; j++) {
+                            if (i === j) continue;
+                            const qDestino = enc.quartos[j];
+                            const vagas = getVagasEncontristas(qDestino);
+                            if (qDestino.encontristas.length >= vagas) continue;
+                            const temConflito = qDestino.encontristas.some(p => {
+                                return (normSobrenome(p.sobrenome) === normSobrenome(pA.sobrenome) && normSobrenome(pA.sobrenome) !== '') ||
+                                       (normTel(p.telEmergencia) === normTel(pA.telEmergencia) && normTel(pA.telEmergencia) !== '') ||
+                                       (p.unidade && pA.unidade && p.unidade === pA.unidade && p.unidade !== '') ||
+                                       (p.celula && pA.celula && p.celula === pA.celula && p.celula !== '');
+                            });
+                            if (!temConflito) { qDestino.encontristas.push(pA); q.encontristas.splice(a, 1); mudou = true; avisos.push(`⚠️ ${pA.nome} movido`); break; }
+                        }
+                        if (mudou) break;
+                    }
+                }
+                if (mudou) break;
+            }
+            if (mudou) break;
+        }
+    }
+}
+
+function validarVariacaoIdade(enc, avisos) {
+    for (const q of enc.quartos) {
+        const pessoas = q.encontristas || [];
+        if (pessoas.length < 2) continue;
+        const idades = pessoas.map(p => p.idade).sort((a,b) => a-b);
+        const variacao = idades[idades.length-1] - idades[0];
+        if (variacao > 3) avisos.push(`⚠️ ${getNomeQuarto(q)}: variação de ${variacao} anos (${idades[0]}-${idades[idades.length-1]})`);
+    }
+}
+
+function validarIdadesProximas(enc, avisos) {
+    for (const q of enc.quartos) {
+        const pessoas = q.encontristas || [];
+        for (const p of pessoas) {
+            const proximos = pessoas.filter(outra => outra.id !== p.id && Math.abs(outra.idade - p.idade) <= 2);
+            if (proximos.length === 0 && pessoas.length > 1) {
+                let menorDiff = Infinity; let maisProximo = null;
+                for (const outra of pessoas) if (outra.id !== p.id) { const diff = Math.abs(outra.idade - p.idade); if (diff < menorDiff) { menorDiff = diff; maisProximo = outra; } }
+                if (maisProximo) avisos.push(`⚠️ ${getNomeQuarto(q)}: ${p.nome} (${p.idade}a) distante ${menorDiff}a de ${maisProximo.nome}`);
+            }
+        }
+    }
+}
+
+// ========== PDFs - SEM informações internas (tipo de quarto não aparece) ==========
+function gerarTodosPDFs() {
+    const enc = getEncontroAtual();
+    if (!enc) { toast('Nenhum encontro', 'error'); return; }
+    let gerados = 0;
+    for (let i = 0; i < enc.quartos.length; i++) {
+        const q = enc.quartos[i];
+        if ((q.encontristas || []).length > 0) {
+            gerarPDFPublico(enc, q);
+            gerarPDFPrivado(enc, q);
+            gerados++;
+        }
+    }
+    toast(`${gerados} quarto(s) gerados!`, 'success');
+}
+
+function gerarPDFsSelecionados() {
+    const enc = getEncontroAtual();
+    if (!enc) { toast('Nenhum encontro', 'error'); return; }
+    const checkboxes = document.querySelectorAll('.quarto-checkbox:checked');
+    if (!checkboxes.length) { toast('Selecione pelo menos um quarto', 'warning'); return; }
+    let gerados = 0;
+    checkboxes.forEach(cb => {
+        const idx = parseInt(cb.dataset.quartoIdx);
+        const q = enc.quartos[idx];
+        if (q && (q.encontristas || []).length) {
+            gerarPDFPublico(enc, q);
+            gerarPDFPrivado(enc, q);
+            gerados++;
+        }
+    });
+    toast(`${gerados} PDF(s) gerado(s)!`, 'success');
+}
+
+function gerarPDFPublico(enc, q) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const nomeQ = getNomeQuarto(q);
+    const corHex = q.corHex || CORES_PADRAO[q.cor] || CORES_PADRAO['Azul'];
+    const larg = 297;
+
+    // Cabeçalho com a cor do quarto
+    doc.setFillColor(corHex);
+    doc.rect(0, 0, larg, 36, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(26);
+    doc.text(nomeQ.toUpperCase(), larg / 2, 22, { align: 'center' });
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`${enc.nome} — ${formatarData(enc.dataInicio)} a ${formatarData(enc.dataFim)}`, larg / 2, 32, { align: 'center' });
+
+    let y = 52;
+    doc.setTextColor(30, 45, 65);
+
+    // LÍDERES
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.setFillColor(240, 235, 220);
+    doc.rect(20, y - 8, larg - 40, 11, 'F');
+    doc.text('LÍDERES', larg / 2, y, { align: 'center' });
+    y += 14;
+
+    const lideresNomes = (q.lideresAlocados || []).map(lid => enc.lideres.find(l => l.id === lid)).filter(Boolean);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(15);
+    lideresNomes.forEach((l, i) => {
+        if (y + (i * 9) < 195) {
+            doc.text(`• ${l.nome}`, 28, y + (i * 9));
+        }
+    });
+    y += Math.max(lideresNomes.length, 1) * 9 + 14;
+
+    // ENCONTRISTAS (apenas nomes, sem informações internas)
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.setFillColor(240, 235, 220);
+    doc.rect(20, y - 8, larg - 40, 11, 'F');
+    doc.text('ENCONTRISTAS', larg / 2, y, { align: 'center' });
+    y += 14;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(14);
+    const encontristas = q.encontristas || [];
+    for (let i = 0; i < encontristas.length; i++) {
+        if (y + (i * 8) < 195) {
+            doc.text(`• ${encontristas[i].nome} ${encontristas[i].sobrenome || ''}`, 25, y + (i * 8));
+        }
+    }
+
+    doc.save(`${nomeQ.toUpperCase().replace(/\s+/g, '_')}.pdf`);
+}
+
+function gerarPDFPrivado(enc, q) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const nomeQ = getNomeQuarto(q);
+    const corHex = q.corHex || CORES_PADRAO[q.cor] || CORES_PADRAO['Azul'];
+
+    // Cabeçalho com a cor do quarto
+    doc.setFillColor(corHex);
+    doc.rect(0, 0, 210, 34, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(24);
+    doc.text(nomeQ.toUpperCase(), 105, 20, { align: 'center' });
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`${enc.nome} — ${formatarData(enc.dataInicio)} a ${formatarData(enc.dataFim)} — USO INTERNO`, 105, 30, { align: 'center' });
+
+    let y = 48;
+    doc.setTextColor(30, 45, 65);
+
+    // LÍDERES
+    const lideresNomes = (q.lideresAlocados || []).map(lid => enc.lideres.find(l => l.id === lid)).filter(Boolean);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.text('LÍDERES:', 14, y);
+    y += 8;
+    doc.setFont('helvetica', 'normal');
+    lideresNomes.forEach(l => {
+        doc.text(`• ${l.nome}`, 18, y);
+        y += 8;
+    });
+    y += 8;
+
+    // ENCONTRISTAS com informações completas (para líderes)
+    if (q.encontristas && q.encontristas.length) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.text('ENCONTRISTAS:', 14, y);
+        y += 8;
+
+        if (typeof doc.autoTable === 'function') {
+            doc.autoTable({
+                startY: y,
+                head: [['Nome', 'Idade', 'Tel. Contato', 'Tel. Emergência', 'Restrição']],
+                body: q.encontristas.map(p => [
+                    `${p.nome} ${p.sobrenome || ''}`,
+                    p.idade,
+                    p.telContato || '—',
+                    p.telEmergencia || '—',
+                    (p.remedio && p.remedio !== 'Nenhuma' && p.remedio !== 'Nenhum') ? p.remedio : '—'
+                ]),
+                styles: { fontSize: 10, cellPadding: 4 },
+                headStyles: { fillColor: [15, 30, 46], textColor: [255, 255, 255], fontStyle: 'bold' },
+                margin: { left: 10, right: 10 }
+            });
+        }
+    }
+
+    doc.save(`${nomeQ.toUpperCase().replace(/\s+/g, '_')}_INFORMACOES.pdf`);
+}
+
+function exportarBackup() { const enc = getEncontroAtual(); const dados = enc ? [enc] : encontros; const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `backup_${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href); toast('Backup exportado!'); }
+function importarBackup(file) { const reader = new FileReader(); reader.onload = (e) => { try { const data = JSON.parse(e.target.result); if (Array.isArray(data)) encontros = data; else if (data.id) encontros.unshift(data); salvar(); renderEncontros(); toast('Backup importado!'); } catch { toast('Arquivo inválido', 'error'); } }; reader.readAsText(file); }
+
+document.addEventListener('DOMContentLoaded', () => {
+    carregar(); renderEncontros();
+    document.getElementById('btnNovoEncontro')?.addEventListener('click', () => abrirModal('modalNovoEncontro'));
+    document.getElementById('btnCriarEncontro')?.addEventListener('click', criarEncontro);
+    document.getElementById('btnAddQuarto')?.addEventListener('click', adicionarQuarto);
+    document.getElementById('btnSalvarConfig')?.addEventListener('click', salvarConfig);
+    document.getElementById('btnAddParticipante')?.addEventListener('click', adicionarParticipante);
+    document.getElementById('btnSalvarAddParticipante')?.addEventListener('click', salvarAddParticipante);
+    document.getElementById('btnIrLideres')?.addEventListener('click', irParaLideres);
+    document.getElementById('btnAddLider')?.addEventListener('click', adicionarLider);
+    document.getElementById('btnSalvarAddLider')?.addEventListener('click', salvarAddLider);
+    document.getElementById('btnIrAlocar')?.addEventListener('click', irParaAlocar);
+    document.getElementById('btnIrDistribuir')?.addEventListener('click', irParaDistribuir);
+    document.getElementById('btnDistribuir')?.addEventListener('click', executarDistribuicao);
+    document.getElementById('btnGerarPDFs')?.addEventListener('click', gerarTodosPDFs);
+    document.getElementById('btnGerarPDFsSelecionados')?.addEventListener('click', gerarPDFsSelecionados);
+    document.getElementById('btnExportBackup')?.addEventListener('click', exportarBackup);
+    document.getElementById('btnImportarBackup')?.addEventListener('click', () => { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.json'; inp.onchange = (e) => importarBackup(e.target.files[0]); inp.click(); });
+
+    const fileInput = document.getElementById('fileInput');
+    const btnSelectFile = document.getElementById('btnSelectFile');
+    const dropZone = document.getElementById('pdfDropZone');
+    if (btnSelectFile) btnSelectFile.addEventListener('click', () => fileInput?.click());
+    if (fileInput) fileInput.addEventListener('change', (e) => { if (e.target.files[0]) processarArquivo(e.target.files[0]); e.target.value = ''; });
+    if (dropZone) {
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+        dropZone.addEventListener('drop', (e) => { e.preventDefault(); dropZone.classList.remove('drag-over'); if (e.dataTransfer.files[0]) processarArquivo(e.dataTransfer.files[0]); });
+    }
+
+    document.querySelectorAll('.nav-step').forEach(btn => { btn.addEventListener('click', () => { const step = btn.dataset.step; if (step === 'encontros') { renderEncontros(); irParaTela('encontros'); } else if (encontroAtual) { if (step === 'config') renderConfig(); if (step === 'participantes') renderParticipantes(); if (step === 'lideres') renderLideres(); if (step === 'alocar') renderAlocar(); if (step === 'distribuir') renderDistribuir(); irParaTela(step); } else toast('Selecione um encontro primeiro'); }); });
+    document.getElementById('backFromConfig')?.addEventListener('click', () => irParaTela('encontros'));
+    document.getElementById('backFromParticipantes')?.addEventListener('click', () => irParaTela('config'));
+    document.getElementById('backFromLideres')?.addEventListener('click', () => irParaTela('participantes'));
+    document.getElementById('backFromAlocar')?.addEventListener('click', () => irParaTela('lideres'));
+    document.getElementById('backFromDistribuir')?.addEventListener('click', () => irParaTela('alocar'));
+    document.querySelectorAll('[data-close]').forEach(btn => { btn.addEventListener('click', () => fecharModal(btn.dataset.close)); });
+    document.querySelectorAll('.modal-overlay').forEach(overlay => { overlay.addEventListener('click', (e) => { if (e.target === overlay) fecharModal(overlay.id); }); });
+});
+</script>
+</body>
+</html>
