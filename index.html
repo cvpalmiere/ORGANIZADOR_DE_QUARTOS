@@ -603,9 +603,11 @@
 
 <script>
 // ============================================================
-// ORGANIZADOR DE QUARTOS - VERSÃO FINAL
-// Agora exibe telefone de contato e emergência no PDF privado
-// Lê corretamente a coluna "Tem restrição médica ou alimentar?"
+// ORGANIZADOR DE QUARTOS - CORRIGIDO
+// - Telefone do participante: coluna "Celular" (R)
+// - Telefone de emergência: coluna "Telefone de contato da pessoa indicada" (Z)
+// - Restrições: coluna "Tem restrição médica ou alimentar?" (X)
+// - Ignora telefone do comprador
 // ============================================================
 
 console.log('🚀 Script iniciado');
@@ -775,6 +777,7 @@ function salvarAddParticipante() {
 }
 function removerParticipante(idx) { const enc = getEncontroAtual(); if (enc) { enc.participantes.splice(idx, 1); salvar(); renderParticipantes(); toast('Participante removido'); } }
 
+// ==================== CORREÇÃO: IMPORTAÇÃO DO EXCEL ====================
 async function processarExcel(file) {
     toast('Processando Excel...', 'default');
     try {
@@ -784,8 +787,15 @@ async function processarExcel(file) {
         const rows = XLSX.utils.sheet_to_json(sheet);
         console.log('📊 Colunas encontradas:', Object.keys(rows[0] || {}));
 
-        const colunasEmergencia = ['Telefone de contato da pessoa indicada', 'Telefone de contato da pessoa indicada.', 'Telefone família', 'Telefone familiar', 'Tel. Emergência', 'Telefone emergência', 'Emergência'];
-        const colunasRestricao = ['Tem restrição médica ou alimentar?', 'Restrição médica', 'Restrição alimentar', 'Alergia', 'Remédio', 'Observações'];
+        // Definição precisa dos nomes das colunas (com base no Excel fornecido)
+        // Nome completo: "Nome Completo" (coluna Q)
+        // Idade: "Idade" (coluna I)
+        // Telefone do participante: "Celular" (coluna R)
+        // Telefone de emergência: "Telefone de contato da pessoa indicada" (coluna Z)
+        // Restrições: "Tem restrição médica ou alimentar?" (coluna X)
+        // Unidade: "Qual unidade do Núcleo da Fé você participa?" (coluna AB)
+        // Célula: "Participa de célula? Qual?" (coluna V)
+        // Gênero: inferido pelo tipo do evento (já tratado fora daqui) ou pelo nome
 
         const participantes = [];
         let ignorados = 0;
@@ -802,12 +812,18 @@ async function processarExcel(file) {
             if (typeof idade !== 'number') idade = parseInt(idade) || 0;
             if (idade < 5 || idade > 100) { ignorados++; continue; }
 
-            let telContato = row['Celular do comprador'] || row['Celular'] || row['Telefone'] || '';
+            // TELEFONE DO PARTICIPANTE (coluna "Celular")
+            let telContato = row['Celular'] || row['CELULAR'] || row['Celular do participante'] || '';
             telContato = telContato.toString().replace(/\D/g, '');
 
+            // TELEFONE DE EMERGÊNCIA (coluna "Telefone de contato da pessoa indicada")
             let telEmergencia = '';
-            for (const col of colunasEmergencia) { const valor = row[col]; if (valor && valor.toString().trim() !== '') { telEmergencia = valor.toString().replace(/\D/g, ''); if (telEmergencia) break; } }
+            const emergenciaRaw = row['Telefone de contato da pessoa indicada'] || row['Telefone de contato da pessoa indicada.'] || row['Telefone emergência'] || '';
+            if (emergenciaRaw && emergenciaRaw.toString().trim() !== '') {
+                telEmergencia = emergenciaRaw.toString().replace(/\D/g, '');
+            }
 
+            // GÊNERO: inferir pelo tipo do evento (mas manter compatibilidade)
             let genero = row['Sexo'] || row['Gênero'] || '';
             genero = genero.toString().toUpperCase();
             if (genero.includes('MASC') || genero.includes('M')) genero = 'MASCULINO';
@@ -817,15 +833,18 @@ async function processarExcel(file) {
             let unidade = row['Qual unidade do Núcleo da Fé você participa?'] || row['Unidade'] || '';
             let celula = row['Participa de célula? Qual?'] || row['Célula'] || '';
 
+            // RESTRIÇÕES MÉDICAS/ALIMENTARES (coluna "Tem restrição médica ou alimentar?")
             let restricoes = '';
-            for (const col of colunasRestricao) {
-                const valor = row[col];
-                if (valor && valor.toString().trim() !== '' && !['Não', 'nao', 'não', 'Nenhuma', 'Nenhum'].includes(valor.toString().toLowerCase())) {
-                    restricoes = valor.toString().trim();
-                    break;
-                }
+            const restricaoRaw = row['Tem restrição médica ou alimentar?'] || row['Restrição médica'] || row['Restrição alimentar'] || '';
+            const valorRestricao = restricaoRaw ? restricaoRaw.toString().trim() : '';
+            
+            // Verifica se realmente há restrição (ignora "não", "nao", "nenhuma", etc.)
+            const naoPalavras = ['não', 'nao', 'nenhuma', 'nenhum', 'no', 'none', ''];
+            if (valorRestricao && !naoPalavras.includes(valorRestricao.toLowerCase())) {
+                restricoes = valorRestricao;
+            } else {
+                restricoes = 'Nenhuma';
             }
-            if (!restricoes) restricoes = 'Nenhuma';
 
             participantes.push({
                 id: uuid(), nome: primeiroNome, sobrenome: sobrenome, idade: idade,
@@ -843,6 +862,7 @@ async function processarExcel(file) {
         toast(`${participantes.length} participantes importados!`, 'success');
     } catch (err) { console.error(err); toast('Erro ao processar Excel', 'error'); }
 }
+// =======================================================================
 
 function processarArquivo(file) { if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) processarExcel(file); else toast('Formato não suportado. Use .xlsx', 'error'); }
 function irParaLideres() { irParaTela('lideres'); }
@@ -853,7 +873,7 @@ function renderLideres() {
     document.getElementById('contLideres').textContent = `${enc.lideres.length} líderes`;
     const tbody = document.getElementById('lideresTbody');
     if (!enc.lideres.length) { tbody.innerHTML = `<tr><td colspan="2" style="text-align:center;padding:28px">Nenhum líder</td></tr>`; return; }
-    tbody.innerHTML = enc.lideres.map((l, i) => `<td><strong>${l.nome}</strong></td><td><button class="btn-icon" onclick="removerLider(${i})">🗑</button></td>`).join('');
+    tbody.innerHTML = enc.lideres.map((l, i) => `<tr><strong>${l.nome}</strong></td><td><button class="btn-icon" onclick="removerLider(${i})">🗑</button></td>`).join('');
 }
 
 function adicionarLider() { abrirModal('modalAddLider'); }
@@ -1206,7 +1226,7 @@ function validarIdadesProximas(enc, avisos) {
     }
 }
 
-// ========== PDFs ==========
+// ========== PDFs (mantido igual, já usa os telefones corretos) ==========
 function gerarTodosPDFs() {
     const enc = getEncontroAtual();
     if (!enc) { toast('Nenhum encontro', 'error'); return; }
