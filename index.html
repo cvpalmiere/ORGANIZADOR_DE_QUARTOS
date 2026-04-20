@@ -777,7 +777,7 @@ function salvarAddParticipante() {
 }
 function removerParticipante(idx) { const enc = getEncontroAtual(); if (enc) { enc.participantes.splice(idx, 1); salvar(); renderParticipantes(); toast('Participante removido'); } }
 
-// ==================== CORREÇÃO: IMPORTAÇÃO DO EXCEL ====================
+// ==================== IMPORTAÇÃO DO EXCEL ====================
 async function processarExcel(file) {
     toast('Processando Excel...', 'default');
     try {
@@ -786,16 +786,6 @@ async function processarExcel(file) {
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json(sheet);
         console.log('📊 Colunas encontradas:', Object.keys(rows[0] || {}));
-
-        // Definição precisa dos nomes das colunas (com base no Excel fornecido)
-        // Nome completo: "Nome Completo" (coluna Q)
-        // Idade: "Idade" (coluna I)
-        // Telefone do participante: "Celular" (coluna R)
-        // Telefone de emergência: "Telefone de contato da pessoa indicada" (coluna Z)
-        // Restrições: "Tem restrição médica ou alimentar?" (coluna X)
-        // Unidade: "Qual unidade do Núcleo da Fé você participa?" (coluna AB)
-        // Célula: "Participa de célula? Qual?" (coluna V)
-        // Gênero: inferido pelo tipo do evento (já tratado fora daqui) ou pelo nome
 
         const participantes = [];
         let ignorados = 0;
@@ -812,18 +802,15 @@ async function processarExcel(file) {
             if (typeof idade !== 'number') idade = parseInt(idade) || 0;
             if (idade < 5 || idade > 100) { ignorados++; continue; }
 
-            // TELEFONE DO PARTICIPANTE (coluna "Celular")
             let telContato = row['Celular'] || row['CELULAR'] || row['Celular do participante'] || '';
             telContato = telContato.toString().replace(/\D/g, '');
 
-            // TELEFONE DE EMERGÊNCIA (coluna "Telefone de contato da pessoa indicada")
             let telEmergencia = '';
             const emergenciaRaw = row['Telefone de contato da pessoa indicada'] || row['Telefone de contato da pessoa indicada.'] || row['Telefone emergência'] || '';
             if (emergenciaRaw && emergenciaRaw.toString().trim() !== '') {
                 telEmergencia = emergenciaRaw.toString().replace(/\D/g, '');
             }
 
-            // GÊNERO: inferir pelo tipo do evento (mas manter compatibilidade)
             let genero = row['Sexo'] || row['Gênero'] || '';
             genero = genero.toString().toUpperCase();
             if (genero.includes('MASC') || genero.includes('M')) genero = 'MASCULINO';
@@ -833,12 +820,9 @@ async function processarExcel(file) {
             let unidade = row['Qual unidade do Núcleo da Fé você participa?'] || row['Unidade'] || '';
             let celula = row['Participa de célula? Qual?'] || row['Célula'] || '';
 
-            // RESTRIÇÕES MÉDICAS/ALIMENTARES (coluna "Tem restrição médica ou alimentar?")
             let restricoes = '';
             const restricaoRaw = row['Tem restrição médica ou alimentar?'] || row['Restrição médica'] || row['Restrição alimentar'] || '';
             const valorRestricao = restricaoRaw ? restricaoRaw.toString().trim() : '';
-            
-            // Verifica se realmente há restrição (ignora "não", "nao", "nenhuma", etc.)
             const naoPalavras = ['não', 'nao', 'nenhuma', 'nenhum', 'no', 'none', ''];
             if (valorRestricao && !naoPalavras.includes(valorRestricao.toLowerCase())) {
                 restricoes = valorRestricao;
@@ -1228,7 +1212,7 @@ function validarIdadesProximas(enc, avisos) {
     }
 }
 
-// ========== PDFs (mantido igual, já usa os telefones corretos) ==========
+// ========== PDFs MODIFICADO: Removido Restrições, Adicionado Igreja (Unidade) ==========
 function gerarTodosPDFs() {
     const enc = getEncontroAtual();
     if (!enc) { toast('Nenhum encontro', 'error'); return; }
@@ -1354,13 +1338,13 @@ function gerarPDFPrivado(enc, q) {
         if (typeof doc.autoTable === 'function') {
             doc.autoTable({
                 startY: y,
-                head: [['Nome', 'Idade', 'Telefone Contato', 'Telefone Emergência', 'Restrições']],
+                head: [['Nome', 'Idade', 'Telefone Contato', 'Telefone Emergência', 'Igreja']],
                 body: q.encontristas.map(p => [
                     `${p.nome} ${p.sobrenome || ''}`,
                     p.idade,
                     p.telContato || '—',
                     p.telEmergencia || '—',
-                    p.restricoes && p.restricoes !== 'Nenhuma' ? p.restricoes : '—'
+                    p.unidade || '—'
                 ]),
                 styles: { fontSize: 10, cellPadding: 4 },
                 headStyles: { fillColor: [15, 30, 46], textColor: [255, 255, 255], fontStyle: 'bold' },
@@ -1420,7 +1404,6 @@ function garantirTodasAlocadas() {
     const enc = getEncontroAtual();
     if (!enc) return;
 
-    // Coletar IDs de todas as participantes que já estão em algum quarto
     const idsAlocadas = new Set();
     for (const q of enc.quartos) {
         if (q.encontristas) {
@@ -1430,7 +1413,6 @@ function garantirTodasAlocadas() {
         }
     }
 
-    // Encontrar participantes que NÃO estão em nenhum quarto
     const naoAlocadas = enc.participantes.filter(p => !idsAlocadas.has(p.id));
 
     if (naoAlocadas.length === 0) {
@@ -1440,7 +1422,6 @@ function garantirTodasAlocadas() {
 
     console.log(`⚠️ ${naoAlocadas.length} participantes não alocadas. Distribuindo...`);
 
-    // Distribuir as não alocadas nos quartos com vagas
     for (const p of naoAlocadas) {
         let alocada = false;
         for (const q of enc.quartos) {
