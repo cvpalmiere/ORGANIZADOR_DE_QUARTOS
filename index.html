@@ -1021,6 +1021,8 @@ function executarDistribuicao() {
     salvar();
     renderDistribuir();
     toast('Distribuição concluída!');
+    garantirTodasAlocadas();
+
 }
 
 function equalizarDistribuicao(enc, avisos) {
@@ -1412,6 +1414,56 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-close]').forEach(btn => { btn.addEventListener('click', () => fecharModal(btn.dataset.close)); });
     document.querySelectorAll('.modal-overlay').forEach(overlay => { overlay.addEventListener('click', (e) => { if (e.target === overlay) fecharModal(overlay.id); }); });
 });
+
+// ========== GARANTIR QUE TODAS ENCONTRISTAS ESTEJAM ALOCADAS ==========
+function garantirTodasAlocadas() {
+    const enc = getEncontroAtual();
+    if (!enc) return;
+
+    // Coletar IDs de todas as participantes que já estão em algum quarto
+    const idsAlocadas = new Set();
+    for (const q of enc.quartos) {
+        if (q.encontristas) {
+            for (const p of q.encontristas) {
+                idsAlocadas.add(p.id);
+            }
+        }
+    }
+
+    // Encontrar participantes que NÃO estão em nenhum quarto
+    const naoAlocadas = enc.participantes.filter(p => !idsAlocadas.has(p.id));
+
+    if (naoAlocadas.length === 0) {
+        console.log('✅ Todas as participantes já estão alocadas!');
+        return;
+    }
+
+    console.log(`⚠️ ${naoAlocadas.length} participantes não alocadas. Distribuindo...`);
+
+    // Distribuir as não alocadas nos quartos com vagas
+    for (const p of naoAlocadas) {
+        let alocada = false;
+        for (const q of enc.quartos) {
+            const vagas = getVagasEncontristas(q);
+            const ocupadas = (q.encontristas || []).length;
+            if (ocupadas < vagas) {
+                if (!q.encontristas) q.encontristas = [];
+                q.encontristas.push(p);
+                alocada = true;
+                console.log(`✅ ${p.nome} alocada no ${getNomeQuarto(q)}`);
+                break;
+            }
+        }
+        if (!alocada) {
+            console.warn(`❌ Sem vagas para ${p.nome}!`);
+            toast(`Sem vagas para ${p.nome}!`, 'warning');
+        }
+    }
+
+    salvar();
+    renderDistribuir();
+    toast(`✅ ${naoAlocadas.length} participantes foram alocadas!`, 'success');
+}
 </script>
 </body>
 </html>
