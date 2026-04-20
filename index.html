@@ -13,6 +13,7 @@
   <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 
   <style>
+    /* Mesmo estilo do código anterior (mantido integralmente) */
     :root {
       --bg-page: #F3F4F6;
       --bg-card: #FFFFFF;
@@ -37,20 +38,16 @@
       --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
       --transition: all 0.2s ease;
     }
-
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
       font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
       background: var(--bg-page);
       color: var(--text-primary);
       line-height: 1.5;
     }
-
     h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
     h2 { font-size: 20px; font-weight: 600; }
     h3 { font-size: 16px; font-weight: 600; }
-
     .app-header {
       background: var(--bg-card);
       border-bottom: 1px solid var(--border);
@@ -60,7 +57,6 @@
       backdrop-filter: blur(10px);
       background: rgba(255,255,255,0.95);
     }
-
     .header-inner {
       max-width: 1400px;
       margin: 0 auto;
@@ -71,12 +67,10 @@
       justify-content: space-between;
       gap: 24px;
     }
-
     .logo { display: flex; align-items: center; gap: 10px; }
     .logo-cross { font-size: 24px; color: var(--primary); }
     .logo-title { font-size: 18px; font-weight: 700; color: var(--text-primary); }
     .logo-sub { font-size: 10px; font-weight: 500; color: var(--text-secondary); letter-spacing: 0.5px; }
-
     .header-nav {
       display: flex;
       gap: 6px;
@@ -84,7 +78,6 @@
       padding: 4px;
       border-radius: 40px;
     }
-
     .nav-step {
       background: transparent;
       border: none;
@@ -97,24 +90,18 @@
       transition: var(--transition);
       font-family: 'Inter', sans-serif;
     }
-
     .nav-step:hover { background: var(--border); color: var(--text-primary); }
     .nav-step.active { background: var(--primary); color: white; box-shadow: var(--shadow); }
-
     .app-main { max-width: 1400px; margin: 0 auto; padding: 32px 24px 48px; }
-
     .screen { display: none; animation: fadeIn 0.25s ease; }
     .screen.active { display: block; }
-
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
     .screen-header { margin-bottom: 28px; }
     .screen-header h1 { color: var(--text-primary); margin-bottom: 4px; }
     .screen-header p { color: var(--text-secondary); font-size: 14px; }
-
     .btn {
       display: inline-flex;
       align-items: center;
@@ -129,7 +116,6 @@
       transition: var(--transition);
       background: transparent;
     }
-
     .btn-primary { background: var(--primary); color: white; }
     .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: var(--shadow); }
     .btn-outline { border: 1px solid var(--border); background: var(--bg-card); color: var(--text-primary); }
@@ -143,9 +129,7 @@
     .btn-icon { padding: 6px 8px; background: transparent; border-radius: var(--radius-sm); font-size: 16px; }
     .btn-icon:hover { background: var(--bg-page); }
     .btn-back { background: none; border: none; color: var(--primary); font-size: 14px; font-weight: 500; cursor: pointer; padding: 0; margin-bottom: 16px; display: inline-flex; align-items: center; gap: 6px; }
-
     .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-
     .encontro-card {
       background: var(--bg-card);
       border-radius: var(--radius-lg);
@@ -154,7 +138,6 @@
       border: 1px solid var(--border);
       transition: var(--transition);
     }
-
     .encontro-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
     .encontro-card h3 { font-size: 18px; margin-bottom: 4px; }
     .card-date { font-size: 12px; color: var(--text-secondary); margin-bottom: 16px; }
@@ -163,11 +146,9 @@
     .card-stat strong { font-size: 22px; font-weight: 700; color: var(--text-primary); }
     .card-stat span { font-size: 11px; color: var(--text-secondary); }
     .card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-
     .empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); display: none; }
     .empty-state.visible { display: block; }
     .empty-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
-
     .form-card {
       background: var(--bg-card);
       border-radius: var(--radius-lg);
@@ -176,11 +157,9 @@
       border: 1px solid var(--border);
       margin-bottom: 24px;
     }
-
     .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
     .form-group { display: flex; flex-direction: column; gap: 6px; }
     .form-group label { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
-
     input, select, textarea {
       padding: 10px 14px;
       border: 1px solid var(--border);
@@ -190,22 +169,18 @@
       transition: var(--transition);
       background: var(--bg-card);
     }
-
     input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
-
     .table-card {
       background: var(--bg-card);
       border-radius: var(--radius-lg);
       border: 1px solid var(--border);
       overflow-x: auto;
     }
-
     .data-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 13px;
     }
-
     .data-table th {
       text-align: left;
       padding: 14px 16px;
@@ -214,16 +189,13 @@
       color: var(--text-secondary);
       border-bottom: 1px solid var(--border);
     }
-
     .data-table td {
       padding: 12px 16px;
       border-bottom: 1px solid var(--border-light);
       vertical-align: middle;
     }
-
     .data-table tr:last-child td { border-bottom: none; }
     .data-table tr:hover td { background: var(--bg-page); }
-
     .import-area {
       background: var(--bg-card);
       border: 2px dashed var(--border);
@@ -234,19 +206,16 @@
       transition: var(--transition);
       margin-bottom: 24px;
     }
-
     .import-area:hover, .import-area.drag-over { border-color: var(--primary); background: var(--primary-light); }
     .import-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.6; }
     .import-area h3 { margin-bottom: 8px; }
     .import-area p { color: var(--text-secondary); font-size: 13px; margin-bottom: 16px; }
-
     .quartos-alocar-grid,
     .quartos-distribuir-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
       gap: 20px;
     }
-
     .quarto-card {
       background: var(--bg-card);
       border-radius: var(--radius-lg);
@@ -254,9 +223,7 @@
       overflow: hidden;
       transition: var(--transition);
     }
-
     .quarto-card:hover { box-shadow: var(--shadow-lg); }
-
     .quarto-card-header {
       padding: 16px 20px;
       display: flex;
@@ -267,17 +234,13 @@
       flex-wrap: wrap;
       gap: 10px;
     }
-
     .quarto-card-title { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .color-badge { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
     .quarto-card-meta { font-size: 12px; color: var(--text-secondary); background: var(--bg-page); padding: 4px 10px; border-radius: 20px; }
     .quarto-card-body { padding: 20px; }
-
     .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 12px; }
-
     .lideres-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
     .lider-chip { background: var(--primary-light); color: var(--primary-dark); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 500; }
-
     .encontristas-list {
       display: flex;
       flex-direction: column;
@@ -287,7 +250,6 @@
       border-radius: var(--radius-sm);
       padding: 8px;
     }
-
     .pessoa-item {
       display: flex;
       align-items: center;
@@ -299,29 +261,24 @@
       transition: var(--transition);
       border: 1px solid var(--border);
     }
-
     .pessoa-item:hover { border-color: var(--primary); background: var(--primary-light); }
     .drag-handle { color: var(--text-light); cursor: grab; font-size: 14px; }
     .pessoa-nome { flex: 1; font-size: 13px; font-weight: 500; }
     .pessoa-idade { font-size: 11px; color: var(--text-secondary); background: var(--bg-page); padding: 2px 8px; border-radius: 20px; }
-
     .vaga-bar { margin-top: 16px; display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-secondary); }
     .vaga-progress { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
     .vaga-progress-fill { height: 100%; background: var(--success); border-radius: 3px; transition: width 0.3s ease; }
     .vaga-progress-fill.full { background: var(--danger); }
-
     .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
     .badge-warning { background: var(--warning-light); color: var(--warning); }
     .badge-info { background: var(--primary-light); color: var(--primary); }
     .badge-success { background: var(--success-light); color: var(--success); }
-
     .actions-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin: 20px 0; }
     .counter { font-size: 13px; color: var(--text-secondary); background: var(--bg-page); padding: 6px 14px; border-radius: 20px; }
     .section-title { display: flex; align-items: center; justify-content: space-between; margin: 24px 0 16px; }
     .distribuir-toolbar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; padding: 20px; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px solid var(--border); }
     .legend { display: flex; gap: 20px; margin-bottom: 20px; font-size: 12px; color: var(--text-secondary); flex-wrap: wrap; }
     .legend-item { display: flex; align-items: center; gap: 6px; }
-
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -333,9 +290,7 @@
       justify-content: center;
       padding: 20px;
     }
-
     .modal-overlay.open { display: flex; }
-
     .modal {
       background: var(--bg-card);
       border-radius: var(--radius-lg);
@@ -346,27 +301,21 @@
       box-shadow: var(--shadow-lg);
       animation: slideUp 0.2s ease;
     }
-
     .modal-lg { max-width: 720px; }
     .modal-sm { max-width: 380px; }
-
     @keyframes slideUp {
       from { transform: translateY(20px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
     }
-
     .modal-header { padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
     .modal-header h3 { font-size: 18px; }
     .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary); padding: 4px 8px; border-radius: var(--radius-sm); }
     .modal-close:hover { background: var(--bg-page); }
     .modal-body { padding: 24px; }
     .modal-footer { padding: 16px 24px 24px; display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--border); }
-
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .span-2 { grid-column: span 2; }
-
     .quarto-checkbox { width: 18px; height: 18px; margin-right: 8px; cursor: pointer; }
-
     .toast {
       position: fixed;
       bottom: 24px;
@@ -384,14 +333,11 @@
       max-width: 90vw;
       box-shadow: var(--shadow-lg);
     }
-
     .toast.show { transform: translateX(-50%) translateY(0); }
     .toast.success { background: var(--success); }
     .toast.error { background: var(--danger); }
     .toast.warning { background: var(--warning); }
-
     .sortable-drag { opacity: 0.5; background: var(--primary-light) !important; }
-
     @media (max-width: 768px) {
       .app-main { padding: 20px 16px; }
       .header-nav { display: none; }
@@ -403,7 +349,6 @@
       .actions-bar { flex-direction: column; align-items: stretch; }
       .btn { justify-content: center; }
     }
-
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: var(--bg-page); }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
@@ -527,7 +472,7 @@
     <div class="table-card">
       <table class="data-table" id="participantesTable">
         <thead>
-          <tr><th>Nome</th><th>Idade</th><th>Gênero</th><th>Unidade</th><th>Célula</th><th>Tel. Emergência</th><th>Restrição</th><th>Ações</th></tr>
+          <tr><th>Nome</th><th>Idade</th><th>Gênero</th><th>Unidade</th><th>Célula</th><th>Tel. Contato</th><th>Tel. Emergência</th><th>Restrições</th><th>Ações</th></tr>
         </thead>
         <tbody id="participantesTbody"></tbody>
       </table>
@@ -628,7 +573,7 @@
         <div class="form-group"><label>Célula</label><input type="text" id="addCelula" placeholder="Ex: WWJD Noroeste" /></div>
         <div class="form-group"><label>Tel. Contato</label><input type="text" id="addTelContato" /></div>
         <div class="form-group"><label>Tel. Emergência</label><input type="text" id="addTelEmergencia" /></div>
-        <div class="form-group span-2"><label>Restrição Médica/Alimentar</label><input type="text" id="addRestricao" /></div>
+        <div class="form-group span-2"><label>Restrições (médica/alimentar)</label><input type="text" id="addRestricao" /></div>
       </div>
     </div>
     <div class="modal-footer"><button class="btn btn-ghost" data-close="modalAddParticipante">Cancelar</button><button class="btn btn-primary" id="btnSalvarAddParticipante">Salvar</button></div>
@@ -658,8 +603,9 @@
 
 <script>
 // ============================================================
-// ORGANIZADOR DE QUARTOS - VERSÃO COMPLETA COM TODAS AS REGRAS
-// PDFs SEM INFORMAÇÕES INTERNAS (tipo de quarto não aparece)
+// ORGANIZADOR DE QUARTOS - VERSÃO FINAL
+// Agora exibe telefone de contato e emergência no PDF privado
+// Lê corretamente a coluna "Tem restrição médica ou alimentar?"
 // ============================================================
 
 console.log('🚀 Script iniciado');
@@ -782,15 +728,16 @@ function renderParticipantes() {
     if (!enc) return;
     document.getElementById('contParticipantes').textContent = `${enc.participantes.length} participantes`;
     const tbody = document.getElementById('participantesTbody');
-    if (!enc.participantes.length) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:28px">Nenhum participante</td></tr>`; return; }
+    if (!enc.participantes.length) { tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:28px">Nenhum participante</td></tr>`; return; }
     tbody.innerHTML = enc.participantes.map((p, i) => `<tr>
         <td><strong>${p.nome}</strong> ${p.sobrenome || ''}</td>
         <td>${p.idade}</td>
         <td>${p.genero === 'MASCULINO' ? '♂' : p.genero === 'FEMININO' ? '♀' : '—'}</td>
         <td>${p.unidade || '—'}</td>
         <td>${p.celula || '—'}</td>
+        <td>${p.telContato || '—'}</td>
         <td>${p.telEmergencia || '—'}</td>
-        <td>${p.remedio || p.alergia || '—'}</td>
+        <td>${p.restricoes || '—'}</td>
         <td><button class="btn-icon" onclick="removerParticipante(${i})">🗑</button></td>
     </tr>`).join('');
 }
@@ -810,8 +757,7 @@ function salvarAddParticipante() {
         celula: document.getElementById('addCelula').value || '',
         telContato: document.getElementById('addTelContato').value || '',
         telEmergencia: document.getElementById('addTelEmergencia').value || '',
-        remedio: document.getElementById('addRestricao').value || 'Nenhuma',
-        alergia: document.getElementById('addRestricao').value || 'Nenhuma'
+        restricoes: document.getElementById('addRestricao').value || 'Nenhuma'
     });
     salvar();
     renderParticipantes();
@@ -839,6 +785,7 @@ async function processarExcel(file) {
         console.log('📊 Colunas encontradas:', Object.keys(rows[0] || {}));
 
         const colunasEmergencia = ['Telefone de contato da pessoa indicada', 'Telefone de contato da pessoa indicada.', 'Telefone família', 'Telefone familiar', 'Tel. Emergência', 'Telefone emergência', 'Emergência'];
+        const colunasRestricao = ['Tem restrição médica ou alimentar?', 'Restrição médica', 'Restrição alimentar', 'Alergia', 'Remédio', 'Observações'];
 
         const participantes = [];
         let ignorados = 0;
@@ -870,14 +817,21 @@ async function processarExcel(file) {
             let unidade = row['Qual unidade do Núcleo da Fé você participa?'] || row['Unidade'] || '';
             let celula = row['Participa de célula? Qual?'] || row['Célula'] || '';
 
-            let restricao = row['Tem restrição médica ou alimentar?'] || '';
-            if (!restricao || restricao === 'Não' || restricao === 'nao' || restricao === 'não') restricao = 'Nenhuma';
+            let restricoes = '';
+            for (const col of colunasRestricao) {
+                const valor = row[col];
+                if (valor && valor.toString().trim() !== '' && !['Não', 'nao', 'não', 'Nenhuma', 'Nenhum'].includes(valor.toString().toLowerCase())) {
+                    restricoes = valor.toString().trim();
+                    break;
+                }
+            }
+            if (!restricoes) restricoes = 'Nenhuma';
 
             participantes.push({
                 id: uuid(), nome: primeiroNome, sobrenome: sobrenome, idade: idade,
                 genero: genero, unidade: unidade, celula: celula,
                 telContato: telContato, telEmergencia: telEmergencia,
-                remedio: restricao, alergia: restricao
+                restricoes: restricoes
             });
         }
 
@@ -899,7 +853,7 @@ function renderLideres() {
     document.getElementById('contLideres').textContent = `${enc.lideres.length} líderes`;
     const tbody = document.getElementById('lideresTbody');
     if (!enc.lideres.length) { tbody.innerHTML = `<tr><td colspan="2" style="text-align:center;padding:28px">Nenhum líder</td></tr>`; return; }
-    tbody.innerHTML = enc.lideres.map((l, i) => `<tr><td><strong>${l.nome}</strong></td><td><button class="btn-icon" onclick="removerLider(${i})">🗑</button></td></tr>`).join('');
+    tbody.innerHTML = enc.lideres.map((l, i) => `<td><strong>${l.nome}</strong></td><td><button class="btn-icon" onclick="removerLider(${i})">🗑</button></td>`).join('');
 }
 
 function adicionarLider() { abrirModal('modalAddLider'); }
@@ -1252,7 +1206,7 @@ function validarIdadesProximas(enc, avisos) {
     }
 }
 
-// ========== PDFs - SEM informações internas (tipo de quarto não aparece) ==========
+// ========== PDFs ==========
 function gerarTodosPDFs() {
     const enc = getEncontroAtual();
     if (!enc) { toast('Nenhum encontro', 'error'); return; }
@@ -1293,7 +1247,6 @@ function gerarPDFPublico(enc, q) {
     const corHex = q.corHex || CORES_PADRAO[q.cor] || CORES_PADRAO['Azul'];
     const larg = 297;
 
-    // Cabeçalho com a cor do quarto
     doc.setFillColor(corHex);
     doc.rect(0, 0, larg, 36, 'F');
     doc.setTextColor(255, 255, 255);
@@ -1307,7 +1260,6 @@ function gerarPDFPublico(enc, q) {
     let y = 52;
     doc.setTextColor(30, 45, 65);
 
-    // LÍDERES
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
     doc.setFillColor(240, 235, 220);
@@ -1319,13 +1271,10 @@ function gerarPDFPublico(enc, q) {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(15);
     lideresNomes.forEach((l, i) => {
-        if (y + (i * 9) < 195) {
-            doc.text(`• ${l.nome}`, 28, y + (i * 9));
-        }
+        if (y + (i * 9) < 195) doc.text(`• ${l.nome}`, 28, y + (i * 9));
     });
     y += Math.max(lideresNomes.length, 1) * 9 + 14;
 
-    // ENCONTRISTAS (apenas nomes, sem informações internas)
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
     doc.setFillColor(240, 235, 220);
@@ -1337,9 +1286,7 @@ function gerarPDFPublico(enc, q) {
     doc.setFontSize(14);
     const encontristas = q.encontristas || [];
     for (let i = 0; i < encontristas.length; i++) {
-        if (y + (i * 8) < 195) {
-            doc.text(`• ${encontristas[i].nome} ${encontristas[i].sobrenome || ''}`, 25, y + (i * 8));
-        }
+        if (y + (i * 8) < 195) doc.text(`• ${encontristas[i].nome} ${encontristas[i].sobrenome || ''}`, 25, y + (i * 8));
     }
 
     doc.save(`${nomeQ.toUpperCase().replace(/\s+/g, '_')}.pdf`);
@@ -1351,7 +1298,6 @@ function gerarPDFPrivado(enc, q) {
     const nomeQ = getNomeQuarto(q);
     const corHex = q.corHex || CORES_PADRAO[q.cor] || CORES_PADRAO['Azul'];
 
-    // Cabeçalho com a cor do quarto
     doc.setFillColor(corHex);
     doc.rect(0, 0, 210, 34, 'F');
     doc.setTextColor(255, 255, 255);
@@ -1365,7 +1311,6 @@ function gerarPDFPrivado(enc, q) {
     let y = 48;
     doc.setTextColor(30, 45, 65);
 
-    // LÍDERES
     const lideresNomes = (q.lideresAlocados || []).map(lid => enc.lideres.find(l => l.id === lid)).filter(Boolean);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(14);
@@ -1378,7 +1323,6 @@ function gerarPDFPrivado(enc, q) {
     });
     y += 8;
 
-    // ENCONTRISTAS com informações completas (para líderes)
     if (q.encontristas && q.encontristas.length) {
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(14);
@@ -1388,13 +1332,13 @@ function gerarPDFPrivado(enc, q) {
         if (typeof doc.autoTable === 'function') {
             doc.autoTable({
                 startY: y,
-                head: [['Nome', 'Idade', 'Tel. Contato', 'Tel. Emergência', 'Restrição']],
+                head: [['Nome', 'Idade', 'Telefone Contato', 'Telefone Emergência', 'Restrições']],
                 body: q.encontristas.map(p => [
                     `${p.nome} ${p.sobrenome || ''}`,
                     p.idade,
                     p.telContato || '—',
                     p.telEmergencia || '—',
-                    (p.remedio && p.remedio !== 'Nenhuma' && p.remedio !== 'Nenhum') ? p.remedio : '—'
+                    p.restricoes && p.restricoes !== 'Nenhuma' ? p.restricoes : '—'
                 ]),
                 styles: { fontSize: 10, cellPadding: 4 },
                 headStyles: { fillColor: [15, 30, 46], textColor: [255, 255, 255], fontStyle: 'bold' },
