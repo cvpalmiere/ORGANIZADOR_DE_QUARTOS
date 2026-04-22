@@ -2,63 +2,38 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Organizador de Quartos - Encontros</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Organizador de Quartos - Encontro com Deus (Mulheres)</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
   <style>
-    /* ===== ESTILO ORIGINAL (RESTAURADO) ===== */
-    :root {
-      --bg-page: #F3F4F6;
-      --bg-card: #FFFFFF;
-      --text-primary: #1F2937;
-      --text-secondary: #6B7280;
-      --border: #E5E7EB;
-      --primary: #3B82F6;
-      --primary-dark: #2563EB;
-      --primary-light: #EFF6FF;
-      --success: #10B981;
-      --warning: #F59E0B;
-      --danger: #EF4444;
-      --radius: 12px;
-      --radius-lg: 20px;
-      --shadow: 0 1px 3px rgba(0,0,0,0.1);
-      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
-    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg-page);
-      color: var(--text-primary);
+      font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+      background: #F3F4F6;
+      color: #1F2937;
       line-height: 1.5;
     }
     .app-header {
-      background: var(--bg-card);
-      border-bottom: 1px solid var(--border);
+      background: white;
+      border-bottom: 1px solid #E5E7EB;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+      background: rgba(255,255,255,0.95);
       padding: 0 24px;
       height: 64px;
       display: flex;
       align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      justify-content: space-between;
     }
-    .app-header h1 {
-      font-size: 20px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .app-main {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 32px 24px;
-    }
-    .screen { display: none; animation: fadeIn 0.2s ease; }
+    .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 20px; }
+    .app-main { max-width: 1400px; margin: 0 auto; padding: 32px 24px; }
+    .screen { display: none; animation: fadeIn 0.25s ease; }
     .screen.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     .btn {
@@ -74,59 +49,46 @@
       transition: all 0.2s;
       background: transparent;
     }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:hover { background: var(--primary-dark); }
-    .btn-outline { background: white; border: 1px solid var(--border); }
-    .btn-outline:hover { border-color: var(--primary); background: var(--primary-light); }
-    .btn-success { background: var(--success); color: white; }
-    .btn-danger { background: var(--danger); color: white; }
+    .btn-primary { background: #3B82F6; color: white; }
+    .btn-primary:hover { background: #2563EB; }
+    .btn-outline { background: white; border: 1px solid #E5E7EB; }
+    .btn-outline:hover { border-color: #3B82F6; background: #EFF6FF; }
+    .btn-success { background: #10B981; color: white; }
+    .btn-danger { background: #EF4444; color: white; }
     .btn-sm { padding: 4px 12px; font-size: 12px; }
     .form-card, .table-card {
       background: white;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border);
+      border-radius: 20px;
+      border: 1px solid #E5E7EB;
       padding: 24px;
       margin-bottom: 24px;
-      box-shadow: var(--shadow);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
     .form-row { display: flex; gap: 20px; flex-wrap: wrap; }
     .form-group { flex: 1; min-width: 180px; display: flex; flex-direction: column; gap: 6px; }
-    .form-group label { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+    .form-group label { font-size: 13px; font-weight: 500; color: #6B7280; }
     input, select {
       padding: 10px 14px;
-      border: 1px solid var(--border);
+      border: 1px solid #E5E7EB;
       border-radius: 8px;
       font-size: 14px;
       font-family: inherit;
     }
-    input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(59,130,246,0.1); }
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-    .data-table th {
-      text-align: left;
-      padding: 12px 16px;
-      background: #F9FAFB;
-      font-weight: 600;
-      border-bottom: 1px solid var(--border);
-    }
-    .data-table td {
-      padding: 12px 16px;
-      border-bottom: 1px solid #F0F0F0;
-    }
+    input:focus, select:focus { outline: none; border-color: #3B82F6; box-shadow: 0 0 0 2px rgba(59,130,246,0.1); }
+    .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .data-table th { text-align: left; padding: 12px 16px; background: #F9FAFB; font-weight: 600; border-bottom: 1px solid #E5E7EB; }
+    .data-table td { padding: 12px 16px; border-bottom: 1px solid #F0F0F0; }
     .import-area {
       background: white;
-      border: 2px dashed var(--border);
-      border-radius: var(--radius-lg);
+      border: 2px dashed #E5E7EB;
+      border-radius: 20px;
       padding: 48px 24px;
       text-align: center;
       cursor: pointer;
-      margin-bottom: 24px;
       transition: all 0.2s;
+      margin-bottom: 24px;
     }
-    .import-area:hover { border-color: var(--primary); background: var(--primary-light); }
+    .import-area:hover { border-color: #3B82F6; background: #EFF6FF; }
     .quartos-distribuir-grid, .quartos-alocar-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
@@ -134,27 +96,27 @@
     }
     .quarto-card {
       background: white;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border);
+      border-radius: 20px;
+      border: 1px solid #E5E7EB;
       overflow: hidden;
-      transition: var(--shadow);
+      transition: box-shadow 0.2s;
     }
-    .quarto-card:hover { box-shadow: var(--shadow-lg); }
+    .quarto-card:hover { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
     .quarto-card-header {
       padding: 16px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid #E5E7EB;
       background: #F9FAFB;
     }
     .quarto-card-title { display: flex; align-items: center; gap: 12px; }
     .color-badge { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
     .quarto-card-meta { font-size: 12px; background: #E5E7EB; padding: 4px 10px; border-radius: 20px; }
     .quarto-card-body { padding: 20px; }
-    .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 12px; }
+    .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #6B7280; margin-bottom: 12px; }
     .lideres-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-    .lider-chip { background: var(--primary-light); color: var(--primary-dark); padding: 6px 12px; border-radius: 20px; font-size: 13px; }
+    .lider-chip { background: #EFF6FF; color: #2563EB; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 500; }
     .encontristas-list {
       background: #F9FAFB;
       border-radius: 8px;
@@ -170,15 +132,15 @@
       align-items: center;
       gap: 8px;
       cursor: grab;
-      border: 1px solid var(--border);
+      border: 1px solid #E5E7EB;
     }
     .pessoa-item:active { cursor: grabbing; }
     .drag-handle { color: #9CA3AF; cursor: grab; font-size: 16px; }
     .pessoa-nome { flex: 1; font-size: 13px; font-weight: 500; }
     .pessoa-idade { font-size: 11px; background: #F3F4F6; padding: 2px 8px; border-radius: 20px; }
     .vaga-bar { margin-top: 16px; display: flex; align-items: center; gap: 10px; font-size: 12px; }
-    .vaga-progress { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-    .vaga-progress-fill { height: 100%; background: var(--success); border-radius: 3px; }
+    .vaga-progress { flex: 1; height: 6px; background: #E5E7EB; border-radius: 3px; overflow: hidden; }
+    .vaga-progress-fill { height: 100%; background: #10B981; border-radius: 3px; }
     .actions-bar { display: flex; gap: 12px; margin: 20px 0; flex-wrap: wrap; align-items: center; }
     .counter { background: #F3F4F6; padding: 6px 14px; border-radius: 20px; font-size: 13px; }
     .toast {
@@ -206,15 +168,15 @@
     .modal-overlay.open { display: flex; }
     .modal {
       background: white;
-      border-radius: var(--radius-lg);
-      width: 500px;
+      border-radius: 20px;
+      width: 600px;
       max-width: 90%;
       max-height: 80vh;
       overflow-y: auto;
       padding: 24px;
     }
     .modal-header { display: flex; justify-content: space-between; margin-bottom: 16px; }
-    .btn-back { background: none; border: none; color: var(--primary); font-weight: 500; cursor: pointer; margin-bottom: 16px; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-back { background: none; border: none; color: #3B82F6; font-weight: 500; cursor: pointer; margin-bottom: 16px; display: inline-flex; align-items: center; gap: 6px; }
     @media (max-width: 768px) {
       .app-main { padding: 16px; }
       .quartos-distribuir-grid { grid-template-columns: 1fr; }
@@ -225,31 +187,29 @@
 <body>
 
 <header class="app-header">
-  <h1>⛺ Organizador de Quartos</h1>
+  <div class="logo">⛺ Organizador de Quartos</div>
+  <nav style="display: flex; gap: 6px; background: #F3F4F6; padding: 4px; border-radius: 40px;" id="stepNav">
+    <button class="nav-step active" data-step="encontros">Encontros</button>
+    <button class="nav-step" data-step="config">Configurar</button>
+    <button class="nav-step" data-step="participantes">Participantes</button>
+    <button class="nav-step" data-step="lideres">Líderes</button>
+    <button class="nav-step" data-step="alocar">Alocar</button>
+    <button class="nav-step" data-step="distribuir">Distribuição</button>
+  </nav>
 </header>
 
 <main class="app-main">
   <!-- TELA ENCONTROS -->
   <div id="screen-encontros" class="screen active">
-    <div class="actions-bar">
-      <button class="btn btn-primary" id="btnNovoEncontro">+ Novo Encontro</button>
-      <button class="btn btn-outline" id="btnImportarBackup">↑ Importar Backup</button>
-    </div>
-    <div id="encontrosGrid" class="cards-grid" style="display:grid; gap:20px; grid-template-columns:repeat(auto-fill,minmax(300px,1fr))"></div>
+    <div class="actions-bar"><button class="btn btn-primary" id="btnNovoEncontro">+ Novo Encontro</button><button class="btn btn-outline" id="btnImportarBackup">↑ Importar Backup</button></div>
+    <div id="encontrosGrid" style="display:grid; gap:20px; grid-template-columns:repeat(auto-fill,minmax(300px,1fr))"></div>
     <div id="emptyEncontros" style="text-align:center; padding:60px; display:none;">🏕️ <h3>Nenhum encontro</h3><p>Clique em "Novo Encontro"</p></div>
   </div>
 
   <!-- TELA CONFIGURAR -->
   <div id="screen-config" class="screen">
     <button class="btn-back" id="backFromConfig">← Voltar</button>
-    <div class="form-card">
-      <div class="form-row">
-        <div class="form-group"><label>Nome do Encontro</label><input type="text" id="nomeEncontro"></div>
-        <div class="form-group"><label>Data Início</label><input type="date" id="dataInicioEncontro"></div>
-        <div class="form-group"><label>Data Fim</label><input type="date" id="dataFimEncontro"></div>
-        <div class="form-group"><label>Tipo</label><select id="tipoEvento"><option value="misto">Misto</option><option value="feminino">Feminino</option><option value="masculino">Masculino</option></select></div>
-      </div>
-    </div>
+    <div class="form-card"><div class="form-row"><div class="form-group"><label>Nome do Encontro</label><input type="text" id="nomeEncontro"></div><div class="form-group"><label>Data Início</label><input type="date" id="dataInicioEncontro"></div><div class="form-group"><label>Data Fim</label><input type="date" id="dataFimEncontro"></div><div class="form-group"><label>Tipo</label><select id="tipoEvento"><option value="misto">Misto</option><option value="feminino">Feminino</option><option value="masculino">Masculino</option></select></div></div></div>
     <div style="display:flex; justify-content:space-between; margin-bottom:16px;"><h2>Quartos</h2><button class="btn btn-primary btn-sm" id="btnAddQuarto">+ Adicionar Quarto</button></div>
     <div id="quartosConfig" class="table-card"></div>
     <div class="actions-bar"><button class="btn btn-outline" id="btnExportBackup">↓ Exportar Backup</button><button class="btn btn-primary" id="btnSalvarConfig">Salvar e Continuar →</button></div>
@@ -259,14 +219,8 @@
   <div id="screen-participantes" class="screen">
     <button class="btn-back" id="backFromParticipantes">← Voltar</button>
     <div class="import-area" id="importArea"><div style="font-size:48px">📊</div><h3>Importar Excel</h3><p>Arraste ou clique</p><input type="file" id="fileInput" accept=".xlsx" style="display:none"><button class="btn btn-primary btn-sm" style="margin-top:12px">Selecionar arquivo</button></div>
-    <div class="actions-bar">
-      <span class="counter" id="contParticipantes">0 participantes</span>
-      <button class="btn btn-outline" id="btnAddParticipante">+ Adicionar manualmente</button>
-      <button class="btn btn-danger btn-sm" id="btnRemoverDuplicatas">⚠️ Remover Duplicatas por CPF</button>
-    </div>
-    <div class="table-card">
-      <table class="data-table" id="participantesTable"><thead><tr><th>Nome</th><th>Idade</th><th>CPF</th><th>Estado Civil</th><th>Célula</th><th>Ministério</th><th>Tel Contato</th><th>Emergência (nome/tel)</th><th>Ações</th></tr></thead><tbody id="participantesTbody"></tbody></table>
-    </div>
+    <div class="actions-bar"><span class="counter" id="contParticipantes">0 participantes</span><button class="btn btn-outline" id="btnAddParticipante">+ Adicionar manualmente</button><button class="btn btn-danger btn-sm" id="btnRemoverDuplicatas">⚠️ Remover Duplicatas por CPF</button></div>
+    <div class="table-card"><table class="data-table" id="participantesTable"><thead><tr><th>Nome</th><th>Idade</th><th>CPF</th><th>Estado Civil</th><th>Célula</th><th>Ministério</th><th>Tel Contato</th><th>Emergência (nome/tel)</th><th>Ações</th></tr></thead><tbody id="participantesTbody"></tbody></table></div>
     <div class="actions-bar"><button class="btn btn-primary" id="btnIrLideres">Continuar para Líderes →</button></div>
   </div>
 
@@ -314,7 +268,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // ========== MODELO DE DADOS ==========
+  // ==================== MODELO DE DADOS ====================
   let encontros = [];
   let encontroAtual = null;
 
@@ -352,59 +306,110 @@
     return false;
   }
 
-  // ========== REMOVER DUPLICATAS POR CPF ==========
-  function removerDuplicatasPorCPF() {
-    const enc = getEncontro();
-    if (!enc) return;
-    const participantes = enc.participantes;
-    const mapa = new Map(); // chave: CPF limpo (ou nome normalizado)
-    const duplicados = [];
+  // ========== DADOS PRÉ-CARREGADOS (ENCONTRO ESPECÍFICO) ==========
+  const participantesUnicos = [
+    { id: "p1", nome: "Regina", sobrenome: "Celia Barcellos", idade: 55, genero: "FEMININO", cpf: "01235131700", estadoCivil: "Casado", celula: "Sim. Fernanda e Daniele.", ministerio: "Não.", telContato: "5561982840490", contatoEmergenciaNome: "Alana Moreira Barcellos de Jesus", telEmergencia: "61982840490", unidade: "Núcleo da Fé - Sede", restricoes: "Nenhuma" },
+    { id: "p2", nome: "allinyvini15", sobrenome: "gmail.com", idade: 24, genero: "FEMININO", cpf: "07235808128", estadoCivil: "Solteiro", celula: "Não", ministerio: "Não", telContato: "5561981219482", contatoEmergenciaNome: "Iuri de Castro Carvalho", telEmergencia: "61999890939", unidade: "Núcleo da Fé - Sede", restricoes: "Nenhuma" },
+    { id: "p3", nome: "Amanda", sobrenome: "Carvalho da Silva Martins", idade: 19, genero: "FEMININO", cpf: "07931776186", estadoCivil: "Solteiro", celula: "Não", ministerio: "Não", telContato: "61999058630", contatoEmergenciaNome: "Núcleo da Fe de Brasília", telEmergencia: "61998010918", unidade: "Núcleo da Fé - Sede", restricoes: "Alergia a poeira" },
+    { id: "p4", nome: "Amanda", sobrenome: "Costa de Mendonça", idade: 37, genero: "FEMININO", cpf: "01753601118", estadoCivil: "Divorciado", celula: "célula de mulheres- Fernanda", ministerio: "não", telContato: "5561984638879", contatoEmergenciaNome: "Diogo", telEmergencia: "61985331677", unidade: "Núcleo da Fé - Sede", restricoes: "Nenhuma" },
+    { id: "p5", nome: "Jackeline", sobrenome: "Costa de Mendonça", idade: 43, genero: "FEMININO", cpf: "00000000000", estadoCivil: "Casado", celula: "nenhuma", ministerio: "nenhum", telContato: "5561984581889", contatoEmergenciaNome: "Wanderson", telEmergencia: "61984615274", unidade: "Núcleo da Fé - Sede", restricoes: "Nenhuma" },
+    { id: "p6", nome: "Ana", sobrenome: "beatriz Oliveira lucas", idade: 27, genero: "FEMININO", cpf: "04891867183", estadoCivil: "Casado", celula: "nao", ministerio: "núcleo bandeirante", telContato: "5561992804118", contatoEmergenciaNome: "Otávio", telEmergencia: "5561991880633", unidade: "Núcleo da Fé - Sede", restricoes: "intolerância lactose e glúten" },
+    { id: "p7", nome: "Ana", sobrenome: "Gama dos Reis", idade: 25, genero: "FEMININO", cpf: "06303502130", estadoCivil: "Solteiro", celula: "não", ministerio: "não", telContato: "5561992250807", contatoEmergenciaNome: "Maria Gama", telEmergencia: "5561993795286", unidade: "Núcleo da Fé - Sede", restricoes: "intolerância a lactose" },
+    { id: "p8", nome: "Ana", sobrenome: "Lúcia Corrêa Lima", idade: 43, genero: "FEMININO", cpf: "72772441172", estadoCivil: "Casado", celula: "Mulheres", ministerio: "Núcleo Kids", telContato: "5561995903021", contatoEmergenciaNome: "mãe Norma Lúcia", telEmergencia: "61984491720", unidade: "Núcleo da Fé - Noroeste", restricoes: "não" },
+    { id: "p9", nome: "Maria", sobrenome: "Da Glória Fernandes Rocha", idade: 80, genero: "FEMININO", cpf: "68973462172", estadoCivil: "Divorciado", celula: "Ainda não", ministerio: "Ainda não", telContato: "5561998277860", contatoEmergenciaNome: "Hellen (filha)", telEmergencia: "61999956877", unidade: "Núcleo da Fé - Planaltina", restricoes: "Não" },
+    { id: "p10", nome: "Andreia", sobrenome: "Eloisa Silva de Souza", idade: 55, genero: "FEMININO", cpf: "77569911172", estadoCivil: "Casado", celula: "Sim", ministerio: "Casal", telContato: "61995886810", contatoEmergenciaNome: "Sim", telEmergencia: "61995886810", unidade: "Núcleo da Fé - Planaltina", restricoes: "Não" },
+    { id: "p11", nome: "Andréa", sobrenome: "Cristina Leite", idade: 55, genero: "FEMININO", cpf: "50420771115", estadoCivil: "Divorciado", celula: "Não", ministerio: "Ministério Libras", telContato: "5561999030767", contatoEmergenciaNome: "Beatriz", telEmergencia: "61999030767", unidade: "Núcleo da Fé - Planaltina", restricoes: "Não" },
+    { id: "p12", nome: "Keyla", sobrenome: "Mary Santiago Carvalho", idade: 53, genero: "FEMININO", cpf: "42810086320", estadoCivil: "Solteiro", celula: "não", ministerio: "não", telContato: "5561982320955", contatoEmergenciaNome: "Caio Eduardo Carvalho Fernandes", telEmergencia: "61983692048", unidade: "Núcleo da Fé - Gama", restricoes: "intolerância a lactose" },
+    { id: "p13", nome: "Carla", sobrenome: "Rodrigues", idade: 44, genero: "FEMININO", cpf: "94014825191", estadoCivil: "Casado", celula: "Sim. Casais", ministerio: "Acessibilidade, evangelismo, ação social, intercessão", telContato: "5561998525011", contatoEmergenciaNome: "Wagner", telEmergencia: "61984823390", unidade: "Núcleo da Fé - Planaltina", restricoes: "Não" },
+    { id: "p14", nome: "Claudia", sobrenome: "Cristina F.V.Moreira", idade: 60, genero: "FEMININO", cpf: "35196963120", estadoCivil: "Casado", celula: "Sim", ministerio: "Intercessão", telContato: "5561986395515", contatoEmergenciaNome: "João", telEmergencia: "61998302909", unidade: "Núcleo da Fé - Sede", restricoes: "Lactose" },
+    { id: "p15", nome: "Daniela", sobrenome: "Pina Marques Tomazini", idade: 52, genero: "FEMININO", cpf: "38198924272", estadoCivil: "Casado", celula: "Casais noreste", ministerio: "Não", telContato: "5561983500505", contatoEmergenciaNome: "Remidijo Tomazini Neto", telEmergencia: "61999760869", unidade: "Núcleo da Fé - Noroeste", restricoes: "Não" },
+    { id: "p16", nome: "Mayara", sobrenome: "Macario Bezerra", idade: 30, genero: "FEMININO", cpf: "06555936169", estadoCivil: "Casado", celula: "não", ministerio: "não", telContato: "5561993849145", contatoEmergenciaNome: "Cleverson", telEmergencia: "61993284696", unidade: "Núcleo da Fé - Sede", restricoes: "não" },
+    { id: "p17", nome: "Dione", sobrenome: "Mendes Teixeira Alves Freitas", idade: 43, genero: "FEMININO", cpf: "72719346187", estadoCivil: "Casado", celula: "casais", ministerio: "Intercessão", telContato: "5561981227926", contatoEmergenciaNome: "André da Rocha Freitas", telEmergencia: "61981753776", unidade: "Núcleo da Fé - Sede", restricoes: "Não" },
+    { id: "p18", nome: "Millena", sobrenome: "Carneiro Campello", idade: 26, genero: "FEMININO", cpf: "12955080446", estadoCivil: "Solteiro", celula: "Nao", ministerio: "Nao", telContato: "5561982426878", contatoEmergenciaNome: "Eldan Junior - Namorado", telEmergencia: "63981177546", unidade: "Núcleo da Fé - Noroeste", restricoes: "Nao" },
+    { id: "p19", nome: "Elizete", sobrenome: "vieira dos santos", idade: 36, genero: "FEMININO", cpf: "05497092586", estadoCivil: "Divorciado", celula: "Não", ministerio: "Não", telContato: "61984453650", contatoEmergenciaNome: "Jardim inga", telEmergencia: "61981554513", unidade: "Núcleo da Fé - Jardim Ingá", restricoes: "Não" },
+    { id: "p20", nome: "Evelin", sobrenome: "Reis Lima", idade: 39, genero: "FEMININO", cpf: "00992115132", estadoCivil: "Solteiro", celula: "Não", ministerio: "Não", telContato: "5561991571488", contatoEmergenciaNome: "Hellen Reis", telEmergencia: "61991958312", unidade: "Núcleo da Fé - Sede", restricoes: "Não" },
+    { id: "p21", nome: "Evangela", sobrenome: "Aparecida Da Silva Mendes", idade: 49, genero: "FEMININO", cpf: "79161774120", estadoCivil: "Casado", celula: "Não", ministerio: "Não", telContato: "5561992537259", contatoEmergenciaNome: "Ana Carolina", telEmergencia: "61993874124", unidade: "Núcleo da Fé - Sede", restricoes: "Não" },
+    { id: "p22", nome: "Giovana", sobrenome: "Carvalho Fernandes", idade: 21, genero: "FEMININO", cpf: "07693829164", estadoCivil: "Solteiro", celula: "Pequeno núcleo gama - Líder Mirela", ministerio: "Lanche kids e Mídia", telContato: "5561981040165", contatoEmergenciaNome: "Caio", telEmergencia: "61983692048", unidade: "Núcleo da Fé - Gama", restricoes: "Não" },
+    { id: "p23", nome: "Gleice", sobrenome: "Meireles Dos Reis", idade: 49, genero: "FEMININO", cpf: "65909151134", estadoCivil: "Casado", celula: "Nao", ministerio: "Nao", telContato: "5561999411111", contatoEmergenciaNome: "Edinaldo", telEmergencia: "61996755870", unidade: "Núcleo da Fé - Sede", restricoes: "Nao" },
+    { id: "p24", nome: "Hélen", sobrenome: "Caroline Santiago de Carvalho", idade: 29, genero: "FEMININO", cpf: "02714823114", estadoCivil: "Casado", celula: "Beréia, Planaltina DF", ministerio: "Não", telContato: "5561999198037", contatoEmergenciaNome: "Gean Carvalho", telEmergencia: "61992463738", unidade: "Núcleo da Fé - Planaltina", restricoes: "Intolerância a lactose" },
+    { id: "p25", nome: "Herica", sobrenome: "de Oliveira Cardoso Almeida", idade: 37, genero: "FEMININO", cpf: "02100535188", estadoCivil: "Casado", celula: "não", ministerio: "não", telContato: "61983022097", contatoEmergenciaNome: "Karoliny de Oliveira Cardoso", telEmergencia: "61983022097", unidade: "Congrego em outra Igreja - Presbiteriana", restricoes: "não" },
+    { id: "p26", nome: "Karoline", sobrenome: "Maria Pereira da Silva", idade: 34, genero: "FEMININO", cpf: "05970866130", estadoCivil: "Solteiro", celula: "sim", ministerio: "não", telContato: "5561981778461", contatoEmergenciaNome: "isabela", telEmergencia: "61994072656", unidade: "Núcleo da Fé - Sede", restricoes: "não" },
+    { id: "p27", nome: "Janaina", sobrenome: "Bezerra Nogueira", idade: 48, genero: "FEMININO", cpf: "78049679187", estadoCivil: "Casado", celula: "Nao", ministerio: "Nao", telContato: "5561984946189", contatoEmergenciaNome: "Zaqueu", telEmergencia: "998355414", unidade: "Núcleo da Fé - Sede", restricoes: "Nao" },
+    { id: "p28", nome: "Jane", sobrenome: "Moraes De Paiva Defina", idade: 54, genero: "FEMININO", cpf: "15619986802", estadoCivil: "Casado", celula: "Sim", ministerio: "Não", telContato: "61992855000", contatoEmergenciaNome: "Núcleo da Fe Brasília", telEmergencia: "61999779991", unidade: "Núcleo da Fé - Sede", restricoes: "Alergia de mofo e poeira" },
+    { id: "p29", nome: "Lillian", sobrenome: "Cristina de Souza Freitas", idade: 40, genero: "FEMININO", cpf: "00794569102", estadoCivil: "Casado", celula: "Não", ministerio: "Não", telContato: "5561983470191", contatoEmergenciaNome: "Fabio", telEmergencia: "61985105927", unidade: "Núcleo da Fé - Jardim Botânico", restricoes: "Não" },
+    { id: "p30", nome: "Lisa", sobrenome: "Pires Faria", idade: 49, genero: "FEMININO", cpf: "79684874120", estadoCivil: "Divorciado", celula: "não", ministerio: "não", telContato: "5561981144754", contatoEmergenciaNome: "Ester", telEmergencia: "61995575439", unidade: "Núcleo da Fé - Noroeste", restricoes: "não" },
+    { id: "p31", nome: "Neire", sobrenome: "Paula da Conceição Oliveira", idade: 42, genero: "FEMININO", cpf: "00504055194", estadoCivil: "Solteiro", celula: "não", ministerio: "não", telContato: "5561998404088", contatoEmergenciaNome: "Israel", telEmergencia: "61991040464", unidade: "Núcleo da Fé - Sede", restricoes: "não" },
+    { id: "p32", nome: "Márcia", sobrenome: "Pinheiro Francisco", idade: 56, genero: "FEMININO", cpf: "70079323987", estadoCivil: "Casado", celula: "sim, quartas-feiras com Élide no noroeste", ministerio: "sim , cozinha", telContato: "5561999251969", contatoEmergenciaNome: "Émerson chagas coimbra", telEmergencia: "61998711970", unidade: "Núcleo da Fé - Noroeste", restricoes: "não" },
+    { id: "p33", nome: "Maria", sobrenome: "Eduarda Gonçalves Gomes", idade: 22, genero: "FEMININO", cpf: "70860418154", estadoCivil: "Solteiro", celula: "Enraizadas ( Carol Gravina )", ministerio: "até o momento, recepção", telContato: "5564992212356", contatoEmergenciaNome: "Flávia ( mãe )", telEmergencia: "61992877355", unidade: "Núcleo da Fé - Sede", restricoes: "não" },
+    { id: "p34", nome: "Joice", sobrenome: "dos anjos dos santos", idade: 24, genero: "FEMININO", cpf: "07753598155", estadoCivil: "Casado", celula: "Sim Sarah Arielle/Larice", ministerio: "não", telContato: "5561998280614", contatoEmergenciaNome: "Carlos Amorim", telEmergencia: "61998603065", unidade: "Núcleo da Fé - Sede", restricoes: "sim. ovos" },
+    { id: "p35", nome: "Rita", sobrenome: "de Cássia de Oliveira da Silva", idade: 28, genero: "FEMININO", cpf: "04960270124", estadoCivil: "Solteiro", celula: "não", ministerio: "não", telContato: "5561994473223", contatoEmergenciaNome: "Mariana", telEmergencia: "61995881657", unidade: "Nenhuma", restricoes: "não" },
+    { id: "p36", nome: "Adriana", sobrenome: "lucia francisca de assis", idade: 53, genero: "FEMININO", cpf: "63623528153", estadoCivil: "Divorciado", celula: "Não", ministerio: "Nao,sou visitante", telContato: "5561991262644", contatoEmergenciaNome: "Melissa gabriella", telEmergencia: "61992312473", unidade: "Núcleo da Fé - Sede", restricoes: "Nao" },
+    { id: "p37", nome: "Michelle", sobrenome: "Schreiber", idade: 35, genero: "FEMININO", cpf: "03805600380", estadoCivil: "Casado", celula: "Pequenos Nucléo de Casais", ministerio: "Intercessão", telContato: "5561999738015", contatoEmergenciaNome: "Elivelton Vieira", telEmergencia: "61999966177", unidade: "Núcleo da Fé - Planaltina", restricoes: "Alergia a proteína do leite e sensível ao glúten" },
+    { id: "p38", nome: "Nilma", sobrenome: "Almeida Nunes", idade: 36, genero: "FEMININO", cpf: "02866229126", estadoCivil: "Casado", celula: "não", ministerio: "não", telContato: "5561993949628", contatoEmergenciaNome: "Gleiviton", telEmergencia: "61992550006", unidade: "Núcleo da Fé - Planaltina", restricoes: "não" },
+    { id: "p39", nome: "Raquel", sobrenome: "Hamdan Soares", idade: 47, genero: "FEMININO", cpf: "69464049120", estadoCivil: "Casado", celula: "GNC - Casadoa", ministerio: "Náo participo", telContato: "5561982225224", contatoEmergenciaNome: "BRUNO", telEmergencia: "61984528169", unidade: "Núcleo da Fé - Sede", restricoes: "Náo" },
+    { id: "p40", nome: "Rivoneide", sobrenome: "Moraes", idade: 51, genero: "FEMININO", cpf: "97152323453", estadoCivil: "Casado", celula: "Nao", ministerio: "Nao", telContato: "5561999325443", contatoEmergenciaNome: "Cleber", telEmergencia: "61999325443", unidade: "Núcleo da Fé - Sede", restricoes: "Nao" },
+    { id: "p41", nome: "ROSENILDA", sobrenome: "PEREIRA DIAS", idade: 51, genero: "FEMININO", cpf: "16661822813", estadoCivil: "Casado", celula: "PN de Mulheres", ministerio: "Intercessão", telContato: "5561991710262", contatoEmergenciaNome: "Antônio Carlos de Lima", telEmergencia: "6192462320", unidade: "Núcleo da Fé - Planaltina", restricoes: "Soja" },
+    { id: "p42", nome: "Viviana", sobrenome: "Matos de Oliveira", idade: 46, genero: "FEMININO", cpf: "92081525100", estadoCivil: "Divorciado", celula: "Sim , Regis e Angélica", ministerio: "Não", telContato: "5562992409251", contatoEmergenciaNome: "Jânio - esposo", telEmergencia: "61991755217", unidade: "Núcleo da Fé - Sede", restricoes: "Não" },
+    { id: "p43", nome: "Solange", sobrenome: "Oliveira Muniz de Faria", idade: 57, genero: "FEMININO", cpf: "13056075890", estadoCivil: "Casado", celula: "Casais", ministerio: "Batismo, casais , recepção", telContato: "5561996057187", contatoEmergenciaNome: "Marcelo Faria", telEmergencia: "61996896623", unidade: "Núcleo da Fé - Sede", restricoes: "Carboidrato" },
+    { id: "p44", nome: "Tawana", sobrenome: "Evelyn Cançado de Santana", idade: 38, genero: "FEMININO", cpf: "02277960128", estadoCivil: "Casado", celula: "Não", ministerio: "Não", telContato: "5561985711866", contatoEmergenciaNome: "Bruno", telEmergencia: "61986379788", unidade: "Núcleo da Fé - Sede", restricoes: "Não" },
+    { id: "p45", nome: "Thalita", sobrenome: "Cristina Cordeiro de Assis", idade: 34, genero: "FEMININO", cpf: "03692790180", estadoCivil: "Casado", celula: "Sim. Stella Ribeiro", ministerio: "Não", telContato: "5561995108923", contatoEmergenciaNome: "Johnston da Silva Lopes", telEmergencia: "61981610608", unidade: "Núcleo da Fé - Sede", restricoes: "Não" },
+    { id: "p46", nome: "Violeta", sobrenome: "Rocha", idade: 43, genero: "FEMININO", cpf: "72689218100", estadoCivil: "Casado", celula: "não", ministerio: "kids", telContato: "61984660239", contatoEmergenciaNome: "Darlan Moura", telEmergencia: "5561998777014", unidade: "Núcleo da Fé - Sede", restricoes: "não" },
+    { id: "p47", nome: "Ana", sobrenome: "Paula Costa dos Santos", idade: 38, genero: "FEMININO", cpf: "02846569177", estadoCivil: "Casado", celula: "não", ministerio: "não", telContato: "5561996040665", contatoEmergenciaNome: "bruno Saraiva", telEmergencia: "5561981785341", unidade: "Núcleo da Fé - Sede", restricoes: "não" },
+    { id: "p48", nome: "Yasmin", sobrenome: "Boff de Sá", idade: 29, genero: "FEMININO", cpf: "04810738175", estadoCivil: "Solteiro", celula: "Não", ministerio: "Não", telContato: "61999136520", contatoEmergenciaNome: "Gabrielle Boff de Sá", telEmergencia: "61983769210", unidade: "Igreja ICIR", restricoes: "Não" },
+    { id: "p49", nome: "Patrícia", sobrenome: "Pereira dos Santos Ignácio", idade: 45, genero: "FEMININO", cpf: "98977512115", estadoCivil: "Casado", celula: "Não", ministerio: "Não", telContato: "61993375902", contatoEmergenciaNome: "Diogo", telEmergencia: "61993375902", unidade: "Núcleo da Fé - Sede", restricoes: "Não" },
+    // NOVAS (sem quarto)
+    { id: "p50", nome: "Daiane", sobrenome: "de Sales Freitas", idade: 36, genero: "FEMININO", cpf: "02788232110", estadoCivil: "Casado", celula: "Sim. Pequeno Núcleo (Lidiane)", ministerio: "Não", telContato: "5561984680708", contatoEmergenciaNome: "Eder Garcia de Souza", telEmergencia: "61985258646", unidade: "Núcleo da Fé - Gama", restricoes: "Não" },
+    { id: "p51", nome: "Adriana", sobrenome: "Vieira Caxeta", idade: 47, genero: "FEMININO", cpf: "87414376168", estadoCivil: "Casado", celula: "PN - Lidiane", ministerio: "Direção de Culto", telContato: "5561986062809", contatoEmergenciaNome: "Jefferson", telEmergencia: "5561981160931", unidade: "Núcleo da Fé - Gama", restricoes: "não" },
+    { id: "p52", nome: "Clara", sobrenome: "LUZIA FERNANDES LEMOS", idade: 20, genero: "FEMININO", cpf: "08702696150", estadoCivil: "Solteiro", celula: "Nao", ministerio: "Nao", telContato: "5561996095481", contatoEmergenciaNome: "Guilherme", telEmergencia: "61996302843", unidade: "Núcleo da Fé - Jardim Botânico", restricoes: "Nenhum" },
+    { id: "p53", nome: "Aurora", sobrenome: "Costa De Lemos", idade: 55, genero: "FEMININO", cpf: "65813243100", estadoCivil: "Casado", celula: "Não", ministerio: "Nenhum", telContato: "5561996975532", contatoEmergenciaNome: "Gláucia Macedo", telEmergencia: "61996954725", unidade: "Núcleo da Fé - Jardim Botânico", restricoes: "Não" },
+    { id: "p54", nome: "Erica", sobrenome: "Fortuna Da Rocha", idade: 30, genero: "FEMININO", cpf: "05116482197", estadoCivil: "Casado", celula: "não", ministerio: "não", telContato: "5561991484043", contatoEmergenciaNome: "Thiago esposo", telEmergencia: "61983553053", unidade: "Núcleo da Fé - Gama", restricoes: "não" },
+    { id: "p55", nome: "Liliane", sobrenome: "Jéssica de Lima", idade: 37, genero: "FEMININO", cpf: "01954771118", estadoCivil: "Solteiro", celula: "Sim, Núcleo Bandeirante", ministerio: "Ministério Núcleo Kids", telContato: "5561992199868", contatoEmergenciaNome: "Cleiber Rolim", telEmergencia: "61992565092", unidade: "Núcleo da Fé - Sede", restricoes: "Não" },
+    { id: "p56", nome: "Luiza", sobrenome: "costa da Silva", idade: 23, genero: "FEMININO", cpf: "08533495170", estadoCivil: "Casado", celula: "Sim. Pequeno núcleo da Larice", ministerio: "Não", telContato: "5561991783024", contatoEmergenciaNome: "Esposo Pablo", telEmergencia: "61981594302", unidade: "Núcleo da Fé - Sede", restricoes: "Não" },
+    { id: "p57", nome: "jane", sobrenome: "Kely de Sousa Brito", idade: 45, genero: "FEMININO", cpf: "00662266196", estadoCivil: "Casado", celula: "não", ministerio: "núcleo bandeirante", telContato: "5561982044447", contatoEmergenciaNome: "Isabelly", telEmergencia: "61981336658", unidade: "Núcleo da Fé - Sede", restricoes: "não" },
+    { id: "p58", nome: "Kessia", sobrenome: "Nayane", idade: 29, genero: "FEMININO", cpf: "02949033130", estadoCivil: "Casado", celula: "Núcleo de casais", ministerio: "Não", telContato: "5561991623812", contatoEmergenciaNome: "Ana keila", telEmergencia: "61991004220", unidade: "Núcleo da Fé - Jardim Botânico", restricoes: "Não" },
+    { id: "p59", nome: "Eliane", sobrenome: "Duraes soares de melo", idade: 46, genero: "FEMININO", cpf: "84235624172", estadoCivil: "Casado", celula: "banquete de Ester", ministerio: "núcleo da fe Planaltina", telContato: "5561991724897", contatoEmergenciaNome: "Luciano Candido de melo", telEmergencia: "61991421913", unidade: "Núcleo da Fé - Planaltina", restricoes: "alergia amendoim" }
+  ];
 
-    // Primeiro, identificar os que estão alocados em algum quarto
-    const idsAlocados = new Set();
-    enc.quartos.forEach(q => (q.encontristas || []).forEach(p => idsAlocados.add(p.id)));
+  const quartosPreDefinidos = [
+    { id: "q1", corHex: "#3b82f6", corNome: "Azul", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_antonia", "lid_gabi"], encontristasIds: ["p14", "p32", "p36", "p16", "p19", "p45"] },
+    { id: "q2", corHex: "#a855f7", corNome: "Roxo", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_analuiza", "lid_fernandavizoni"], encontristasIds: ["p18", "p6", "p3", "p22", "p33"] },
+    { id: "q3", corHex: "#f472b6", corNome: "Rosa bebe", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_bia", "lid_fernanda"], encontristasIds: ["p2", "p34", "p7", "p24", "p35"] },
+    { id: "q4", corHex: "#92400e", corNome: "Marrom", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_rosangela", "lid_daniele"], encontristasIds: ["p25", "p44", "p47", "p20", "p29", "p31", "p38"] },
+    { id: "q5", corHex: "#ef4444", corNome: "Vermelho", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_andrea", "lid_renata"], encontristasIds: ["p46", "p8", "p17", "p13", "p43", "p4"] },
+    { id: "q6", corHex: "#eab308", corNome: "Amarelo", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_patricia", "lid_luciana"], encontristasIds: ["p49", "p42", "p39", "p27", "p21", "p37", "p5"] },
+    { id: "q7", corHex: "#06b6d4", corNome: "Azul bebe", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_flavia", "lid_suellen"], encontristasIds: ["p23", "p30", "p40", "p41", "p15", "p26", "p48"] },
+    { id: "q8", corHex: "#22c55e", corNome: "Verde", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_jailsa", "lid_anna"], encontristasIds: ["p12", "p1", "p10", "p11", "p9", "p28"] }
+  ];
 
-    for (let i = 0; i < participantes.length; i++) {
-      const p = participantes[i];
-      let chave = (p.cpf || '').replace(/\D/g, '');
-      if (!chave) chave = normalizarNome(`${p.nome} ${p.sobrenome || ''}`);
-      if (mapa.has(chave)) {
-        // já existe um participante com essa chave
-        const existente = mapa.get(chave);
-        // priorizar o que está alocado em quarto
-        const esteAlocado = idsAlocados.has(p.id);
-        const outroAlocado = idsAlocados.has(existente.id);
-        if (esteAlocado && !outroAlocado) {
-          // substitui o existente por este (que está alocado)
-          duplicados.push(existente.id);
-          mapa.set(chave, p);
-        } else {
-          // marca este como duplicado
-          duplicados.push(p.id);
-        }
-      } else {
-        mapa.set(chave, p);
-      }
-    }
+  const lideresPreDefinidos = [
+    { id: "lid_antonia", nome: "Antonia" }, { id: "lid_gabi", nome: "Gabi" },
+    { id: "lid_analuiza", nome: "Ana Luiza" }, { id: "lid_fernandavizoni", nome: "Fernanda Vizoni" },
+    { id: "lid_bia", nome: "Bia" }, { id: "lid_fernanda", nome: "Fernanda" },
+    { id: "lid_rosangela", nome: "Rosangela" }, { id: "lid_daniele", nome: "Daniele" },
+    { id: "lid_andrea", nome: "Andrea" }, { id: "lid_renata", nome: "Renata" },
+    { id: "lid_patricia", nome: "Patricia Eufrasio" }, { id: "lid_luciana", nome: "Luciana" },
+    { id: "lid_flavia", nome: "Flavia" }, { id: "lid_suellen", nome: "Suellen" },
+    { id: "lid_jailsa", nome: "Jailsa" }, { id: "lid_anna", nome: "Anna" }
+  ];
 
-    if (duplicados.length === 0) { toast('Nenhuma duplicata encontrada.', 'success'); return; }
+  const encontroInicial = {
+    id: "enc_default",
+    nome: "Encontro com Deus - Mulheres",
+    dataInicio: "2026-04-18",
+    dataFim: "2026-04-20",
+    tipoEvento: "feminino",
+    quartos: [],
+    participantes: [],
+    lideres: []
+  };
+  encontroInicial.quartos = quartosPreDefinidos.map(q => ({
+    ...q,
+    encontristas: q.encontristasIds.map(id => participantesUnicos.find(p => p.id === id)).filter(Boolean)
+  }));
+  encontroInicial.lideres = lideresPreDefinidos;
+  encontroInicial.participantes = participantesUnicos;
 
-    // Remover os duplicados da lista de participantes
-    const novosParticipantes = participantes.filter(p => !duplicados.includes(p.id));
-    // Também remover referências desses IDs dos quartos (caso algum duplicado estivesse alocado - não deveria)
-    for (const q of enc.quartos) {
-      if (q.encontristas) {
-        q.encontristas = q.encontristas.filter(p => !duplicados.includes(p.id));
-      }
-    }
-    enc.participantes = novosParticipantes;
-    salvar();
-    renderParticipantes();
-    renderDistribuir();
-    toast(`${duplicados.length} duplicatas removidas. Agora há ${novosParticipantes.length} participantes.`, 'success');
-  }
-
-  // ========== IMPORTAÇÃO EXCEL COM UPSERT (NÃO DUPLICA) ==========
+  // ========== FUNÇÕES COMPLETAS ==========
   async function processarExcel(file) {
     const enc = getEncontro();
     if (!enc) { toast('Selecione um encontro', 'error'); return; }
@@ -492,7 +497,44 @@
     toast(`${atualizados} atualizados, ${adicionados} novos, ${ignorados} ignorados.`);
   }
 
-  // ========== DISTRIBUIR APENAS SEM QUARTO ==========
+  function removerDuplicatasPorCPF() {
+    const enc = getEncontro();
+    if (!enc) return;
+    const participantes = enc.participantes;
+    const mapa = new Map();
+    const duplicados = [];
+    const idsAlocados = new Set();
+    enc.quartos.forEach(q => (q.encontristas || []).forEach(p => idsAlocados.add(p.id)));
+    for (let i = 0; i < participantes.length; i++) {
+      const p = participantes[i];
+      let chave = (p.cpf || '').replace(/\D/g, '');
+      if (!chave) chave = normalizarNome(`${p.nome} ${p.sobrenome || ''}`);
+      if (mapa.has(chave)) {
+        const existente = mapa.get(chave);
+        const esteAlocado = idsAlocados.has(p.id);
+        const outroAlocado = idsAlocados.has(existente.id);
+        if (esteAlocado && !outroAlocado) {
+          duplicados.push(existente.id);
+          mapa.set(chave, p);
+        } else {
+          duplicados.push(p.id);
+        }
+      } else {
+        mapa.set(chave, p);
+      }
+    }
+    if (duplicados.length === 0) { toast('Nenhuma duplicata encontrada.', 'success'); return; }
+    const novosParticipantes = participantes.filter(p => !duplicados.includes(p.id));
+    for (const q of enc.quartos) {
+      if (q.encontristas) q.encontristas = q.encontristas.filter(p => !duplicados.includes(p.id));
+    }
+    enc.participantes = novosParticipantes;
+    salvar();
+    renderParticipantes();
+    renderDistribuir();
+    toast(`${duplicados.length} duplicatas removidas. Agora há ${novosParticipantes.length} participantes.`, 'success');
+  }
+
   function distribuirSemQuarto() {
     const enc = getEncontro();
     if (!enc) return;
@@ -521,15 +563,17 @@
 
   function listarSemQuarto() {
     const enc = getEncontro();
+    if (!enc) return [];
     const idsAlocados = new Set();
-    enc?.quartos.forEach(q => (q.encontristas || []).forEach(p=>idsAlocados.add(p.id)));
-    return enc?.participantes.filter(p => !idsAlocados.has(p.id)) || [];
+    enc.quartos.forEach(q => (q.encontristas || []).forEach(p => idsAlocados.add(p.id)));
+    return enc.participantes.filter(p => !idsAlocados.has(p.id));
   }
+
   function abrirModalSemQuarto() {
     const sem = listarSemQuarto();
     const container = document.getElementById('semQuartoList');
     if (!sem.length) container.innerHTML = '<p>Todos estão alocados.</p>';
-    else container.innerHTML = `<ul>${sem.map(p=>`<li>${p.nome} ${p.sobrenome||''} (${p.idade}a)</li>`).join('')}</ul>`;
+    else container.innerHTML = `<ul style="list-style:none; padding:0">${sem.map(p=>`<li style="padding:8px; border-bottom:1px solid #eee">👤 ${p.nome} ${p.sobrenome||''} (${p.idade}a)</li>`).join('')}</ul>`;
     abrirModal('modalSemQuarto');
   }
 
@@ -544,7 +588,7 @@
         <h3>${enc.nome || 'Sem nome'}</h3>
         <p>📅 ${formatarData(enc.dataInicio)} - ${formatarData(enc.dataFim)}</p>
         <p>👥 ${enc.participantes?.length || 0} participantes | 🛏️ ${enc.quartos?.length || 0} quartos | 👑 ${enc.lideres?.length || 0} líderes</p>
-        <div><button class="btn btn-primary btn-sm" onclick="abrirEncontro('${enc.id}')">Abrir</button>
+        <div style="margin-top:12px"><button class="btn btn-primary btn-sm" onclick="abrirEncontro('${enc.id}')">Abrir</button>
         <button class="btn btn-outline btn-sm" onclick="duplicarEncontro('${enc.id}')">Duplicar</button>
         <button class="btn btn-outline btn-sm" onclick="excluirEncontro('${enc.id}')">Excluir</button></div>
       </div>
@@ -571,7 +615,7 @@
         <td><select onchange="updateQuarto(${i}, 'lideresPorQuarto', +this.value)"><option value="1" ${(q.lideresPorQuarto||2)===1?'selected':''}>1</option><option value="2" ${(q.lideresPorQuarto||2)===2?'selected':''}>2</option><option value="3" ${(q.lideresPorQuarto||2)===3?'selected':''}>3</option></select></td>
         <td><button class="btn-outline btn-sm" onclick="removerQuarto(${i})">🗑️</button></td>
       </tr>
-    `).join('')}</tbody></table>`;
+    `).join('')}</tbody><tr>`;
   }
   window.updateQuarto = function(idx, campo, valor) { const enc = getEncontro(); if(enc && enc.quartos[idx]) { enc.quartos[idx][campo] = valor; salvar(); toast('Quarto atualizado'); } };
   function adicionarQuarto() { const enc = getEncontro(); if(enc) { enc.quartos.push({ id: uuid(), corHex: '#3b82f6', corNome: 'Novo Quarto', capacidade: 12, tipoAlocacao: 'normal', lideresPorQuarto: 2, lideresAlocados: [], encontristas: [] }); salvar(); renderConfig(); toast('Quarto adicionado'); } }
@@ -632,7 +676,7 @@
     grid.innerHTML = enc.quartos.map((q,i) => {
       const lideresAlocados = q.lideresAlocados || [];
       const disponiveis = enc.lideres.filter(l => !enc.quartos.flatMap(qq=>qq.lideresAlocados||[]).includes(l.id) && !lideresAlocados.includes(l.id));
-      return `<div class="form-card"><h3>${getNomeQuarto(q)}</h3><div>Líderes: ${lideresAlocados.map(lid=>{let l=enc.lideres.find(l=>l.id===lid); return l?l.nome:'';}).join(', ') || 'Nenhum'}</div><select id="selLider_${i}"><option value="">Selecionar líder</option>${disponiveis.map(l=>`<option value="${l.id}">${l.nome}</option>`).join('')}</select><button class="btn btn-primary btn-sm" onclick="adicionarLiderAoQuarto(${i})">Adicionar</button></div>`;
+      return `<div class="form-card"><h3>${getNomeQuarto(q)}</h3><div>Líderes: ${lideresAlocados.map(lid=>{let l=enc.lideres.find(l=>l.id===lid); return l?l.nome:'';}).join(', ') || 'Nenhum'}</div><select id="selLider_${i}" style="margin:8px 0"><option value="">Selecionar líder</option>${disponiveis.map(l=>`<option value="${l.id}">${l.nome}</option>`).join('')}</select><button class="btn btn-primary btn-sm" onclick="adicionarLiderAoQuarto(${i})">Adicionar</button></div>`;
     }).join('');
   }
   window.adicionarLiderAoQuarto = function(qi) { const sel = document.getElementById(`selLider_${qi}`); if(!sel.value) { toast('Selecione um líder','warning'); return; } const enc = getEncontro(); const q = enc.quartos[qi]; if((q.lideresAlocados?.length||0) >= (q.lideresPorQuarto||2)) { toast('Limite de líderes','error'); return; } if(!q.lideresAlocados) q.lideresAlocados = []; q.lideresAlocados.push(sel.value); salvar(); renderAlocar(); toast('Líder alocado'); };
@@ -720,7 +764,6 @@
     toast(`${pessoa.nome} adicionada`);
   });
 
-  // PDFs
   function gerarPDFs(apenasSelecionados = false) {
     const enc = getEncontro();
     if (!enc) return;
@@ -772,8 +815,12 @@
   document.getElementById('btnCriarEncontro')?.addEventListener('click', () => {
     const nome = document.getElementById('modalNomeEncontro').value.trim();
     if(!nome) { toast('Digite um nome','error'); return; }
-    encontros.unshift({ id: uuid(), nome, dataInicio: document.getElementById('modalDataInicio').value, dataFim: document.getElementById('modalDataFim').value, tipoEvento: document.getElementById('modalTipoEvento').value, quartos: [], participantes: [], lideres: [] });
-    salvar(); fecharModal('modalNovoEncontro'); renderEncontros(); toast('Encontro criado');
+    const novo = { id: uuid(), nome, dataInicio: document.getElementById('modalDataInicio').value, dataFim: document.getElementById('modalDataFim').value, tipoEvento: document.getElementById('modalTipoEvento').value, quartos: [], participantes: [], lideres: [] };
+    encontros.unshift(novo);
+    salvar();
+    fecharModal('modalNovoEncontro');
+    renderEncontros();
+    toast('Encontro criado');
   });
   document.getElementById('btnAddQuarto')?.addEventListener('click', adicionarQuarto);
   document.getElementById('btnSalvarConfig')?.addEventListener('click', salvarConfig);
@@ -802,7 +849,12 @@
   document.querySelectorAll('.modal-close, [data-close]').forEach(btn => btn.addEventListener('click', () => { const id = btn.getAttribute('data-close'); if(id) fecharModal(id); }));
   document.querySelectorAll('.modal-overlay').forEach(overlay => overlay.addEventListener('click', e => { if(e.target === overlay) fecharModal(overlay.id); }));
 
+  // Inicialização
   carregar();
+  if (encontros.length === 0) {
+    encontros.push(encontroInicial);
+    salvar();
+  }
   renderEncontros();
 </script>
 </body>
