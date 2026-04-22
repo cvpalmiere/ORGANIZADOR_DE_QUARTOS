@@ -449,7 +449,7 @@
     doc.save(`${getNomeQuarto(q)}_PUBLICO.pdf`);
   }
 
-  // ========== PDF PRIVADO (dados completos) ==========
+  // ========== PDF PRIVADO (dados completos) - Fonte 10.5pt, cellPadding 2 ==========
   function gerarPDFPrivado(q) {
     const doc = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
     const corHex = q.corHex || '#3b82f6';
@@ -480,8 +480,8 @@
       head: [['Nome', 'Idade', 'CPF', 'Estado Civil', 'Célula', 'Ministério', 'Tel Contato', 'Emergência (nome/tel)']],
       body: body,
       startY: 45,
-      styles: { fontSize: 12, cellPadding: 3 },
-      headStyles: { fillColor: [r, g, b], textColor: [255, 255, 255], fontSize: 12, fontStyle: 'bold' },
+      styles: { fontSize: 10.5, cellPadding: 2 },
+      headStyles: { fillColor: [r, g, b], textColor: [255, 255, 255], fontSize: 10.5, fontStyle: 'bold', cellPadding: 2 },
       margin: { left: 10, right: 10 }
     });
     doc.save(`${getNomeQuarto(q)}_PRIVADO.pdf`);
