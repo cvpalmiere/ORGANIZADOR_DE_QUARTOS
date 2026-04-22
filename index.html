@@ -39,7 +39,9 @@
       border-radius: 40px;
       cursor: pointer;
       font-family: inherit;
+      transition: all 0.2s;
     }
+    .nav-step:hover { background: #E5E7EB; }
     .nav-step.active { background: #3B82F6; color: white; }
     .app-main { max-width: 1400px; margin: 0 auto; padding: 32px 24px; }
     .screen { display: none; animation: fadeIn 0.2s ease; }
@@ -194,7 +196,7 @@
 <header class="app-header">
   <div class="logo">⛺ Organizador de Quartos</div>
   <div style="display: flex; gap: 6px; background: #F3F4F6; padding: 4px; border-radius: 40px;" id="stepNav">
-    <button class="nav-step active" data-step="encontros">Encontros</button>
+    <button class="nav-step" data-step="encontros">Encontros</button>
     <button class="nav-step" data-step="config">Configurar</button>
     <button class="nav-step" data-step="participantes">Participantes</button>
     <button class="nav-step" data-step="lideres">Líderes</button>
@@ -216,7 +218,6 @@
 
   <!-- TELA CONFIGURAR -->
   <div id="screen-config" class="screen">
-    <button class="btn-back" id="backFromConfig">← Voltar</button>
     <div class="form-card">
       <div class="form-row">
         <div class="form-group"><label>Nome do Encontro</label><input type="text" id="nomeEncontro"></div>
@@ -227,37 +228,30 @@
     </div>
     <div style="display:flex; justify-content:space-between; margin-bottom:16px;"><h2>Quartos</h2><button class="btn btn-primary btn-sm" id="btnAddQuarto">+ Adicionar Quarto</button></div>
     <div id="quartosConfig" class="table-card"></div>
-    <div class="actions-bar"><button class="btn btn-outline" id="btnExportBackup">↓ Exportar Backup</button><button class="btn btn-primary" id="btnSalvarConfig">Salvar e Continuar →</button></div>
+    <div class="actions-bar"><button class="btn btn-outline" id="btnExportBackup">↓ Exportar Backup</button><button class="btn btn-primary" id="btnSalvarConfig">Salvar Configurações</button></div>
   </div>
 
   <!-- TELA PARTICIPANTES -->
   <div id="screen-participantes" class="screen">
-    <button class="btn-back" id="backFromParticipantes">← Voltar</button>
     <div class="import-area" id="importArea"><div style="font-size:48px">📊</div><h3>Importar Excel</h3><p>Arraste ou clique</p><input type="file" id="fileInput" accept=".xlsx" style="display:none"><button class="btn btn-primary btn-sm" style="margin-top:12px">Selecionar arquivo</button></div>
     <div class="actions-bar"><span class="counter" id="contParticipantes">0 participantes</span><button class="btn btn-outline" id="btnAddParticipante">+ Adicionar manualmente</button><button class="btn btn-danger btn-sm" id="btnRemoverDuplicatas">⚠️ Remover Duplicatas por CPF</button></div>
     <div class="table-card"><table class="data-table" id="participantesTable"><thead><tr><th>Nome</th><th>Idade</th><th>CPF</th><th>Estado Civil</th><th>Célula</th><th>Ministério</th><th>Tel Contato</th><th>Emergência (nome/tel)</th><th>Ações</th></tr></thead><tbody id="participantesTbody"></tbody></table></div>
-    <div class="actions-bar"><button class="btn btn-primary" id="btnIrLideres">Continuar para Líderes →</button></div>
   </div>
 
   <!-- TELA LÍDERES -->
   <div id="screen-lideres" class="screen">
-    <button class="btn-back" id="backFromLideres">← Voltar</button>
     <div class="actions-bar"><span class="counter" id="contLideres">0 líderes</span><button class="btn btn-primary" id="btnAddLider">+ Adicionar Líder</button></div>
-    <div class="table-card"><table class="data-table" id="lideresTable"><thead><tr><th>Nome</th><th>Ações</th></tr></thead><tbody id="lideresTbody"></tbody></td></div>
-    <div class="actions-bar"><button class="btn btn-primary" id="btnIrAlocar">Continuar para Alocar →</button></div>
+    <div class="table-card"><table class="data-table" id="lideresTable"><thead><tr><th>Nome</th><th>Ações</th></tr></thead><tbody id="lideresTbody"></tbody></table></div>
   </div>
 
   <!-- TELA ALOCAR LÍDERES -->
   <div id="screen-alocar" class="screen">
-    <button class="btn-back" id="backFromAlocar">← Voltar</button>
     <h2>Alocar Líderes nos Quartos</h2>
     <div id="quartosAlocarGrid" class="quartos-alocar-grid"></div>
-    <div class="actions-bar"><button class="btn btn-primary" id="btnIrDistribuir">Continuar para Distribuição →</button></div>
   </div>
 
   <!-- TELA DISTRIBUIÇÃO -->
   <div id="screen-distribuir" class="screen">
-    <button class="btn-back" id="backFromDistribuir">← Voltar</button>
     <div class="actions-bar">
       <button class="btn btn-success" id="btnDistribuirSemQuarto">📌 Distribuir Apenas os Sem Quarto</button>
       <button class="btn btn-primary" id="btnGerarPDFs">📄 Gerar PDFs de Todos</button>
@@ -414,7 +408,7 @@
     return true;
   }
 
-  // ========== PDF PÚBLICO (apenas nomes) ==========
+  // ========== PDFs ==========
   function gerarPDFPublico(q) {
     const doc = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
     const corHex = q.corHex || '#3b82f6';
@@ -449,7 +443,6 @@
     doc.save(`${getNomeQuarto(q)}_PUBLICO.pdf`);
   }
 
-  // ========== PDF PRIVADO (dados completos + unidade) ==========
   function gerarPDFPrivado(q) {
     const doc = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
     const corHex = q.corHex || '#3b82f6';
@@ -695,7 +688,7 @@
     document.getElementById('dataFimEncontro').value = enc.dataFim || '';
     document.getElementById('tipoEvento').value = enc.tipoEvento || 'misto';
     const container = document.getElementById('quartosConfig');
-    if (!enc.quartos.length) { container.innerHTML = '<p>Nenhum quarto</p>'; return; }
+    if (!enc.quartos.length) { container.innerHTML = '<p style="padding:20px;text-align:center">Nenhum quarto. Clique em "+ Adicionar Quarto"</p>'; return; }
     container.innerHTML = `<table class="data-table"><thead><tr><th>Cor/Nome</th><th>Capacidade</th><th>Tipo</th><th>Faixa etária</th><th>Líderes/Quarto</th><th>Ações</th></tr></thead><tbody>${enc.quartos.map((q, i) => `
       <tr>
         <td><input type="color" value="${q.corHex}" onchange="updateQuarto(${i}, 'corHex', this.value)" style="width:40px"> <input type="text" value="${q.corNome}" onchange="updateQuarto(${i}, 'corNome', this.value)" style="width:100px"></td>
@@ -709,7 +702,7 @@
   window.updateQuarto = function(idx, campo, valor) { const enc = getEncontro(); if(enc && enc.quartos[idx]) { enc.quartos[idx][campo] = valor; salvar(); toast('Atualizado'); } };
   function adicionarQuarto() { const enc = getEncontro(); if(enc) { enc.quartos.push({ id: uuid(), corHex: '#3b82f6', corNome: 'Novo', capacidade: 10, tipoAlocacao: 'normal', lideresPorQuarto: 2, lideresAlocados: [], encontristas: [] }); salvar(); renderConfig(); toast('Quarto adicionado'); } }
   function removerQuarto(idx) { const enc = getEncontro(); if(enc) { enc.quartos.splice(idx,1); salvar(); renderConfig(); toast('Removido'); } }
-  function salvarConfig() { const enc = getEncontro(); enc.nome = document.getElementById('nomeEncontro').value; enc.dataInicio = document.getElementById('dataInicioEncontro').value; enc.dataFim = document.getElementById('dataFimEncontro').value; enc.tipoEvento = document.getElementById('tipoEvento').value; salvar(); irParaTela('participantes'); }
+  function salvarConfig() { const enc = getEncontro(); enc.nome = document.getElementById('nomeEncontro').value; enc.dataInicio = document.getElementById('dataInicioEncontro').value; enc.dataFim = document.getElementById('dataFimEncontro').value; enc.tipoEvento = document.getElementById('tipoEvento').value; salvar(); toast('Configurações salvas'); }
 
   function renderParticipantes() {
     const enc = getEncontro(); if (!enc) return;
@@ -761,19 +754,19 @@
   function renderAlocar() {
     const enc = getEncontro(); if(!enc) return;
     const grid = document.getElementById('quartosAlocarGrid');
-    if(!enc.quartos.length) { grid.innerHTML = '<p>Nenhum quarto</p>'; return; }
+    if(!enc.quartos.length) { grid.innerHTML = '<p>Nenhum quarto configurado.</p>'; return; }
     grid.innerHTML = enc.quartos.map((q,i) => {
       const lideresAlocados = q.lideresAlocados || [];
       const disponiveis = enc.lideres.filter(l => !enc.quartos.flatMap(qq=>qq.lideresAlocados||[]).includes(l.id) && !lideresAlocados.includes(l.id));
-      return `<div class="form-card"><h3>${getNomeQuarto(q)}</h3><div>Líderes: ${lideresAlocados.map(lid=>enc.lideres.find(l=>l.id===lid)?.nome).join(', ') || 'Nenhum'}</div><select id="selLider_${i}"><option value="">Selecionar</option>${disponiveis.map(l=>`<option value="${l.id}">${l.nome}</option>`).join('')}</select><button class="btn btn-primary btn-sm" onclick="adicionarLiderAoQuarto(${i})">Adicionar</button></div>`;
+      return `<div class="form-card"><h3>${getNomeQuarto(q)}</h3><div>Líderes: ${lideresAlocados.map(lid=>enc.lideres.find(l=>l.id===lid)?.nome).join(', ') || 'Nenhum'}</div><select id="selLider_${i}"><option value="">Selecionar líder</option>${disponiveis.map(l=>`<option value="${l.id}">${l.nome}</option>`).join('')}</select><button class="btn btn-primary btn-sm" onclick="adicionarLiderAoQuarto(${i})">Adicionar</button></div>`;
     }).join('');
   }
-  window.adicionarLiderAoQuarto = function(qi) { const sel = document.getElementById(`selLider_${qi}`); if(!sel.value) { toast('Selecione','warning'); return; } const enc = getEncontro(); const q = enc.quartos[qi]; if((q.lideresAlocados?.length||0) >= (q.lideresPorQuarto||2)) { toast('Limite','error'); return; } q.lideresAlocados.push(sel.value); salvar(); renderAlocar(); toast('Líder alocado'); };
+  window.adicionarLiderAoQuarto = function(qi) { const sel = document.getElementById(`selLider_${qi}`); if(!sel.value) { toast('Selecione um líder','warning'); return; } const enc = getEncontro(); const q = enc.quartos[qi]; if((q.lideresAlocados?.length||0) >= (q.lideresPorQuarto||2)) { toast('Limite de líderes','error'); return; } if(!q.lideresAlocados) q.lideresAlocados = []; q.lideresAlocados.push(sel.value); salvar(); renderAlocar(); toast('Líder alocado'); };
 
   function renderDistribuir() {
-    const enc = getEncontro(); if(!enc) return;
+    const enc = getEncontro(); if (!enc) return;
     const grid = document.getElementById('quartosDistribuirGrid');
-    if(!enc.quartos.length) { grid.innerHTML = '<p>Nenhum quarto</p>'; return; }
+    if (!enc.quartos.length) { grid.innerHTML = '<p>Nenhum quarto configurado.</p>'; return; }
     grid.innerHTML = enc.quartos.map((q,i) => {
       const total = (q.encontristas || []).length;
       const vagas = getVagasEncontristas(q);
@@ -794,14 +787,16 @@
       </div>`;
     }).join('');
     setTimeout(() => {
-      document.querySelectorAll('.encontristas-list').forEach(zone => {
-        new Sortable(zone, { group: 'quartos', animation: 200, handle: '.drag-handle', onEnd: (evt) => {
-          const pessoaId = evt.item.dataset.id;
-          const origem = parseInt(evt.from.dataset.quartoIdx);
-          const destino = parseInt(evt.to.dataset.quartoIdx);
-          if(!isNaN(origem) && !isNaN(destino) && origem !== destino && pessoaId) moverPessoaEntreQuartos(pessoaId, origem, destino);
-        } });
-      });
+      if (typeof Sortable !== 'undefined') {
+        document.querySelectorAll('.encontristas-list').forEach(zone => {
+          new Sortable(zone, { group: 'quartos', animation: 200, handle: '.drag-handle', onEnd: (evt) => {
+            const pessoaId = evt.item.dataset.id;
+            const origem = parseInt(evt.from.dataset.quartoIdx);
+            const destino = parseInt(evt.to.dataset.quartoIdx);
+            if(!isNaN(origem) && !isNaN(destino) && origem !== destino && pessoaId) moverPessoaEntreQuartos(pessoaId, origem, destino);
+          } });
+        });
+      }
     }, 100);
   }
 
@@ -811,14 +806,16 @@
     const qDestino = enc.quartos[destinoIdx];
     const pessoa = qOrigem.encontristas.find(p => p.id === pessoaId);
     if(!pessoa) return;
-    if(!podeEntrarNoQuarto(pessoa, qDestino)) { toast('Idade não permitida', 'error'); renderDistribuir(); return; }
+    if(!podeEntrarNoQuarto(pessoa, qDestino)) { toast('Idade não permitida neste quarto', 'error'); renderDistribuir(); return; }
     if(temConflitoParentesco(pessoa, qDestino)) { toast('Conflito de parentesco/célula', 'error'); renderDistribuir(); return; }
     const vagas = getVagasEncontristas(qDestino);
     if((qDestino.encontristas?.length||0) >= vagas) { toast('Quarto cheio', 'error'); renderDistribuir(); return; }
     qOrigem.encontristas = qOrigem.encontristas.filter(p => p.id !== pessoaId);
     if(!qDestino.encontristas) qDestino.encontristas = [];
     qDestino.encontristas.push(pessoa);
-    salvar(); renderDistribuir(); toast(`${pessoa.nome} movido`);
+    salvar();
+    renderDistribuir();
+    toast(`${pessoa.nome} movido`);
   }
 
   function abrirModalAddToRoom(quartoIdx) {
@@ -834,32 +831,41 @@
   document.getElementById('btnConfirmAddToRoom')?.addEventListener('click', () => {
     const select = document.getElementById('selectPessoaSemQuarto');
     const pessoaId = select.value;
-    if(!pessoaId) { toast('Selecione','warning'); return; }
+    if(!pessoaId) { toast('Selecione uma pessoa','warning'); return; }
     const enc = getEncontro();
     const pessoa = enc.participantes.find(p => p.id === pessoaId);
     const quarto = enc.quartos[window._quartoIdxAdd];
     if(!pessoa || !quarto) return;
     if(!podeEntrarNoQuarto(pessoa, quarto)) { toast('Idade não permitida','error'); return; }
-    if(temConflitoParentesco(pessoa, quarto)) { toast('Conflito','error'); return; }
+    if(temConflitoParentesco(pessoa, quarto)) { toast('Conflito de parentesco','error'); return; }
     const vagas = getVagasEncontristas(quarto);
     if((quarto.encontristas?.length||0) >= vagas) { toast('Quarto cheio','error'); return; }
     if(!quarto.encontristas) quarto.encontristas = [];
     quarto.encontristas.push(pessoa);
-    salvar(); renderDistribuir(); fecharModal('modalAddToRoom'); toast(`${pessoa.nome} adicionada`);
+    salvar();
+    renderDistribuir();
+    fecharModal('modalAddToRoom');
+    toast(`${pessoa.nome} adicionada`);
   });
 
   function exportarBackup() { const enc = getEncontro(); const blob = new Blob([JSON.stringify(enc ? [enc] : encontros, null,2)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `backup_${new Date().toISOString().slice(0,10)}.json`; a.click(); }
   function importarBackup(file) { const reader = new FileReader(); reader.onload = e => { try { const data = JSON.parse(e.target.result); if(Array.isArray(data)) encontros = data; else if(data.id) encontros.unshift(data); salvar(); renderEncontros(); toast('Backup importado'); } catch(e) { toast('Arquivo inválido','error'); } }; reader.readAsText(file); }
 
   function irParaTela(telaId) {
+    if (!encontroAtual && telaId !== 'encontros') {
+      toast('Selecione um encontro primeiro!', 'warning');
+      telaId = 'encontros';
+    }
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(`screen-${telaId}`).classList.add('active');
-    if(telaId === 'config') renderConfig();
-    if(telaId === 'participantes') renderParticipantes();
-    if(telaId === 'lideres') renderLideres();
-    if(telaId === 'alocar') renderAlocar();
-    if(telaId === 'distribuir') renderDistribuir();
+    document.querySelectorAll('.nav-step').forEach(btn => btn.classList.toggle('active', btn.dataset.step === telaId));
+    if (telaId === 'config') renderConfig();
+    if (telaId === 'participantes') renderParticipantes();
+    if (telaId === 'lideres') renderLideres();
+    if (telaId === 'alocar') renderAlocar();
+    if (telaId === 'distribuir') renderDistribuir();
   }
+
   function abrirModal(id) { document.getElementById(id).classList.add('open'); }
   function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
 
@@ -875,11 +881,8 @@
   document.getElementById('btnSalvarConfig')?.addEventListener('click', salvarConfig);
   document.getElementById('btnAddParticipante')?.addEventListener('click', adicionarParticipante);
   document.getElementById('btnSalvarAddParticipante')?.addEventListener('click', salvarAddParticipante);
-  document.getElementById('btnIrLideres')?.addEventListener('click', () => irParaTela('lideres'));
   document.getElementById('btnAddLider')?.addEventListener('click', adicionarLider);
   document.getElementById('btnSalvarAddLider')?.addEventListener('click', salvarAddLider);
-  document.getElementById('btnIrAlocar')?.addEventListener('click', () => irParaTela('alocar'));
-  document.getElementById('btnIrDistribuir')?.addEventListener('click', () => irParaTela('distribuir'));
   document.getElementById('btnDistribuirSemQuarto')?.addEventListener('click', distribuirSemQuarto);
   document.getElementById('btnDistribuirSemQuartoModal')?.addEventListener('click', () => { distribuirSemQuarto(); fecharModal('modalSemQuarto'); });
   document.getElementById('btnGerarPDFs')?.addEventListener('click', () => gerarPDFs(false));
@@ -890,15 +893,13 @@
   document.getElementById('btnImportarBackup')?.addEventListener('click', () => { const inp = document.createElement('input'); inp.type='file'; inp.accept='.json'; inp.onchange = e => importarBackup(e.target.files[0]); inp.click(); });
   document.getElementById('importArea')?.addEventListener('click', () => document.getElementById('fileInput').click());
   document.getElementById('fileInput')?.addEventListener('change', e => { if(e.target.files[0]) processarExcel(e.target.files[0]); e.target.value=''; });
-  document.getElementById('backFromConfig')?.addEventListener('click', () => irParaTela('encontros'));
-  document.getElementById('backFromParticipantes')?.addEventListener('click', () => irParaTela('config'));
-  document.getElementById('backFromLideres')?.addEventListener('click', () => irParaTela('participantes'));
-  document.getElementById('backFromAlocar')?.addEventListener('click', () => irParaTela('lideres'));
-  document.getElementById('backFromDistribuir')?.addEventListener('click', () => irParaTela('alocar'));
-  document.querySelectorAll('.modal-close, [data-close]').forEach(btn => btn.addEventListener('click', () => { const id = btn.getAttribute('data-close'); if(id) fecharModal(id); }));
-  document.querySelectorAll('.modal-overlay').forEach(overlay => overlay.addEventListener('click', e => { if(e.target === overlay) fecharModal(overlay.id); }));
 
-  // INICIALIZAÇÃO
+  // Navegação
+  document.querySelectorAll('.nav-step').forEach(btn => {
+    btn.addEventListener('click', () => irParaTela(btn.dataset.step));
+  });
+
+  // Inicialização
   carregar();
   if (encontros.length === 0) {
     encontros.push(encontroInicial);
