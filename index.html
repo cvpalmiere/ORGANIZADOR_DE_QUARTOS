@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Organizador de Quartos - Encontro com Deus (Mulheres)</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -204,6 +204,7 @@
 </header>
 
 <main class="app-main">
+  <!-- TELA ENCONTROS -->
   <div id="screen-encontros" class="screen active">
     <div class="actions-bar">
       <button class="btn btn-primary" id="btnNovoEncontro">+ Novo Encontro</button>
@@ -213,6 +214,7 @@
     <div id="emptyEncontros" style="text-align:center; padding:60px; display:none;">🏕️ <h3>Nenhum encontro</h3><p>Clique em "Novo Encontro"</p></div>
   </div>
 
+  <!-- TELA CONFIGURAR -->
   <div id="screen-config" class="screen">
     <button class="btn-back" id="backFromConfig">← Voltar</button>
     <div class="form-card">
@@ -228,6 +230,7 @@
     <div class="actions-bar"><button class="btn btn-outline" id="btnExportBackup">↓ Exportar Backup</button><button class="btn btn-primary" id="btnSalvarConfig">Salvar e Continuar →</button></div>
   </div>
 
+  <!-- TELA PARTICIPANTES -->
   <div id="screen-participantes" class="screen">
     <button class="btn-back" id="backFromParticipantes">← Voltar</button>
     <div class="import-area" id="importArea"><div style="font-size:48px">📊</div><h3>Importar Excel</h3><p>Arraste ou clique</p><input type="file" id="fileInput" accept=".xlsx" style="display:none"><button class="btn btn-primary btn-sm" style="margin-top:12px">Selecionar arquivo</button></div>
@@ -236,6 +239,7 @@
     <div class="actions-bar"><button class="btn btn-primary" id="btnIrLideres">Continuar para Líderes →</button></div>
   </div>
 
+  <!-- TELA LÍDERES -->
   <div id="screen-lideres" class="screen">
     <button class="btn-back" id="backFromLideres">← Voltar</button>
     <div class="actions-bar"><span class="counter" id="contLideres">0 líderes</span><button class="btn btn-primary" id="btnAddLider">+ Adicionar Líder</button></div>
@@ -243,6 +247,7 @@
     <div class="actions-bar"><button class="btn btn-primary" id="btnIrAlocar">Continuar para Alocar →</button></div>
   </div>
 
+  <!-- TELA ALOCAR LÍDERES -->
   <div id="screen-alocar" class="screen">
     <button class="btn-back" id="backFromAlocar">← Voltar</button>
     <h2>Alocar Líderes nos Quartos</h2>
@@ -250,6 +255,7 @@
     <div class="actions-bar"><button class="btn btn-primary" id="btnIrDistribuir">Continuar para Distribuição →</button></div>
   </div>
 
+  <!-- TELA DISTRIBUIÇÃO -->
   <div id="screen-distribuir" class="screen">
     <button class="btn-back" id="backFromDistribuir">← Voltar</button>
     <div class="actions-bar">
@@ -277,8 +283,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // ==================== DADOS COMPLETOS (59 participantes, 8 quartos, 16 líderes) ====================
-  // Todas as 59 participantes com CPF, estado civil, célula, ministério, telefones, contato de emergência
+  // ==================== DADOS COMPLETOS (59 participantes) ====================
   const participantes = [
     { id: "p1", nome: "Regina", sobrenome: "Celia Barcellos", idade: 55, cpf: "01235131700", estadoCivil: "Casado", celula: "Sim. Fernanda e Daniele.", ministerio: "Não.", telContato: "5561982840490", contatoEmergenciaNome: "Alana Moreira Barcellos de Jesus", telEmergencia: "61982840490", unidade: "Núcleo da Fé - Sede", restricoes: "Nenhuma" },
     { id: "p2", nome: "allinyvini15", sobrenome: "gmail.com", idade: 24, cpf: "07235808128", estadoCivil: "Solteiro", celula: "Não", ministerio: "Não", telContato: "5561981219482", contatoEmergenciaNome: "Iuri de Castro Carvalho", telEmergencia: "61999890939", unidade: "Núcleo da Fé - Sede", restricoes: "Nenhuma" },
@@ -341,16 +346,15 @@
     { id: "p59", nome: "Eliane", sobrenome: "Duraes soares de melo", idade: 46, cpf: "84235624172", estadoCivil: "Casado", celula: "banquete de Ester", ministerio: "núcleo da fe Planaltina", telContato: "5561991724897", contatoEmergenciaNome: "Luciano Candido de melo", telEmergencia: "61991421913", unidade: "Núcleo da Fé - Planaltina", restricoes: "alergia amendoim" }
   ];
 
-  // Quartos (capacidade de encontristas = 10, líderes por quarto = 2)
   const quartos = [
-    { id: "q1", corHex: "#3b82f6", corNome: "Azul", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_antonia", "lid_gabi"], encontristasIds: ["p14", "p32", "p36", "p16", "p19", "p45", "p50", "p51"] }, // 8 (adicionados p50,p51)
-    { id: "q2", corHex: "#a855f7", corNome: "Roxo", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_analuiza", "lid_fernandavizoni"], encontristasIds: ["p18", "p6", "p3", "p22", "p33", "p56", "p58", "p54"] }, // 8 (adicionados p56,p58,p54)
-    { id: "q3", corHex: "#f472b6", corNome: "Rosa bebe", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_bia", "lid_fernanda"], encontristasIds: ["p2", "p34", "p7", "p52", "p24", "p35", "p59", "p57"] }, // 8 (adicionados p52,p59,p57)
-    { id: "q4", corHex: "#92400e", corNome: "Marrom", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_rosangela", "lid_daniele"], encontristasIds: ["p25", "p44", "p47", "p20", "p29", "p31", "p38", "p55"] }, // 8
-    { id: "q5", corHex: "#ef4444", corNome: "Vermelho", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_andrea", "lid_renata"], encontristasIds: ["p46", "p8", "p17", "p13", "p43", "p4", "p53"] }, // 7 (adicionado p53)
-    { id: "q6", corHex: "#eab308", corNome: "Amarelo", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_patricia", "lid_luciana"], encontristasIds: ["p49", "p42", "p39", "p27", "p21", "p37", "p5"] }, // 7
-    { id: "q7", corHex: "#06b6d4", corNome: "Azul bebe", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_flavia", "lid_suellen"], encontristasIds: ["p23", "p30", "p40", "p41", "p15", "p26", "p48"] }, // 7
-    { id: "q8", corHex: "#22c55e", corNome: "Verde", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_jailsa", "lid_anna"], encontristasIds: ["p12", "p1", "p10", "p11", "p9", "p28"] } // 6
+    { id: "q1", corHex: "#3b82f6", corNome: "Azul", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_antonia", "lid_gabi"], encontristasIds: ["p14","p32","p36","p16","p19","p45","p50","p51"] },
+    { id: "q2", corHex: "#a855f7", corNome: "Roxo", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_analuiza","lid_fernandavizoni"], encontristasIds: ["p18","p6","p3","p22","p33","p56","p58","p54"] },
+    { id: "q3", corHex: "#f472b6", corNome: "Rosa bebe", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_bia","lid_fernanda"], encontristasIds: ["p2","p34","p7","p52","p24","p35","p59","p57"] },
+    { id: "q4", corHex: "#92400e", corNome: "Marrom", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_rosangela","lid_daniele"], encontristasIds: ["p25","p44","p47","p20","p29","p31","p38","p55"] },
+    { id: "q5", corHex: "#ef4444", corNome: "Vermelho", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_andrea","lid_renata"], encontristasIds: ["p46","p8","p17","p13","p43","p4","p53"] },
+    { id: "q6", corHex: "#eab308", corNome: "Amarelo", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_patricia","lid_luciana"], encontristasIds: ["p49","p42","p39","p27","p21","p37","p5"] },
+    { id: "q7", corHex: "#06b6d4", corNome: "Azul bebe", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_flavia","lid_suellen"], encontristasIds: ["p23","p30","p40","p41","p15","p26","p48"] },
+    { id: "q8", corHex: "#22c55e", corNome: "Verde", capacidade: 10, tipoAlocacao: "normal", lideresPorQuarto: 2, lideresAlocados: ["lid_jailsa","lid_anna"], encontristasIds: ["p12","p1","p10","p11","p9","p28"] }
   ];
 
   const lideres = [
@@ -364,22 +368,18 @@
     { id: "lid_jailsa", nome: "Jailsa" }, { id: "lid_anna", nome: "Anna" }
   ];
 
-  // Construir o encontro inicial
   const encontroInicial = {
     id: "enc_default",
     nome: "Encontro com Deus - Mulheres",
     dataInicio: "2026-04-18",
     dataFim: "2026-04-20",
     tipoEvento: "feminino",
-    quartos: quartos.map(q => ({
-      ...q,
-      encontristas: q.encontristasIds.map(id => participantes.find(p => p.id === id)).filter(Boolean)
-    })),
+    quartos: quartos.map(q => ({ ...q, encontristas: q.encontristasIds.map(id => participantes.find(p => p.id === id)).filter(Boolean) })),
     participantes: participantes,
     lideres: lideres
   };
 
-  // ========== SISTEMA (FUNÇÕES COMPLETAS) ==========
+  // ==================== FUNÇÕES DO SISTEMA ====================
   let encontros = [];
   let encontroAtual = null;
 
@@ -390,10 +390,9 @@
   function formatarData(iso) { if (!iso) return '—'; const [y, m, d] = iso.split('-'); return `${d}/${m}/${y}`; }
   function getEncontro() { return encontros.find(e => e.id === encontroAtual); }
   function normalizarNome(nome) { return (nome || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim(); }
-  function getVagasEncontristas(q) { return (q.capacidade || 12) - (q.lideresPorQuarto || 2); }
+  function getVagasEncontristas(q) { return (q.capacidade || 10) - (q.lideresPorQuarto || 2); }
   function getNomeQuarto(q) { return q.corNome || 'Quarto'; }
 
-  // Regras de conflito: apenas telefone de emergência e mesma célula (NÃO MAIS SOBRENOME)
   function temConflitoParentesco(pessoa, quarto) {
     const telEmerg = (pessoa.telEmergencia || '').replace(/\D/g, '');
     const celula = (pessoa.celula || '').toLowerCase().trim();
@@ -415,7 +414,100 @@
     return true;
   }
 
-  // Importar Excel com UPSERT (atualiza dados existentes sem duplicar)
+  // ========== PDF PÚBLICO (apenas nomes) ==========
+  function gerarPDFPublico(q) {
+    const doc = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const corHex = q.corHex || '#3b82f6';
+    const r = parseInt(corHex.slice(1,3), 16);
+    const g = parseInt(corHex.slice(3,5), 16);
+    const b = parseInt(corHex.slice(5,7), 16);
+    
+    doc.setFillColor(r, g, b);
+    doc.rect(0, 0, 297, 35, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22);
+    doc.text(`Quarto: ${getNomeQuarto(q)}`, 148.5, 20, { align: 'center' });
+    doc.setFontSize(12);
+    doc.text(`${getEncontro().nome} - ${formatarData(getEncontro().dataInicio)} a ${formatarData(getEncontro().dataFim)}`, 148.5, 30, { align: 'center' });
+    
+    doc.setTextColor(0, 0, 0);
+    const lideresNomes = (q.lideresAlocados || []).map(lid => getEncontro().lideres.find(l => l.id === lid)?.nome).filter(Boolean);
+    doc.setFontSize(14);
+    doc.text("LÍDERES:", 14, 50);
+    doc.setFontSize(12);
+    lideresNomes.forEach((l, idx) => { doc.text(`• ${l}`, 20, 60 + idx * 8); });
+    
+    let y = 70 + (lideresNomes.length * 8);
+    doc.setFontSize(14);
+    doc.text("ENCONTRISTAS:", 14, y);
+    y += 8;
+    doc.setFontSize(12);
+    (q.encontristas || []).forEach((p, idx) => {
+      doc.text(`• ${p.nome} ${p.sobrenome || ''}`, 20, y + idx * 8);
+    });
+    
+    doc.save(`${getNomeQuarto(q)}_PUBLICO.pdf`);
+  }
+
+  // ========== PDF PRIVADO (dados completos) ==========
+  function gerarPDFPrivado(q) {
+    const doc = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const corHex = q.corHex || '#3b82f6';
+    const r = parseInt(corHex.slice(1,3), 16);
+    const g = parseInt(corHex.slice(3,5), 16);
+    const b = parseInt(corHex.slice(5,7), 16);
+    
+    doc.setFillColor(r, g, b);
+    doc.rect(0, 0, 297, 35, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22);
+    doc.text(`Quarto: ${getNomeQuarto(q)} - INFORMAÇÕES`, 148.5, 20, { align: 'center' });
+    doc.setFontSize(12);
+    doc.text(`${getEncontro().nome} - ${formatarData(getEncontro().dataInicio)} a ${formatarData(getEncontro().dataFim)}`, 148.5, 30, { align: 'center' });
+    
+    doc.setTextColor(0, 0, 0);
+    const body = (q.encontristas || []).map(p => [
+      `${p.nome} ${p.sobrenome || ''}`,
+      p.idade,
+      p.cpf || '—',
+      p.estadoCivil || '—',
+      p.celula || '—',
+      p.ministerio || '—',
+      p.telContato || '—',
+      `${p.contatoEmergenciaNome || ''} ${p.telEmergencia || ''}`
+    ]);
+    doc.autoTable({
+      head: [['Nome', 'Idade', 'CPF', 'Estado Civil', 'Célula', 'Ministério', 'Tel Contato', 'Emergência (nome/tel)']],
+      body: body,
+      startY: 45,
+      styles: { fontSize: 12, cellPadding: 3 },
+      headStyles: { fillColor: [r, g, b], textColor: [255, 255, 255], fontSize: 12, fontStyle: 'bold' },
+      margin: { left: 10, right: 10 }
+    });
+    doc.save(`${getNomeQuarto(q)}_PRIVADO.pdf`);
+  }
+
+  function gerarPDFs(apenasSelecionados = false) {
+    const enc = getEncontro();
+    if (!enc) return;
+    let quartosParaGerar = enc.quartos;
+    if (apenasSelecionados) {
+      const checkboxes = document.querySelectorAll('.quarto-checkbox:checked');
+      if (!checkboxes.length) { toast('Selecione ao menos um quarto', 'warning'); return; }
+      const indices = Array.from(checkboxes).map(cb => parseInt(cb.dataset.quartoIdx));
+      quartosParaGerar = enc.quartos.filter((_, idx) => indices.includes(idx));
+    }
+    let gerados = 0;
+    for (const q of quartosParaGerar) {
+      if (!q.encontristas?.length) continue;
+      gerarPDFPublico(q);
+      gerarPDFPrivado(q);
+      gerados++;
+    }
+    toast(`${gerados} quarto(s) gerados (público + privado)!`);
+  }
+
+  // ========== IMPORTAÇÃO EXCEL (UPSERT POR CPF) ==========
   async function processarExcel(file) {
     const enc = getEncontro();
     if (!enc) { toast('Selecione um encontro', 'error'); return; }
@@ -498,7 +590,7 @@
     toast(`${atualizados} atualizados, ${adicionados} novos, ${ignorados} ignorados.`);
   }
 
-  // Remover duplicatas (por CPF)
+  // ========== REMOVER DUPLICATAS ==========
   function removerDuplicatasPorCPF() {
     const enc = getEncontro();
     if (!enc) return;
@@ -532,7 +624,7 @@
     toast(`${duplicados.length} duplicatas removidas.`);
   }
 
-  // Distribuir apenas sem quarto
+  // ========== DISTRIBUIR APENAS SEM QUARTO ==========
   function distribuirSemQuarto() {
     const enc = getEncontro();
     if (!enc) return;
@@ -574,7 +666,7 @@
     abrirModal('modalSemQuarto');
   }
 
-  // Funções de renderização (resumidas, mas completas)
+  // ========== RENDERIZAÇÕES ==========
   function renderEncontros() {
     const grid = document.getElementById('encontrosGrid');
     const empty = document.getElementById('emptyEncontros');
@@ -755,37 +847,6 @@
     salvar(); renderDistribuir(); fecharModal('modalAddToRoom'); toast(`${pessoa.nome} adicionada`);
   });
 
-  function gerarPDFs(apenasSelecionados = false) {
-    const enc = getEncontro();
-    if (!enc) return;
-    let quartosParaGerar = enc.quartos;
-    if (apenasSelecionados) {
-      const checkboxes = document.querySelectorAll('.quarto-checkbox:checked');
-      if (!checkboxes.length) { toast('Selecione ao menos um quarto', 'warning'); return; }
-      const indices = Array.from(checkboxes).map(cb => parseInt(cb.dataset.quartoIdx));
-      quartosParaGerar = enc.quartos.filter((_, idx) => indices.includes(idx));
-    }
-    let gerados = 0;
-    for (const q of quartosParaGerar) {
-      if (!q.encontristas?.length) continue;
-      const doc = new jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      doc.setFontSize(18); doc.text(`Quarto: ${getNomeQuarto(q)}`, 14, 20);
-      doc.setFontSize(10); doc.text(`${enc.nome} - ${formatarData(enc.dataInicio)} a ${formatarData(enc.dataFim)}`, 14, 30);
-      const body = q.encontristas.map(p => [
-        `${p.nome} ${p.sobrenome||''}`, p.idade, p.cpf||'—', p.estadoCivil||'—',
-        p.celula||'—', p.ministerio||'—', p.telContato||'—',
-        `${p.contatoEmergenciaNome||''} ${p.telEmergencia||''}`
-      ]);
-      doc.autoTable({
-        head: [['Nome', 'Idade', 'CPF', 'Estado Civil', 'Célula', 'Ministério', 'Tel Contato', 'Emergência (nome/tel)']],
-        body, startY: 40, styles: { fontSize: 9 }, headStyles: { fillColor: [59,130,246] }
-      });
-      doc.save(`${getNomeQuarto(q)}_encontristas.pdf`);
-      gerados++;
-    }
-    toast(`${gerados} PDF(s) gerado(s)!`);
-  }
-
   function exportarBackup() { const enc = getEncontro(); const blob = new Blob([JSON.stringify(enc ? [enc] : encontros, null,2)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `backup_${new Date().toISOString().slice(0,10)}.json`; a.click(); }
   function importarBackup(file) { const reader = new FileReader(); reader.onload = e => { try { const data = JSON.parse(e.target.result); if(Array.isArray(data)) encontros = data; else if(data.id) encontros.unshift(data); salvar(); renderEncontros(); toast('Backup importado'); } catch(e) { toast('Arquivo inválido','error'); } }; reader.readAsText(file); }
 
@@ -801,14 +862,7 @@
   function abrirModal(id) { document.getElementById(id).classList.add('open'); }
   function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
 
-  // Inicialização e eventos
-  carregar();
-  if (encontros.length === 0) {
-    encontros.push(encontroInicial);
-    salvar();
-  }
-  renderEncontros();
-
+  // EVENTOS
   document.getElementById('btnNovoEncontro')?.addEventListener('click', () => abrirModal('modalNovoEncontro'));
   document.getElementById('btnCriarEncontro')?.addEventListener('click', () => {
     const nome = document.getElementById('modalNomeEncontro').value.trim();
@@ -842,6 +896,14 @@
   document.getElementById('backFromDistribuir')?.addEventListener('click', () => irParaTela('alocar'));
   document.querySelectorAll('.modal-close, [data-close]').forEach(btn => btn.addEventListener('click', () => { const id = btn.getAttribute('data-close'); if(id) fecharModal(id); }));
   document.querySelectorAll('.modal-overlay').forEach(overlay => overlay.addEventListener('click', e => { if(e.target === overlay) fecharModal(overlay.id); }));
+
+  // INICIALIZAÇÃO
+  carregar();
+  if (encontros.length === 0) {
+    encontros.push(encontroInicial);
+    salvar();
+  }
+  renderEncontros();
 </script>
 </body>
 </html>
