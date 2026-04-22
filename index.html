@@ -243,7 +243,7 @@
   <div id="screen-lideres" class="screen">
     <button class="btn-back" id="backFromLideres">← Voltar</button>
     <div class="actions-bar"><span class="counter" id="contLideres">0 líderes</span><button class="btn btn-primary" id="btnAddLider">+ Adicionar Líder</button></div>
-    <div class="table-card"><table class="data-table" id="lideresTable"><thead><tr><th>Nome</th><th>Ações</th></tr></thead><tbody id="lideresTbody"></tbody></table></div>
+    <div class="table-card"><table class="data-table" id="lideresTable"><thead><tr><th>Nome</th><th>Ações</th></tr></thead><tbody id="lideresTbody"></tbody></td></div>
     <div class="actions-bar"><button class="btn btn-primary" id="btnIrAlocar">Continuar para Alocar →</button></div>
   </div>
 
@@ -449,7 +449,7 @@
     doc.save(`${getNomeQuarto(q)}_PUBLICO.pdf`);
   }
 
-  // ========== PDF PRIVADO (dados completos) - Fonte 10.5pt, cellPadding 2 ==========
+  // ========== PDF PRIVADO (dados completos + unidade) ==========
   function gerarPDFPrivado(q) {
     const doc = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
     const corHex = q.corHex || '#3b82f6';
@@ -474,15 +474,16 @@
       p.celula || '—',
       p.ministerio || '—',
       p.telContato || '—',
-      `${p.contatoEmergenciaNome || ''} ${p.telEmergencia || ''}`
+      `${p.contatoEmergenciaNome || ''} ${p.telEmergencia || ''}`,
+      p.unidade || '—'
     ]);
     doc.autoTable({
-      head: [['Nome', 'Idade', 'CPF', 'Estado Civil', 'Célula', 'Ministério', 'Tel Contato', 'Emergência (nome/tel)']],
+      head: [['Nome', 'Idade', 'CPF', 'Estado Civil', 'Célula', 'Ministério', 'Tel Contato', 'Emergência (nome/tel)', 'Igreja/Unidade']],
       body: body,
       startY: 45,
-      styles: { fontSize: 10.5, cellPadding: 2 },
-      headStyles: { fillColor: [r, g, b], textColor: [255, 255, 255], fontSize: 10.5, fontStyle: 'bold', cellPadding: 2 },
-      margin: { left: 10, right: 10 }
+      styles: { fontSize: 11, cellPadding: 2 },
+      headStyles: { fillColor: [r, g, b], textColor: [255, 255, 255], fontSize: 11, fontStyle: 'bold', cellPadding: 2 },
+      margin: { left: 8, right: 8 }
     });
     doc.save(`${getNomeQuarto(q)}_PRIVADO.pdf`);
   }
