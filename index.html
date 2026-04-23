@@ -176,7 +176,7 @@
     .modal {
       background: white;
       border-radius: 20px;
-      width: 600px;
+      width: 700px;
       max-width: 90%;
       max-height: 80vh;
       overflow-y: auto;
@@ -189,6 +189,8 @@
       .quartos-distribuir-grid { grid-template-columns: 1fr; }
       .data-table { display: block; overflow-x: auto; }
     }
+    /* Estilo para o checkbox de forçar */
+    .force-checkbox { margin-left: 20px; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; }
   </style>
 </head>
 <body>
@@ -263,7 +265,7 @@
   </div>
 </main>
 
-<!-- MODAIS -->
+<!-- MODAIS (com checkbox para forçar) -->
 <div class="modal-overlay" id="modalNovoEncontro"><div class="modal"><div class="modal-header"><h3>Novo Encontro</h3><button class="modal-close" data-close="modalNovoEncontro">×</button></div><div class="modal-body"><div class="form-group"><label>Nome</label><input type="text" id="modalNomeEncontro"></div><div class="form-row"><div class="form-group"><label>Data Início</label><input type="date" id="modalDataInicio"></div><div class="form-group"><label>Data Fim</label><input type="date" id="modalDataFim"></div></div><div class="form-group"><label>Tipo</label><select id="modalTipoEvento"><option value="misto">Misto</option><option value="feminino">Feminino</option><option value="masculino">Masculino</option></select></div></div><div class="modal-footer"><button class="btn btn-outline" data-close="modalNovoEncontro">Cancelar</button><button class="btn btn-primary" id="btnCriarEncontro">Criar</button></div></div></div>
 
 <div class="modal-overlay" id="modalAddParticipante"><div class="modal" style="width:700px"><div class="modal-header"><h3>Adicionar Participante</h3><button class="modal-close" data-close="modalAddParticipante">×</button></div><div class="modal-body"><div class="form-row"><div class="form-group"><label>Nome</label><input type="text" id="addNome"></div><div class="form-group"><label>Sobrenome</label><input type="text" id="addSobrenome"></div><div class="form-group"><label>Idade</label><input type="number" id="addIdade"></div><div class="form-group"><label>Gênero</label><select id="addGenero"><option value="FEMININO">Feminino</option><option value="MASCULINO">Masculino</option></select></div><div class="form-group"><label>CPF</label><input type="text" id="addCPF"></div><div class="form-group"><label>Estado Civil</label><input type="text" id="addEstadoCivil"></div><div class="form-group"><label>Unidade</label><input type="text" id="addUnidade"></div><div class="form-group"><label>Célula</label><input type="text" id="addCelula"></div><div class="form-group"><label>Ministério</label><input type="text" id="addMinisterio"></div><div class="form-group"><label>Tel Contato</label><input type="text" id="addTelContato"></div><div class="form-group"><label>Emergência Nome</label><input type="text" id="addEmergNome"></div><div class="form-group"><label>Emergência Tel</label><input type="text" id="addEmergTel"></div><div class="form-group"><label>Restrições</label><input type="text" id="addRestricao"></div></div></div><div class="modal-footer"><button class="btn btn-outline" data-close="modalAddParticipante">Cancelar</button><button class="btn btn-primary" id="btnSalvarAddParticipante">Salvar</button></div></div></div>
@@ -272,13 +274,14 @@
 
 <div class="modal-overlay" id="modalSemQuarto"><div class="modal"><div class="modal-header"><h3>Encontristas sem quarto</h3><button class="modal-close" data-close="modalSemQuarto">×</button></div><div class="modal-body" id="semQuartoList"></div><div class="modal-footer"><button class="btn btn-primary" id="btnDistribuirSemQuartoModal">Distribuir automaticamente</button><button class="btn btn-outline" data-close="modalSemQuarto">Fechar</button></div></div></div>
 
-<div class="modal-overlay" id="modalAddToRoom"><div class="modal"><div class="modal-header"><h3>Adicionar ao Quarto</h3><button class="modal-close" data-close="modalAddToRoom">×</button></div><div class="modal-body"><select id="selectPessoaSemQuarto" style="width:100%"></select></div><div class="modal-footer"><button class="btn btn-primary" id="btnConfirmAddToRoom">Adicionar</button><button class="btn btn-outline" data-close="modalAddToRoom">Cancelar</button></div></div></div>
+<div class="modal-overlay" id="modalAddToRoom"><div class="modal"><div class="modal-header"><h3>Adicionar ao Quarto</h3><button class="modal-close" data-close="modalAddToRoom">×</button></div><div class="modal-body"><select id="selectPessoaSemQuarto" style="width:100%"></select><div style="margin-top:12px;"><label><input type="checkbox" id="forceIgnoreRules"> Ignorar regras (forçar entrada)</label></div></div><div class="modal-footer"><button class="btn btn-primary" id="btnConfirmAddToRoom">Adicionar</button><button class="btn btn-outline" data-close="modalAddToRoom">Cancelar</button></div></div></div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-  // ==================== DADOS COMPLETOS (59 participantes) ====================
+  // ==================== DADOS ATUALIZADOS (62 participantes) ====================
   const participantes = [
+    // 59 anteriores + 3 novas
     { id: "p1", nome: "Regina", sobrenome: "Celia Barcellos", idade: 55, cpf: "01235131700", estadoCivil: "Casado", celula: "Sim. Fernanda e Daniele.", ministerio: "Não.", telContato: "5561982840490", contatoEmergenciaNome: "Alana Moreira Barcellos de Jesus", telEmergencia: "61982840490", unidade: "Núcleo da Fé - Sede", restricoes: "Nenhuma" },
     { id: "p2", nome: "allinyvini15", sobrenome: "gmail.com", idade: 24, cpf: "07235808128", estadoCivil: "Solteiro", celula: "Não", ministerio: "Não", telContato: "5561981219482", contatoEmergenciaNome: "Iuri de Castro Carvalho", telEmergencia: "61999890939", unidade: "Núcleo da Fé - Sede", restricoes: "Nenhuma" },
     { id: "p3", nome: "Amanda", sobrenome: "Carvalho da Silva Martins", idade: 19, cpf: "07931776186", estadoCivil: "Solteiro", celula: "Não", ministerio: "Não", telContato: "61999058630", contatoEmergenciaNome: "Núcleo da Fe de Brasília", telEmergencia: "61998010918", unidade: "Núcleo da Fé - Sede", restricoes: "Alergia a poeira" },
@@ -337,7 +340,11 @@
     { id: "p56", nome: "Luiza", sobrenome: "costa da Silva", idade: 23, cpf: "08533495170", estadoCivil: "Casado", celula: "Sim. Pequeno núcleo da Larice", ministerio: "Não", telContato: "5561991783024", contatoEmergenciaNome: "Esposo Pablo", telEmergencia: "61981594302", unidade: "Núcleo da Fé - Sede", restricoes: "Não" },
     { id: "p57", nome: "jane", sobrenome: "Kely de Sousa Brito", idade: 45, cpf: "00662266196", estadoCivil: "Casado", celula: "não", ministerio: "núcleo bandeirante", telContato: "5561982044447", contatoEmergenciaNome: "Isabelly", telEmergencia: "61981336658", unidade: "Núcleo da Fé - Sede", restricoes: "não" },
     { id: "p58", nome: "Kessia", sobrenome: "Nayane", idade: 29, cpf: "02949033130", estadoCivil: "Casado", celula: "Núcleo de casais", ministerio: "Não", telContato: "5561991623812", contatoEmergenciaNome: "Ana keila", telEmergencia: "61991004220", unidade: "Núcleo da Fé - Jardim Botânico", restricoes: "Não" },
-    { id: "p59", nome: "Eliane", sobrenome: "Duraes soares de melo", idade: 46, cpf: "84235624172", estadoCivil: "Casado", celula: "banquete de Ester", ministerio: "núcleo da fe Planaltina", telContato: "5561991724897", contatoEmergenciaNome: "Luciano Candido de melo", telEmergencia: "61991421913", unidade: "Núcleo da Fé - Planaltina", restricoes: "alergia amendoim" }
+    { id: "p59", nome: "Eliane", sobrenome: "Duraes soares de melo", idade: 46, cpf: "84235624172", estadoCivil: "Casado", celula: "banquete de Ester", ministerio: "núcleo da fe Planaltina", telContato: "5561991724897", contatoEmergenciaNome: "Luciano Candido de melo", telEmergencia: "61991421913", unidade: "Núcleo da Fé - Planaltina", restricoes: "alergia amendoim" },
+    // NOVAS PARTICIPANTES (3)
+    { id: "p60", nome: "Cristiane", sobrenome: "Rocha Vieira", idade: 36, cpf: "02785906160", estadoCivil: "Solteiro", celula: "Pequeno nucleo de leitura da biblia em Planaltina", ministerio: "Não", telContato: "5561992854114", contatoEmergenciaNome: "Tatiane", telEmergencia: "61984226479", unidade: "Núcleo da Fé - Planaltina", restricoes: "Não" },
+    { id: "p61", nome: "Janaina", sobrenome: "Sombra Da Costa Mendes", idade: 26, cpf: "06766308125", estadoCivil: "Casado", celula: "Nao", ministerio: "Não", telContato: "5562991471733", contatoEmergenciaNome: "Paulo Victor Mendes de Araújo", telEmergencia: "61991476031", unidade: "apnbrasilia", restricoes: "Não" },
+    { id: "p62", nome: "Luana", sobrenome: "Aparecida Queiroz Barbosa", idade: 44, cpf: "88435350134", estadoCivil: "Solteiro", celula: "Não", ministerio: "Não", telContato: "5561992549184", contatoEmergenciaNome: "Juscineide", telEmergencia: "619982718944", unidade: "Núcleo da Fé - Sede", restricoes: "Não" }
   ];
 
   const quartos = [
@@ -387,7 +394,18 @@
   function getVagasEncontristas(q) { return (q.capacidade || 10) - (q.lideresPorQuarto || 2); }
   function getNomeQuarto(q) { return q.corNome || 'Quarto'; }
 
-  function temConflitoParentesco(pessoa, quarto) {
+  // Funções de validação com parâmetro "forçar"
+  function podeEntrarNoQuarto(pessoa, quarto, forcar = false) {
+    if (forcar) return true;
+    if (quarto.tipoAlocacao === 'faixa') {
+      const min = quarto.idadeMin || 0;
+      const max = quarto.idadeMax || 999;
+      if (pessoa.idade < min || pessoa.idade > max) return false;
+    }
+    return true;
+  }
+  function temConflitoParentesco(pessoa, quarto, forcar = false) {
+    if (forcar) return false;
     const telEmerg = (pessoa.telEmergencia || '').replace(/\D/g, '');
     const celula = (pessoa.celula || '').toLowerCase().trim();
     for (const outra of (quarto.encontristas || [])) {
@@ -399,16 +417,7 @@
     return false;
   }
 
-  function podeEntrarNoQuarto(pessoa, quarto) {
-    if (quarto.tipoAlocacao === 'faixa') {
-      const min = quarto.idadeMin || 0;
-      const max = quarto.idadeMax || 999;
-      if (pessoa.idade < min || pessoa.idade > max) return false;
-    }
-    return true;
-  }
-
-  // ========== PDFs ==========
+  // ========== PDF PÚBLICO (fonte 20pt, espaçamento 11mm, formato tabela) ==========
   function gerarPDFPublico(q) {
     const doc = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
     const corHex = q.corHex || '#3b82f6';
@@ -417,32 +426,48 @@
     const b = parseInt(corHex.slice(5,7), 16);
     
     doc.setFillColor(r, g, b);
-    doc.rect(0, 0, 297, 35, 'F');
+    doc.rect(0, 0, 297, 45, 'F');
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(22);
-    doc.text(`Quarto: ${getNomeQuarto(q)}`, 148.5, 20, { align: 'center' });
+    doc.setFontSize(24);
+    doc.text(`Quarto: ${getNomeQuarto(q)}`, 148.5, 25, { align: 'center' });
     doc.setFontSize(12);
-    doc.text(`${getEncontro().nome} - ${formatarData(getEncontro().dataInicio)} a ${formatarData(getEncontro().dataFim)}`, 148.5, 30, { align: 'center' });
+    doc.text(`${getEncontro().nome} - ${formatarData(getEncontro().dataInicio)} a ${formatarData(getEncontro().dataFim)}`, 148.5, 38, { align: 'center' });
     
     doc.setTextColor(0, 0, 0);
+    // Líderes
     const lideresNomes = (q.lideresAlocados || []).map(lid => getEncontro().lideres.find(l => l.id === lid)?.nome).filter(Boolean);
-    doc.setFontSize(14);
-    doc.text("LÍDERES:", 14, 50);
-    doc.setFontSize(12);
-    lideresNomes.forEach((l, idx) => { doc.text(`• ${l}`, 20, 60 + idx * 8); });
-    
-    let y = 70 + (lideresNomes.length * 8);
-    doc.setFontSize(14);
-    doc.text("ENCONTRISTAS:", 14, y);
-    y += 8;
-    doc.setFontSize(12);
-    (q.encontristas || []).forEach((p, idx) => {
-      doc.text(`• ${p.nome} ${p.sobrenome || ''}`, 20, y + idx * 8);
+    let y = 55;
+    doc.setFontSize(20);
+    doc.text("LÍDERES:", 14, y);
+    y += 11;
+    lideresNomes.forEach((l, idx) => {
+      doc.text(`• ${l}`, 20, y + idx * 11);
     });
-    
+    y += (lideresNomes.length * 11) + 10;
+    // Encontristas - tabela simples (uma coluna)
+    const nomesEncontristas = (q.encontristas || []).map(p => `${p.nome} ${p.sobrenome || ''}`);
+    doc.setFontSize(20);
+    doc.text("ENCONTRISTAS:", 14, y);
+    y += 11;
+    doc.setFontSize(20);
+    // Criar uma tabela com uma única coluna
+    if (nomesEncontristas.length) {
+      doc.autoTable({
+        startY: y,
+        head: [['Nome']],
+        body: nomesEncontristas.map(n => [n]),
+        styles: { fontSize: 20, cellPadding: 2, lineColor: [0,0,0], lineWidth: 0.1 },
+        headStyles: { fillColor: [230, 230, 230], textColor: [0,0,0], fontSize: 20, fontStyle: 'bold' },
+        margin: { left: 14 },
+        tableWidth: 'auto'
+      });
+    } else {
+      doc.text("Nenhuma encontrista", 20, y);
+    }
     doc.save(`${getNomeQuarto(q)}_PUBLICO.pdf`);
   }
 
+  // ========== PDF PRIVADO (mantido) ==========
   function gerarPDFPrivado(q) {
     const doc = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
     const corHex = q.corHex || '#3b82f6';
@@ -618,7 +643,7 @@
     toast(`${duplicados.length} duplicatas removidas.`);
   }
 
-  // ========== DISTRIBUIR APENAS SEM QUARTO ==========
+  // ========== DISTRIBUIR APENAS SEM QUARTO (observa regras, sem força) ==========
   function distribuirSemQuarto() {
     const enc = getEncontro();
     if (!enc) return;
@@ -632,14 +657,14 @@
       for (const quarto of enc.quartos) {
         const vagas = getVagasEncontristas(quarto) - (quarto.encontristas?.length || 0);
         if (vagas <= 0) continue;
-        if (!podeEntrarNoQuarto(pessoa, quarto)) continue;
-        if (temConflitoParentesco(pessoa, quarto)) continue;
+        if (!podeEntrarNoQuarto(pessoa, quarto, false)) continue;
+        if (temConflitoParentesco(pessoa, quarto, false)) continue;
         quarto.encontristas.push(pessoa);
         alocados++;
         colocado = true;
         break;
       }
-      if (!colocado) toast(`⚠️ ${pessoa.nome} não alocada`, 'warning');
+      if (!colocado) toast(`⚠️ ${pessoa.nome} não alocada (use força)`, 'warning');
     }
     if (alocados) { salvar(); renderDistribuir(); toast(`${alocados} alocadas!`); }
   }
@@ -660,7 +685,7 @@
     abrirModal('modalSemQuarto');
   }
 
-  // ========== RENDERIZAÇÕES ==========
+  // ========== RENDERIZAÇÕES (mesmas do código anterior, apenas com adaptação para forçar no addToRoom) ==========
   function renderEncontros() {
     const grid = document.getElementById('encontrosGrid');
     const empty = document.getElementById('emptyEncontros');
@@ -745,7 +770,7 @@
     document.getElementById('contLideres').innerText = `${enc.lideres.length} líderes`;
     const tbody = document.getElementById('lideresTbody');
     if(!enc.lideres.length) { tbody.innerHTML = '<tr><td colspan="2">Nenhum líder</td></tr>'; return; }
-    tbody.innerHTML = enc.lideres.map((l,i) => `<tr><td>${l.nome}</td><td><button class="btn-outline btn-sm" onclick="removerLider(${i})">🗑️</button></td></tr>`).join('');
+    tbody.innerHTML = enc.lideres.map((l,i) => `<tr><td><strong>${l.nome}</strong></td><td><button class="btn-outline btn-sm" onclick="removerLider(${i})">🗑️</button></td></tr>`).join('');
   }
   function adicionarLider() { abrirModal('modalAddLider'); }
   function salvarAddLider() { const nome = document.getElementById('addLiderNome').value.trim(); if(!nome) { toast('Nome obrigatório','error'); return; } const enc = getEncontro(); enc.lideres.push({ id: uuid(), nome }); salvar(); renderLideres(); fecharModal('modalAddLider'); toast('Adicionado'); }
@@ -806,8 +831,9 @@
     const qDestino = enc.quartos[destinoIdx];
     const pessoa = qOrigem.encontristas.find(p => p.id === pessoaId);
     if(!pessoa) return;
-    if(!podeEntrarNoQuarto(pessoa, qDestino)) { toast('Idade não permitida neste quarto', 'error'); renderDistribuir(); return; }
-    if(temConflitoParentesco(pessoa, qDestino)) { toast('Conflito de parentesco/célula', 'error'); renderDistribuir(); return; }
+    // No drag-and-drop, não há opção de forçar; usamos regras normais.
+    if(!podeEntrarNoQuarto(pessoa, qDestino, false)) { toast('Idade não permitida neste quarto', 'error'); renderDistribuir(); return; }
+    if(temConflitoParentesco(pessoa, qDestino, false)) { toast('Conflito de parentesco/célula', 'error'); renderDistribuir(); return; }
     const vagas = getVagasEncontristas(qDestino);
     if((qDestino.encontristas?.length||0) >= vagas) { toast('Quarto cheio', 'error'); renderDistribuir(); return; }
     qOrigem.encontristas = qOrigem.encontristas.filter(p => p.id !== pessoaId);
@@ -836,8 +862,9 @@
     const pessoa = enc.participantes.find(p => p.id === pessoaId);
     const quarto = enc.quartos[window._quartoIdxAdd];
     if(!pessoa || !quarto) return;
-    if(!podeEntrarNoQuarto(pessoa, quarto)) { toast('Idade não permitida','error'); return; }
-    if(temConflitoParentesco(pessoa, quarto)) { toast('Conflito de parentesco','error'); return; }
+    const force = document.getElementById('forceIgnoreRules').checked;
+    if(!podeEntrarNoQuarto(pessoa, quarto, force)) { toast('Idade não permitida', 'error'); return; }
+    if(temConflitoParentesco(pessoa, quarto, force)) { toast('Conflito de parentesco (ignorado pois força foi marcada?)', 'warning'); if(!force) return; }
     const vagas = getVagasEncontristas(quarto);
     if((quarto.encontristas?.length||0) >= vagas) { toast('Quarto cheio','error'); return; }
     if(!quarto.encontristas) quarto.encontristas = [];
@@ -845,7 +872,7 @@
     salvar();
     renderDistribuir();
     fecharModal('modalAddToRoom');
-    toast(`${pessoa.nome} adicionada`);
+    toast(`${pessoa.nome} adicionada com sucesso!`);
   });
 
   function exportarBackup() { const enc = getEncontro(); const blob = new Blob([JSON.stringify(enc ? [enc] : encontros, null,2)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `backup_${new Date().toISOString().slice(0,10)}.json`; a.click(); }
