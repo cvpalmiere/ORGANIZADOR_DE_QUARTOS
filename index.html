@@ -514,26 +514,28 @@ function gerarPDFPrivado(q) {
   doc.save(`${getNomeQuarto(q)}_PRIVADO.pdf`);
 }
 
-  function gerarPDFs(apenasSelecionados = false) {
-    const enc = getEncontro();
-    if (!enc) return;
-    let quartosParaGerar = enc.quartos;
-    if (apenasSelecionados) {
-      const checkboxes = document.querySelectorAll('.quarto-checkbox:checked');
-      if (!checkboxes.length) { toast('Selecione ao menos um quarto', 'warning'); return; }
-      const indices = Array.from(checkboxes).map(cb => parseInt(cb.dataset.quartoIdx));
-      quartosParaGerar = enc.quartos.filter((_, idx) => indices.includes(idx));
+ function gerarPDFs(apenasSelecionados = false) {
+  const enc = getEncontro();
+  if (!enc) return;
+  let quartosParaGerar = enc.quartos;
+  if (apenasSelecionados) {
+    const checkboxes = document.querySelectorAll('.quarto-checkbox:checked');
+    if (!checkboxes.length) {
+      toast('Selecione ao menos um quarto', 'warning');
+      return;
     }
-    let gerados = 0;
-    for (const q of quartosParaGerar) {
-      if (!q.encontristas?.length) continue;
-      gerarPDFPublico(q);
-      gerarPDFPrivado(q);
-      gerados++;
-    }
-    toast(`${gerados} quarto(s) gerados (público + privado)!`);
+    const indices = Array.from(checkboxes).map(cb => parseInt(cb.dataset.quartoIdx));
+    quartosParaGerar = enc.quartos.filter((_, idx) => indices.includes(idx));
   }
-
+  let gerados = 0;
+  for (const q of quartosParaGerar) {
+    if (!q.encontristas?.length) continue;
+    gerarPDFPublico(q);
+    gerarPDFPrivado(q);
+    gerados++;
+  }
+  toast(`${gerados} quarto(s) gerados (público + privado)!`);
+}
   // ========== NOVA FUNÇÃO: GERAR LISTA GERAL ==========
   function gerarListaGeral() {
     const enc = getEncontro();
