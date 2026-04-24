@@ -1003,6 +1003,14 @@ function gerarPDFPrivado(q) {
     encontros.push(encontroInicial);
     salvar();
   }
+
+  // Forçar atualização das datas do encontro existente (24/04 a 26/04)
+if (encontros.length > 0 && encontros[0].id === "enc_default") {
+  encontros[0].dataInicio = "2026-04-24";
+  encontros[0].dataFim = "2026-04-26";
+  salvar();
+  console.log("Datas do encontro atualizadas para 24/04/2026 a 26/04/2026");
+}
   renderEncontros();
 </script>
 </body>
