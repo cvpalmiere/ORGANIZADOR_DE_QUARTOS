@@ -379,7 +379,7 @@
   function getVagasEncontristas(q) { return (q.capacidade || 10) - (q.lideresPorQuarto || 2); }
   function getNomeQuarto(q) { return q.corNome || 'Quarto'; }
 
-    // ========== PDF PÚBLICO (HORIZONTAL - apenas nomes) ==========
+     // ========== PDF PÚBLICO (HORIZONTAL - apenas nomes, fonte grande, 10 participantes por página) ==========
   function gerarPDFPublico(q) {
     const doc = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
     const corHex = q.corHex || '#3b82f6';
@@ -387,7 +387,78 @@
     const g = parseInt(corHex.slice(3,5), 16);
     const b = parseInt(corHex.slice(5,7), 16);
     
-    // Cabeçalho colorido
+    // Cabeçalho colorido - altura 50mm
+    doc.setFillColor(r, g, b);
+    doc.rect(0, 0, 297, 50, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(24);
+    doc.text(`Quarto: ${getNomeQuarto(q)}`, 148.5, 22, { align: 'center' });
+    
+    doc.setFontSize(14);
+    const lideresNomes = q.lideresAlocados || [];
+    doc.text(`Líderes: ${lideresNomes.join(', ') || '—'}`, 148.5, 36, { align: 'center' });
+    
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    const enc = getEncontro();
+    doc.text(`${enc.nome} - ${formatarData(enc.dataInicio)} a ${formatarData(enc.dataFim)}`, 148.5, 48, { align: 'center' });
+    
+    // Tabela com nomes - fonte grande, margem 1cm de cada lado
+    doc.setTextColor(0, 0, 0);
+    const nomesEncontristas = (q.encontristas || []).map(p => `${p.nome} ${p.sobrenome || ''}`);
+    
+    // Calcular altura disponível para tabela
+    const startY = 60;
+    const rowHeight = 18; // Altura por linha para fonte grande
+    
+    if (nomesEncontristas.length) {
+      doc.autoTable({
+        startY: startY,
+        head: [['PARTICIPANTES']],
+        body: nomesEncontristas.map(n => [n]),
+        styles: { 
+          fontSize: 16, 
+          cellPadding: 10, 
+          font: 'helvetica', 
+          halign: 'center', 
+          valign: 'middle',
+          lineColor: [180,180,180], 
+          lineWidth: 0.3 
+        },
+        headStyles: { 
+          fillColor: [r, g, b], 
+          textColor: [255,255,255], 
+          fontSize: 16, 
+          fontStyle: 'bold', 
+          halign: 'center',
+          cellPadding: 8
+        },
+        margin: { left: 10, right: 10 },
+        tableWidth: 'auto',
+        pageBreak: 'auto'
+      });
+    } else {
+      doc.setFontSize(16);
+      doc.text("Nenhum participante alocado", 148.5, 80, { align: 'center' });
+    }
+    
+    doc.save(`${getNomeQuarto(q)}_PUBLICO.pdf`);
+  }
+
+  // ========== PDF PRIVADO (HORIZONTAL - completo, tabela ocupa toda largura, margem exata 1cm) ==========
+  function gerarPDFPrivado(q) {
+    const doc = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const corHex = q.corHex || '#3b82f6';
+    const r = parseInt(corHex.slice(1,3), 16);
+    const g = parseInt(corHex.slice(3,5), 16);
+    const b = parseInt(corHex.slice(5,7), 16);
+    
+    // Largura total da página = 297mm
+    // Margem esquerda/direita = 10mm (1cm)
+    // Largura útil da tabela = 277mm
+    
+    // Cabeçalho colorido - altura 45mm
     doc.setFillColor(r, g, b);
     doc.rect(0, 0, 297, 45, 'F');
     doc.setTextColor(255, 255, 255);
@@ -397,86 +468,70 @@
     
     doc.setFontSize(12);
     const lideresNomes = q.lideresAlocados || [];
-    doc.text(`Líderes: ${lideresNomes.join(', ') || '—'}`, 148.5, 32, { align: 'center' });
+    doc.text(`Líderes: ${lideresNomes.join(', ') || '—'}`, 148.5, 34, { align: 'center' });
     
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     const enc = getEncontro();
-    doc.text(`${enc.nome} - ${formatarData(enc.dataInicio)} a ${formatarData(enc.dataFim)}`, 148.5, 42, { align: 'center' });
+    doc.text(`${enc.nome} - ${formatarData(enc.dataInicio)} a ${formatarData(enc.dataFim)}`, 148.5, 44, { align: 'center' });
     
-    // Tabela com nomes dos participantes (centralizada)
-    doc.setTextColor(0, 0, 0);
-    const nomesEncontristas = (q.encontristas || []).map(p => `${p.nome} ${p.sobrenome || ''}`);
+    // Definir largura das colunas para ocupar 277mm com margem 1cm (10mm)
+    const larguraTotal = 277;
+    const colunas = [
+      { header: 'Nome', width: 65 },
+      { header: 'Idade', width: 25 },
+      { header: 'Telefone', width: 40 },
+      { header: 'Emergência', width: 60 },
+      { header: 'Unidade', width: 45 },
+      { header: 'Célula', width: 42 }
+    ];
     
-    if (nomesEncontristas.length) {
-      doc.autoTable({
-        startY: 55,
-        head: [['Participantes']],
-        body: nomesEncontristas.map(n => [n]),
-        styles: { fontSize: 14, cellPadding: 6, font: 'helvetica', halign: 'center', valign: 'middle', lineColor: [200,200,200], lineWidth: 0.1 },
-        headStyles: { fillColor: [r, g, b], textColor: [255,255,255], fontSize: 14, fontStyle: 'bold', halign: 'center' },
-        margin: { left: 40, right: 40 },
-        tableWidth: 'auto'
-      });
-    } else {
-      doc.text("Nenhum participante alocado", 148.5, 70, { align: 'center' });
+    // Verificar se a soma das larguras é igual a larguraTotal
+    const somaLarguras = colunas.reduce((sum, col) => sum + col.width, 0);
+    if (somaLarguras !== larguraTotal) {
+      const ajuste = larguraTotal / somaLarguras;
+      colunas.forEach(col => col.width = Math.floor(col.width * ajuste));
     }
     
-    doc.save(`${getNomeQuarto(q)}_PUBLICO.pdf`);
-  }
-
-  // ========== PDF PRIVADO (HORIZONTAL - completo) ==========
-  function gerarPDFPrivado(q) {
-    const doc = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-    const corHex = q.corHex || '#3b82f6';
-    const r = parseInt(corHex.slice(1,3), 16);
-    const g = parseInt(corHex.slice(3,5), 16);
-    const b = parseInt(corHex.slice(5,7), 16);
-    
-    // Cabeçalho colorido
-    doc.setFillColor(r, g, b);
-    doc.rect(0, 0, 297, 45, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(20);
-    doc.text(`Quarto: ${getNomeQuarto(q)}`, 148.5, 20, { align: 'center' });
-    
-    doc.setFontSize(12);
-    const lideresNomes = q.lideresAlocados || [];
-    doc.text(`Líderes: ${lideresNomes.join(', ') || '—'}`, 148.5, 32, { align: 'center' });
-    
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    const enc = getEncontro();
-    doc.text(`${enc.nome} - ${formatarData(enc.dataInicio)} a ${formatarData(enc.dataFim)}`, 148.5, 42, { align: 'center' });
-    
-    // Tabela completa com dados (centralizada)
-    doc.setTextColor(0, 0, 0);
     const body = (q.encontristas || []).map(p => [
-      `${p.nome} ${p.sobrenome || ''}`,
+      `${p.nome} ${p.sobrenome || ''}`.substring(0, 30),
       p.idade || '—',
       p.telefone || '—',
-      p.emergencia || '—',
-      p.unidade || '—',
-      p.celula || '—'
+      p.emergencia || '—'.substring(0, 25),
+      p.unidade || '—'.substring(0, 25),
+      p.celula || '—'.substring(0, 25)
     ]);
     
     doc.autoTable({
-      head: [['Nome', 'Idade', 'Telefone', 'Emergência (nome/tel)', 'Unidade', 'Célula']],
+      head: [colunas.map(c => c.header)],
       body: body,
       startY: 55,
-      styles: { fontSize: 10, cellPadding: 3, font: 'helvetica', halign: 'center', valign: 'middle' },
-      headStyles: { fillColor: [r, g, b], textColor: [255, 255, 255], fontSize: 11, fontStyle: 'bold', halign: 'center' },
-      margin: { left: 10, right: 10 },
-      columnStyles: { 
-        0: { cellWidth: 45, halign: 'left' }, 
-        1: { cellWidth: 20 }, 
-        2: { cellWidth: 35 }, 
-        3: { cellWidth: 45 }, 
-        4: { cellWidth: 45 }, 
-        5: { cellWidth: 45 } 
+      styles: { 
+        fontSize: 10, 
+        cellPadding: 4, 
+        font: 'helvetica', 
+        halign: 'center', 
+        valign: 'middle',
+        lineColor: [180,180,180],
+        lineWidth: 0.2,
+        textColor: [0,0,0]
       },
-      tableWidth: 'auto'
+      headStyles: { 
+        fillColor: [r, g, b], 
+        textColor: [255, 255, 255], 
+        fontSize: 11, 
+        fontStyle: 'bold', 
+        halign: 'center',
+        cellPadding: 5
+      },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+      margin: { left: 10, right: 10 },
+      columnStyles: colunas.reduce((acc, col, idx) => {
+        acc[idx] = { cellWidth: col.width, halign: idx === 0 ? 'left' : 'center' };
+        return acc;
+      }, {}),
+      tableWidth: larguraTotal,
+      pageBreak: 'auto'
     });
     
     doc.save(`${getNomeQuarto(q)}_PRIVADO.pdf`);
