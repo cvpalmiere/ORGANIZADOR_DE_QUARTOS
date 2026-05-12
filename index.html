@@ -809,30 +809,43 @@ async function processarExcel(file) {
   const wb = XLSX.read(data);
   const ws = wb.Sheets[wb.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json(ws);
+  
+  // DEBUG: mostra os cabeçalhos no console
+  if (rows.length > 0) {
+    console.log('Cabeçalhos encontrados:', Object.keys(rows[0]));
+  }
+  
   let n = 0;
   
   for (const row of rows) {
-    let nc = row['Nome Completo'] || row['NOME COMPLETO'] || row['Nome'] || '';
+    // Nome Completo - EXATO da sua planilha
+    let nc = row['Nome Completo'] || '';
     if (!nc || nc.length < 3) continue;
+    
     const pts = nc.trim().split(' ');
     const nome = pts[0];
     const sobrenome = pts.slice(1).join(' ');
     
-    let idade = row['Idade'] || row['IDADE'] || 0;
+    // Idade - EXATO
+    let idade = row['Idade'] || 0;
     if (typeof idade === 'string') { const m = idade.match(/\d+/); idade = m ? parseInt(m[0]) : 0; }
     idade = parseInt(idade) || 0;
     
-    let tel = row['Celular'] || row['Celular do comprador'] || '';
+    // Telefone - EXATO
+    let tel = row['Celular'] || '';
     if (tel) tel = tel.toString().replace(/\D/g, '').slice(-11);
     
-    // ===== SÓ ISSO QUE MUDA =====
-    let eNome = row['Nome contato de emergencia'] || row['Emergencia Nome'] || '';
-    let eTel = row['Telefone contato de emergencia'] || row['Emergencia Tel'] || '';
+    // ===== EMERGÊNCIA - NOMES EXATOS da sua planilha =====
+    let eNome = row['Nome contato de emergencia'] || '';
+    let eTel = row['Telefone contato de emergencia'] || '';
     if (eTel) eTel = eTel.toString().replace(/\D/g, '').slice(-11);
-    // =============================
+    // ======================================================
     
-    let unidade = row['Qual unidade do Núcleo da Fé você participa?'] || row['Unidade'] || '';
-    let celula = row['Participa de célula? Qual?'] || row['Célula'] || '';
+    // Unidade - EXATO
+    let unidade = row['Qual unidade do Núcleo da Fé você participa?'] || '';
+    
+    // Célula - EXATO
+    let celula = row['Participa de célula? Qual?'] || '';
     
     enc.participantes.push({
       id: uid(), nome, sobrenome, idade, genero: 'MASCULINO',
