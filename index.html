@@ -1213,7 +1213,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   ia.addEventListener('dragover',e=>{e.preventDefault();ia.style.borderColor='var(--accent)';});
   ia.addEventListener('dragleave',()=>{ia.style.borderColor='';});
   ia.addEventListener('drop',e=>{e.preventDefault();ia.style.borderColor='';const f=e.dataTransfer.files[0];if(f&&f.name.endsWith('.xlsx'))processarExcel(f);else toast('Selecione um .xlsx');});
-  document.getElementById('fileInput').addEventListener('change',e=>{if(e.target.files[0])(e.target.files[0]);e.target.value='';});
+  document.getElementById('fileInput').addEventListener('change',e=>{if(e.target.files[0])processarExcel(e.target.files[0]);e.target.value='';});
   document.getElementById('btnAddParticipante').addEventListener('click',()=>{
     ['addNome','addSobrenome','addTelefone','addEmergNome','addEmergTel','addUnidade','addCelula'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('addIdade').value='';document.getElementById('addGrupo').value='0';
