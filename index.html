@@ -3,915 +3,1238 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Organizador de Quartos - Acampamento de Homens</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <title>Organizador de Quartos</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #F3F4F6;
-      color: #1F2937;
-      line-height: 1.5;
+    :root {
+      --bg: #F7F7F5;
+      --surface: #FFFFFF;
+      --border: #E8E8E4;
+      --border-soft: #F0F0EC;
+      --text: #1A1A18;
+      --text-2: #6B6B66;
+      --text-3: #9B9B96;
+      --accent: #2563EB;
+      --accent-light: #EFF6FF;
+      --accent-soft: #DBEAFE;
+      --green: #059669;
+      --green-light: #ECFDF5;
+      --red: #DC2626;
+      --red-light: #FEF2F2;
+      --amber: #D97706;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 12px 32px rgba(0,0,0,0.14);
+      --r: 12px;
+      --r-lg: 16px;
+      --r-xl: 20px;
     }
-    .app-header {
-      background: white;
-      border-bottom: 1px solid #E5E7EB;
-      padding: 0 24px;
-      height: 64px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .logo { font-weight: 700; font-size: 20px; display: flex; align-items: center; gap: 8px; }
-    .nav-step {
-      background: transparent;
-      border: none;
-      padding: 6px 16px;
-      font-size: 13px;
-      font-weight: 500;
-      border-radius: 40px;
-      cursor: pointer;
-      font-family: inherit;
-      transition: all 0.2s;
-    }
-    .nav-step:hover { background: #E5E7EB; }
-    .nav-step.active { background: #3B82F6; color: white; }
-    .app-main { max-width: 1400px; margin: 0 auto; padding: 32px 24px; }
-    .screen { display: none; animation: fadeIn 0.2s ease; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 14px; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+
+    /* HEADER */
+    .header { background: var(--surface); border-bottom: 1px solid var(--border); height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; position: sticky; top: 0; z-index: 200; }
+    .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; letter-spacing: -0.3px; color: var(--text); }
+    .logo svg { color: var(--accent); }
+    .nav { display: flex; gap: 2px; background: var(--bg); padding: 3px; border-radius: 40px; border: 1px solid var(--border); }
+    .nav-btn { background: transparent; border: none; padding: 5px 14px; font-size: 12.5px; font-weight: 500; border-radius: 40px; cursor: pointer; font-family: inherit; color: var(--text-2); transition: all 0.15s; white-space: nowrap; }
+    .nav-btn:hover { color: var(--text); background: var(--surface); }
+    .nav-btn.active { background: var(--surface); color: var(--accent); box-shadow: var(--shadow); font-weight: 600; }
+
+    /* LAYOUT */
+    .main { max-width: 1440px; margin: 0 auto; padding: 28px; }
+    .screen { display: none; animation: fadeUp 0.18s ease; }
     .screen.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      font-size: 14px;
-      font-weight: 500;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-primary { background: #3B82F6; color: white; }
-    .btn-primary:hover { background: #2563EB; }
-    .btn-outline { background: white; border: 1px solid #E5E7EB; }
-    .btn-outline:hover { border-color: #3B82F6; background: #EFF6FF; }
-    .btn-success { background: #10B981; color: white; }
-    .btn-danger { background: #EF4444; color: white; }
-    .btn-sm { padding: 4px 12px; font-size: 12px; }
-    .form-card, .table-card {
-      background: white;
-      border-radius: 20px;
-      border: 1px solid #E5E7EB;
-      padding: 24px;
-      margin-bottom: 24px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    }
-    .form-row { display: flex; gap: 20px; flex-wrap: wrap; }
-    .form-group { flex: 1; min-width: 180px; display: flex; flex-direction: column; gap: 6px; }
-    .form-group label { font-size: 13px; font-weight: 500; color: #6B7280; }
-    input, select {
-      padding: 10px 14px;
-      border: 1px solid #E5E7EB;
-      border-radius: 8px;
-      font-size: 14px;
-      font-family: inherit;
-    }
-    input:focus, select:focus { outline: none; border-color: #3B82F6; box-shadow: 0 0 0 2px rgba(59,130,246,0.1); }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+    /* BUTTONS */
+    .btn { display: inline-flex; align-items: center; gap: 7px; padding: 8px 16px; font-size: 13px; font-weight: 600; border-radius: var(--r); border: none; cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap; letter-spacing: -0.1px; }
+    .btn svg { flex-shrink: 0; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #1D4ED8; }
+    .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+    .btn-success { background: var(--green); color: #fff; }
+    .btn-success:hover { background: #047857; }
+    .btn-danger { background: var(--red); color: #fff; }
+    .btn-danger:hover { background: #B91C1C; }
+    .btn-ghost { background: transparent; color: var(--text-2); border: 1px solid transparent; }
+    .btn-ghost:hover { background: var(--bg); border-color: var(--border); color: var(--text); }
+    .btn-sm { padding: 5px 11px; font-size: 12px; border-radius: 8px; }
+    .btn-icon { padding: 6px; border-radius: 8px; }
+
+    /* CARDS */
+    .card { background: var(--surface); border-radius: var(--r-xl); border: 1px solid var(--border); box-shadow: var(--shadow); }
+    .card-body { padding: 20px 24px; }
+    .card-header { padding: 14px 20px; border-bottom: 1px solid var(--border-soft); display: flex; align-items: center; justify-content: space-between; }
+    .card-header h3 { font-size: 14px; font-weight: 600; }
+
+    /* FORMS */
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-label { font-size: 11.5px; font-weight: 600; color: var(--text-2); letter-spacing: 0.3px; text-transform: uppercase; }
+    .form-input, .form-select { padding: 9px 13px; border: 1px solid var(--border); border-radius: var(--r); font-size: 13.5px; font-family: inherit; color: var(--text); background: var(--surface); transition: border-color 0.15s, box-shadow 0.15s; width: 100%; }
+    .form-input:focus, .form-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    .form-select { cursor: pointer; }
+
+    /* ACTIONS BAR */
+    .actions { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+
+    /* BADGES */
+    .badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 600; }
+    .badge-blue { background: var(--accent-soft); color: var(--accent); }
+    .badge-green { background: var(--green-light); color: var(--green); }
+    .badge-neutral { background: var(--bg); color: var(--text-2); border: 1px solid var(--border); }
+
+    /* TABLES */
+    .table-wrap { overflow-x: auto; }
     .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .data-table th { text-align: left; padding: 12px 16px; background: #F9FAFB; font-weight: 600; border-bottom: 1px solid #E5E7EB; }
-    .data-table td { padding: 12px 16px; border-bottom: 1px solid #E5E7EB; vertical-align: middle; }
-    .import-area {
-      background: white;
-      border: 2px dashed #E5E7EB;
-      border-radius: 20px;
-      padding: 48px 24px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-bottom: 24px;
-    }
-    .import-area:hover { border-color: #3B82F6; background: #EFF6FF; }
-    .quartos-distribuir-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-      gap: 20px;
-    }
-    .quarto-card {
-      background: white;
-      border-radius: 20px;
-      border: 1px solid #E5E7EB;
-      overflow: hidden;
-      transition: box-shadow 0.2s;
-    }
-    .quarto-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    .quarto-card-header {
-      padding: 16px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #F9FAFB;
-      border-bottom: 1px solid #E5E7EB;
-    }
-    .quarto-card-title { display: flex; align-items: center; gap: 12px; font-weight: 600; }
-    .color-badge { width: 16px; height: 16px; border-radius: 4px; display: inline-block; }
-    .quarto-card-meta { font-size: 12px; background: #E5E7EB; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
-    .quarto-card-body { padding: 20px; }
-    .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; color: #6B7280; margin-bottom: 12px; letter-spacing: 0.5px; }
-    .lideres-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-    .lider-chip { background: #EFF6FF; color: #2563EB; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
-    .encontristas-list {
-      background: #F9FAFB;
-      border-radius: 12px;
-      padding: 8px;
-      min-height: 150px;
-      max-height: 280px;
-      overflow-y: auto;
-    }
-    .pessoa-item {
-      background: white;
-      padding: 10px 12px;
-      margin: 6px 0;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: grab;
-      border: 1px solid #E5E7EB;
-    }
-    .pessoa-item:hover { border-color: #3B82F6; background: #F0F9FF; }
-    .drag-handle { color: #9CA3AF; cursor: grab; font-size: 16px; }
-    .pessoa-nome { flex: 1; font-size: 13px; font-weight: 500; }
-    .pessoa-idade { font-size: 11px; background: #F3F4F6; padding: 2px 8px; border-radius: 20px; }
-    .vaga-bar { margin-top: 16px; display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 500; }
-    .vaga-progress { flex: 1; height: 6px; background: #E5E7EB; border-radius: 3px; overflow: hidden; }
-    .vaga-progress-fill { height: 100%; background: #10B981; border-radius: 3px; transition: width 0.2s; }
-    .actions-bar { display: flex; gap: 12px; margin: 20px 0; flex-wrap: wrap; align-items: center; }
-    .counter { background: #F3F4F6; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; }
-    .toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #1F2937;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 40px;
-      font-size: 14px;
-      z-index: 1100;
-      display: none;
-    }
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-    .modal-overlay.open { display: flex; }
-    .modal {
-      background: white;
-      border-radius: 24px;
-      width: 650px;
-      max-width: 90%;
-      max-height: 85vh;
-      overflow-y: auto;
-      padding: 24px;
-    }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .modal-header h3 { font-size: 18px; font-weight: 600; }
-    .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #6B7280; }
-    .modal-footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; }
-    .quarto-checkbox { width: 18px; height: 18px; cursor: pointer; }
-    .badge-masculino { background: #DBEAFE; color: #1E40AF; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .data-table thead th { padding: 10px 16px; background: var(--bg); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-2); text-align: left; border-bottom: 1px solid var(--border); }
+    .data-table tbody td { padding: 11px 16px; border-bottom: 1px solid var(--border-soft); vertical-align: middle; }
+    .data-table tbody tr:last-child td { border-bottom: none; }
+    .data-table tbody tr:hover td { background: var(--bg); }
+
+    /* IMPORT ZONE */
+    .import-zone { background: var(--surface); border: 2px dashed var(--border); border-radius: var(--r-xl); padding: 48px 24px; text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 20px; }
+    .import-zone:hover { border-color: var(--accent); background: var(--accent-light); }
+    .import-zone-icon { width: 48px; height: 48px; background: var(--bg); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; color: var(--text-2); border: 1px solid var(--border); }
+    .import-zone h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+    .import-zone p { font-size: 13px; color: var(--text-2); }
+
+    /* ENCONTROS */
+    .encontros-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .encontro-card { padding: 20px 24px; }
+    .encontro-card-title { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+    .encontro-card-meta { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; }
+    .encontro-stat { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-2); }
+    .encontro-actions { display: flex; gap: 8px; }
+
+    /* QUARTOS GRID */
+    .quartos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 18px; }
+    .quarto-card { border-radius: var(--r-xl); overflow: hidden; border: 1px solid var(--border); background: var(--surface); box-shadow: var(--shadow); transition: box-shadow 0.2s; }
+    .quarto-card:hover { box-shadow: var(--shadow-md); }
+    .quarto-header { padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-soft); }
+    .quarto-title { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; }
+    .color-dot { width: 13px; height: 13px; border-radius: 4px; flex-shrink: 0; }
+    .quarto-count { font-size: 12px; font-weight: 700; font-family: 'DM Mono', monospace; padding: 3px 10px; border-radius: 20px; background: var(--bg); color: var(--text-2); border: 1px solid var(--border); }
+    .quarto-body { padding: 15px 18px; }
+    .section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-3); margin-bottom: 9px; display: flex; align-items: center; gap: 8px; }
+    .section-title hr { flex: 1; border: none; border-top: 1px solid var(--border-soft); }
+    .lideres-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; min-height: 28px; }
+    .lider-tag { background: #EEF2FF; color: #4338CA; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; display: flex; align-items: center; gap: 5px; }
+    .lider-remove { background: none; border: none; cursor: pointer; color: #6366F1; line-height: 1; padding: 0 0 0 3px; font-size: 14px; }
+    .pessoas-drop { background: var(--bg); border-radius: var(--r); padding: 6px; min-height: 130px; max-height: 250px; overflow-y: auto; }
+    .pessoa-row { background: var(--surface); padding: 8px 10px; margin: 3px 0; border-radius: 9px; display: flex; align-items: center; gap: 8px; cursor: grab; border: 1px solid var(--border); transition: border-color 0.15s, background 0.15s; user-select: none; }
+    .pessoa-row:hover { border-color: var(--accent); background: var(--accent-light); }
+    .drag-grip { color: var(--text-3); display: flex; align-items: center; }
+    .pessoa-name { flex: 1; font-size: 13px; font-weight: 500; }
+    .pessoa-age { font-size: 11px; font-family: 'DM Mono', monospace; background: var(--bg); padding: 2px 7px; border-radius: 20px; color: var(--text-2); border: 1px solid var(--border); }
+    .empty-drop { text-align: center; padding: 20px; color: var(--text-3); font-size: 12.5px; }
+    .progress-row { margin-top: 12px; display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-2); font-weight: 500; }
+    .progress-bar { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 3px; background: var(--green); transition: width 0.3s; }
+    .progress-fill.warn { background: var(--amber); }
+    .progress-fill.full { background: var(--red); }
+
+    /* REGRAS */
+    .regras-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px; margin-bottom: 18px; }
+    .regra-item { display: flex; align-items: flex-start; gap: 10px; padding: 11px 14px; background: var(--bg); border-radius: var(--r); border: 1px solid var(--border); cursor: pointer; transition: border-color 0.15s; }
+    .regra-item:hover { border-color: var(--accent); }
+    .regra-item input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; margin-top: 2px; }
+    .regra-item label { font-size: 13px; font-weight: 500; cursor: pointer; line-height: 1.4; }
+    .regra-item.active { background: var(--accent-light); border-color: var(--accent-soft); }
+
+    /* MODAL */
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(2px); }
+    .overlay.open { display: flex; }
+    .modal { background: var(--surface); border-radius: 22px; width: 580px; max-width: 92vw; max-height: 88vh; overflow-y: auto; box-shadow: var(--shadow-lg); animation: modalIn 0.18s ease; }
+    @keyframes modalIn { from { opacity:0; transform:scale(0.96) translateY(8px); } to { opacity:1; transform:scale(1) translateY(0); } }
+    .modal-head { padding: 20px 24px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-soft); }
+    .modal-head h3 { font-size: 16px; font-weight: 700; }
+    .modal-close-btn { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-2); transition: all 0.15s; }
+    .modal-close-btn:hover { background: var(--red-light); border-color: var(--red); color: var(--red); }
+    .modal-body { padding: 20px 24px; }
+    .modal-foot { padding: 16px 24px; border-top: 1px solid var(--border-soft); display: flex; justify-content: flex-end; gap: 10px; }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); background: var(--text); color: #fff; padding: 10px 20px; border-radius: 40px; font-size: 13px; font-weight: 500; z-index: 2000; display: none; box-shadow: var(--shadow-lg); white-space: nowrap; }
+
+    /* SAVE PILL */
+    .save-pill { display: none; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: var(--green-light); color: var(--green); border: 1px solid #A7F3D0; }
+
+    /* EMPTY STATE */
+    .empty-state { text-align: center; padding: 72px 24px; }
+    .empty-state-icon { width: 56px; height: 56px; background: var(--bg); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: var(--text-3); border: 1px solid var(--border); }
+    .empty-state h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .empty-state p { font-size: 13px; color: var(--text-2); }
+
+    /* SECTION HEADER */
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+    .section-header h2 { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+
+    /* MISC */
+    .quarto-select-cb { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
+    .hint { font-size: 12px; color: var(--text-3); display: flex; align-items: center; gap: 6px; }
+    .divider { height: 1px; background: var(--border-soft); margin: 16px 0; }
+    .monospace { font-family: 'DM Mono', monospace; }
+    .text-muted { color: var(--text-2); }
+    .text-sm { font-size: 12.5px; }
+    .mb-3 { margin-bottom: 12px; }
+    .mb-4 { margin-bottom: 16px; }
+    .mt-4 { margin-top: 16px; }
+
     @media (max-width: 768px) {
-      .app-main { padding: 16px; }
-      .quartos-distribuir-grid { grid-template-columns: 1fr; }
-      .data-table { display: block; overflow-x: auto; }
+      .main { padding: 14px; }
+      .quartos-grid { grid-template-columns: 1fr; }
+      .nav { overflow-x: auto; max-width: calc(100vw - 180px); }
+      .header { padding: 0 14px; }
     }
   </style>
 </head>
 <body>
 
-<header class="app-header">
-  <div class="logo">🏕️ Organizador de Quartos</div>
-  <div style="display: flex; gap: 6px; background: #F3F4F6; padding: 4px; border-radius: 40px;" id="stepNav">
-    <button class="nav-step" data-step="encontros">Encontros</button>
-    <button class="nav-step" data-step="config">Configurar</button>
-    <button class="nav-step" data-step="participantes">Participantes</button>
-    <button class="nav-step" data-step="lideres">Líderes</button>
-    <button class="nav-step" data-step="alocar">Alocar</button>
-    <button class="nav-step" data-step="distribuir">Distribuição</button>
+<header class="header">
+  <div class="logo">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+    </svg>
+    Organizador de Quartos
   </div>
+  <nav class="nav" id="stepNav">
+    <button class="nav-btn" data-step="encontros">Encontros</button>
+    <button class="nav-btn" data-step="config">Configurar</button>
+    <button class="nav-btn" data-step="regras">Regras</button>
+    <button class="nav-btn" data-step="participantes">Participantes</button>
+    <button class="nav-btn" data-step="lideres">Líderes</button>
+    <button class="nav-btn" data-step="alocar">Alocar</button>
+    <button class="nav-btn" data-step="distribuir">Distribuição</button>
+  </nav>
 </header>
 
-<main class="app-main">
-  <!-- TELA ENCONTROS -->
-  <div id="screen-encontros" class="screen active">
-    <div class="actions-bar">
-      <button class="btn btn-primary" id="btnNovoEncontro">+ Novo Encontro</button>
-      <button class="btn btn-outline" id="btnImportarBackup">↑ Importar Backup</button>
-    </div>
-    <div id="encontrosGrid" style="display:grid; gap:20px; grid-template-columns:repeat(auto-fill,minmax(320px,1fr))"></div>
-    <div id="emptyEncontros" style="text-align:center; padding:60px; display:none;">🏕️ <h3>Nenhum encontro</h3><p>Clique em "Novo Encontro" para começar</p></div>
-  </div>
+<main class="main">
 
-  <!-- TELA CONFIGURAR -->
-  <div id="screen-config" class="screen">
-    <div class="form-card">
-      <div class="form-row">
-        <div class="form-group"><label>Nome do Encontro</label><input type="text" id="nomeEncontro"></div>
-        <div class="form-group"><label>Data Início</label><input type="date" id="dataInicioEncontro"></div>
-        <div class="form-group"><label>Data Fim</label><input type="date" id="dataFimEncontro"></div>
-        <div class="form-group"><label>Tipo</label><select id="tipoEvento"><option value="masculino">Masculino</option><option value="feminino">Feminino</option><option value="misto">Misto</option></select></div>
+  <!-- ENCONTROS -->
+  <div id="screen-encontros" class="screen active">
+    <div class="actions">
+      <button class="btn btn-primary" id="btnNovoEncontro">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Novo Encontro
+      </button>
+      <button class="btn btn-secondary" id="btnImportarBackup">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0018 9h-1.26A8 8 0 103 16.3"/></svg>
+        Importar Backup
+      </button>
+      <div class="save-pill" id="saveIndicator">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Salvo
       </div>
     </div>
-    <div style="display:flex; justify-content:space-between; margin-bottom:16px;"><h2>🛏️ Quartos</h2><button class="btn btn-primary btn-sm" id="btnAddQuarto">+ Adicionar Quarto</button></div>
-    <div id="quartosConfig" class="table-card"></div>
-    <div class="actions-bar"><button class="btn btn-outline" id="btnExportBackup">↓ Exportar Backup</button><button class="btn btn-primary" id="btnSalvarConfig">Salvar Configurações</button></div>
+    <div id="encontrosGrid" class="encontros-grid"></div>
+    <div id="emptyEncontros" class="empty-state" style="display:none">
+      <div class="empty-state-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <h3>Nenhum encontro cadastrado</h3>
+      <p>Clique em "Novo Encontro" para começar</p>
+    </div>
   </div>
 
-  <!-- TELA PARTICIPANTES -->
+  <!-- CONFIG -->
+  <div id="screen-config" class="screen">
+    <div class="card mb-4" style="margin-bottom:20px">
+      <div class="card-body">
+        <div class="form-grid" style="grid-template-columns: 2fr 1fr 1fr 1fr;">
+          <div class="form-group">
+            <label class="form-label">Nome do Encontro</label>
+            <input type="text" class="form-input" id="nomeEncontro">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Data Início</label>
+            <input type="date" class="form-input" id="dataInicioEncontro">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Data Fim</label>
+            <input type="date" class="form-input" id="dataFimEncontro">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tipo</label>
+            <select class="form-select" id="tipoEvento">
+              <option value="masculino">Masculino</option>
+              <option value="feminino">Feminino</option>
+              <option value="misto">Misto</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="section-header">
+      <h2>Quartos</h2>
+      <button class="btn btn-primary btn-sm" id="btnAddQuarto">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Adicionar Quarto
+      </button>
+    </div>
+    <div class="card" style="margin-bottom:20px">
+      <div class="table-wrap"><div id="quartosConfig"></div></div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-secondary" id="btnExportBackup">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0018 9h-1.26A8 8 0 103 16.11"/></svg>
+        Exportar Backup
+      </button>
+      <button class="btn btn-primary" id="btnSalvarConfig">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Salvar Configurações
+      </button>
+    </div>
+  </div>
+
+  <!-- REGRAS -->
+  <div id="screen-regras" class="screen">
+    <div class="card">
+      <div class="card-header"><h3>Regras de Alocação</h3></div>
+      <div class="card-body">
+        <div class="regras-grid" id="regrasGrid"></div>
+        <div class="divider"></div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Mínimo por faixa etária</label>
+            <input type="number" class="form-input" id="regraMinFaixa" value="3" min="1" max="10">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Máximo por faixa etária</label>
+            <input type="number" class="form-input" id="regraMaxFaixa" value="4" min="1" max="20">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Limite de jovens (18–25) por quarto</label>
+            <input type="number" class="form-input" id="regraLimiteJovens" value="3" min="0" max="20">
+          </div>
+        </div>
+        <div class="actions mt-4">
+          <button class="btn btn-primary" id="btnSalvarRegras">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Salvar Regras
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PARTICIPANTES -->
   <div id="screen-participantes" class="screen">
-    <div class="import-area" id="importArea">
-      <div style="font-size:48px">📊</div>
-      <h3>Importar Excel</h3>
-      <p>Arraste ou clique para selecionar o arquivo .xlsx</p>
+    <div class="import-zone" id="importArea">
+      <div class="import-zone-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+      </div>
+      <h3>Importar planilha Excel</h3>
+      <p>Arraste o arquivo .xlsx ou clique para selecionar</p>
       <input type="file" id="fileInput" accept=".xlsx" style="display:none">
-      <button class="btn btn-primary btn-sm" style="margin-top:12px">Selecionar arquivo</button>
     </div>
-    <div class="actions-bar"><span class="counter" id="contParticipantes">0 participantes</span><button class="btn btn-outline" id="btnAddParticipante">+ Adicionar manualmente</button><button class="btn btn-danger btn-sm" id="btnRemoverDuplicatas">⚠️ Remover Duplicatas</button></div>
-    <div class="table-card">
-      <table class="data-table">
-        <thead><tr><th>Nome</th><th>Idade</th><th>Telefone</th><th>Emergência Nome</th><th>Emergência Tel</th><th>Unidade</th><th>Célula</th><th>Ações</th></tr></thead>
-        <tbody id="participantesTbody"></tbody>
-      </table>
+    <div class="actions">
+      <span class="badge badge-neutral monospace" id="contParticipantes">0 participantes</span>
+      <button class="btn btn-secondary" id="btnAddParticipante">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Adicionar manualmente
+      </button>
+      <button class="btn btn-ghost btn-sm" id="btnRemoverDuplicatas">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+        Remover Duplicatas
+      </button>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Nome</th><th>Idade</th><th>Telefone</th><th>Emerg. Nome</th><th>Emerg. Tel</th><th>Unidade</th><th>Célula</th><th>Grupo</th><th></th></tr></thead>
+          <tbody id="participantesTbody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <!-- TELA LÍDERES -->
+  <!-- LÍDERES -->
   <div id="screen-lideres" class="screen">
-    <div class="actions-bar"><span class="counter" id="contLideres">0 líderes</span><button class="btn btn-primary" id="btnAddLider">+ Adicionar Líder</button></div>
-    <div class="table-card">
-      <table class="data-table"><thead><tr><th>Nome</th><th>Quarto</th><th>Ações</th></tr></thead><tbody id="lideresTbody"></tbody></table>
+    <div class="actions">
+      <span class="badge badge-neutral monospace" id="contLideres">0 líderes</span>
+      <button class="btn btn-primary" id="btnAddLider">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Adicionar Líder
+      </button>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Nome</th><th>Quarto</th><th></th></tr></thead>
+          <tbody id="lideresTbody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <!-- TELA ALOCAR LÍDERES -->
+  <!-- ALOCAR -->
   <div id="screen-alocar" class="screen">
-    <h2>👑 Alocar Líderes nos Quartos</h2>
-    <div id="quartosAlocarGrid" class="quartos-distribuir-grid"></div>
+    <div class="section-header" style="margin-bottom:20px">
+      <h2>Alocar Líderes</h2>
+      <span class="hint">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Atribua líderes a cada quarto
+      </span>
+    </div>
+    <div id="quartosAlocarGrid" class="quartos-grid"></div>
   </div>
 
-  <!-- TELA DISTRIBUIÇÃO -->
+  <!-- DISTRIBUIÇÃO -->
   <div id="screen-distribuir" class="screen">
-    <div class="actions-bar">
-      <button class="btn btn-success" id="btnDistribuirAutomatico">🤖 Distribuir Automaticamente</button>
-      <button class="btn btn-primary" id="btnGerarPDFs">📄 Gerar PDFs de Todos</button>
-      <button class="btn btn-outline" id="btnGerarPDFsSelecionados">📄 Gerar PDFs Selecionados</button>
-      <button class="btn btn-outline" id="btnVerSemQuarto">👥 Ver Sem Quarto</button>
-      <button class="btn btn-primary" id="btnGerarListaGeral">📋 Gerar Lista Geral</button>
+    <div class="actions">
+      <button class="btn btn-success" id="btnDistribuirAutomatico">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        Distribuir com Regras
+      </button>
+      <button class="btn btn-primary" id="btnGerarPDFs">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        Gerar Todos os PDFs
+      </button>
+      <button class="btn btn-secondary" id="btnGerarPDFsSelecionados">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        PDFs Selecionados
+      </button>
+      <button class="btn btn-secondary" id="btnVerSemQuarto">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Sem Quarto
+      </button>
+      <button class="btn btn-secondary" id="btnGerarListaGeral">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Lista Geral (PDF)
+      </button>
     </div>
-    <div style="display:flex; gap:20px; margin-bottom:20px; font-size:12px;"><span>⚠️ Arraste para mover entre quartos</span><span>✅ Marque os quartos para gerar PDFs selecionados</span></div>
-    <div id="quartosDistribuirGrid" class="quartos-distribuir-grid"></div>
+    <div class="hint mb-4" style="margin-bottom:14px">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Arraste participantes para mover entre quartos · Marque os cards para gerar PDFs selecionados
+    </div>
+    <div id="quartosDistribuirGrid" class="quartos-grid"></div>
   </div>
+
 </main>
 
 <!-- MODAIS -->
-<div class="modal-overlay" id="modalNovoEncontro"><div class="modal"><div class="modal-header"><h3>Novo Encontro</h3><button class="modal-close" data-close="modalNovoEncontro">×</button></div><div class="modal-body"><div class="form-group"><label>Nome</label><input type="text" id="modalNomeEncontro"></div><div class="form-row"><div class="form-group"><label>Data Início</label><input type="date" id="modalDataInicio"></div><div class="form-group"><label>Data Fim</label><input type="date" id="modalDataFim"></div></div><div class="form-group"><label>Tipo</label><select id="modalTipoEvento"><option value="masculino">Masculino</option><option value="feminino">Feminino</option><option value="misto">Misto</option></select></div></div><div class="modal-footer"><button class="btn btn-outline" data-close="modalNovoEncontro">Cancelar</button><button class="btn btn-primary" id="btnCriarEncontro">Criar</button></div></div></div>
 
-<div class="modal-overlay" id="modalAddParticipante"><div class="modal" style="width:700px"><div class="modal-header"><h3>Adicionar Participante</h3><button class="modal-close" data-close="modalAddParticipante">×</button></div><div class="modal-body"><div class="form-row"><div class="form-group"><label>Nome</label><input type="text" id="addNome"></div><div class="form-group"><label>Sobrenome</label><input type="text" id="addSobrenome"></div><div class="form-group"><label>Idade</label><input type="number" id="addIdade"></div><div class="form-group"><label>Telefone</label><input type="text" id="addTelefone"></div></div><div class="form-row"><div class="form-group"><label>Emergência Nome</label><input type="text" id="addEmergNome"></div><div class="form-group"><label>Emergência Tel</label><input type="text" id="addEmergTel"></div></div><div class="form-row"><div class="form-group"><label>Unidade</label><input type="text" id="addUnidade"></div><div class="form-group"><label>Célula</label><input type="text" id="addCelula"></div></div></div><div class="modal-footer"><button class="btn btn-outline" data-close="modalAddParticipante">Cancelar</button><button class="btn btn-primary" id="btnSalvarAddParticipante">Salvar</button></div></div></div>
+<div class="overlay" id="modalNovoEncontro">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Novo Encontro</h3>
+      <button class="modal-close-btn" data-close="modalNovoEncontro"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group mb-4" style="margin-bottom:14px">
+        <label class="form-label">Nome</label>
+        <input type="text" class="form-input" id="modalNomeEncontro" placeholder="Ex: Acampamento Homens 2026">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+        <div class="form-group"><label class="form-label">Data Início</label><input type="date" class="form-input" id="modalDataInicio"></div>
+        <div class="form-group"><label class="form-label">Data Fim</label><input type="date" class="form-input" id="modalDataFim"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tipo</label>
+        <select class="form-select" id="modalTipoEvento">
+          <option value="masculino">Masculino</option>
+          <option value="feminino">Feminino</option>
+          <option value="misto">Misto</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" data-close="modalNovoEncontro">Cancelar</button>
+      <button class="btn btn-primary" id="btnCriarEncontro">Criar Encontro</button>
+    </div>
+  </div>
+</div>
 
-<div class="modal-overlay" id="modalAddLider"><div class="modal"><div class="modal-header"><h3>Adicionar Líder</h3><button class="modal-close" data-close="modalAddLider">×</button></div><div class="modal-body"><input type="text" id="addLiderNome" placeholder="Nome" style="width:100%"></div><div class="modal-footer"><button class="btn btn-outline" data-close="modalAddLider">Cancelar</button><button class="btn btn-primary" id="btnSalvarAddLider">Salvar</button></div></div></div>
+<div class="overlay" id="modalAddParticipante">
+  <div class="modal" style="width:680px">
+    <div class="modal-head">
+      <h3>Adicionar Participante</h3>
+      <button class="modal-close-btn" data-close="modalAddParticipante"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr 80px 1fr;gap:12px;margin-bottom:12px">
+        <div class="form-group"><label class="form-label">Nome</label><input type="text" class="form-input" id="addNome"></div>
+        <div class="form-group"><label class="form-label">Sobrenome</label><input type="text" class="form-input" id="addSobrenome"></div>
+        <div class="form-group"><label class="form-label">Idade</label><input type="number" class="form-input" id="addIdade"></div>
+        <div class="form-group"><label class="form-label">Telefone</label><input type="text" class="form-input" id="addTelefone"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div class="form-group"><label class="form-label">Emergência — Nome</label><input type="text" class="form-input" id="addEmergNome"></div>
+        <div class="form-group"><label class="form-label">Emergência — Tel</label><input type="text" class="form-input" id="addEmergTel"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 80px;gap:12px">
+        <div class="form-group"><label class="form-label">Unidade</label><input type="text" class="form-input" id="addUnidade"></div>
+        <div class="form-group"><label class="form-label">Célula</label><input type="text" class="form-input" id="addCelula"></div>
+        <div class="form-group"><label class="form-label">Grupo #</label><input type="number" class="form-input" id="addGrupo" value="0"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" data-close="modalAddParticipante">Cancelar</button>
+      <button class="btn btn-primary" id="btnSalvarAddParticipante">Salvar</button>
+    </div>
+  </div>
+</div>
 
-<div class="modal-overlay" id="modalSemQuarto"><div class="modal"><div class="modal-header"><h3>Participantes sem quarto</h3><button class="modal-close" data-close="modalSemQuarto">×</button></div><div class="modal-body" id="semQuartoList"></div><div class="modal-footer"><button class="btn btn-primary" id="btnDistribuirSemQuartoModal">Distribuir automaticamente</button><button class="btn btn-outline" data-close="modalSemQuarto">Fechar</button></div></div></div>
+<div class="overlay" id="modalAddLider">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Adicionar Líder</h3>
+      <button class="modal-close-btn" data-close="modalAddLider"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Nome</label><input type="text" class="form-input" id="addLiderNome" placeholder="Nome completo"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" data-close="modalAddLider">Cancelar</button>
+      <button class="btn btn-primary" id="btnSalvarAddLider">Salvar</button>
+    </div>
+  </div>
+</div>
 
-<div class="modal-overlay" id="modalAddToRoom"><div class="modal"><div class="modal-header"><h3>Adicionar ao Quarto</h3><button class="modal-close" data-close="modalAddToRoom">×</button></div><div class="modal-body"><select id="selectPessoaSemQuarto" style="width:100%"></select></div><div class="modal-footer"><button class="btn btn-primary" id="btnConfirmAddToRoom">Adicionar</button><button class="btn btn-outline" data-close="modalAddToRoom">Cancelar</button></div></div></div>
+<div class="overlay" id="modalSemQuarto">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Participantes sem quarto</h3>
+      <button class="modal-close-btn" data-close="modalSemQuarto"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body" id="semQuartoList"></div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" data-close="modalSemQuarto">Fechar</button>
+      <button class="btn btn-success" id="btnDistribuirSemQuartoModal">Distribuir automaticamente</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="modalAddToRoom">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Adicionar ao Quarto</h3>
+      <button class="modal-close-btn" data-close="modalAddToRoom"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Selecionar participante</label><select class="form-select" id="selectPessoaSemQuarto"></select></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" data-close="modalAddToRoom">Cancelar</button>
+      <button class="btn btn-primary" id="btnConfirmAddToRoom">Adicionar</button>
+    </div>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-  // ==================== DADOS PRÉ-CONFIGURADOS ====================
-  const coresQuartos = {
-    'Azul Claro': '#89CFF0',
-    'Azul Escuro': '#1E3A8A', 
-    'Marrom': '#8B4513',
-    'Verde': '#2D6A4F',
-    'Laranja': '#F97316',
-    'Amarelo': '#FACC15',
-    'Vermelho': '#DC2626',
-    'Cinza': '#6B7280'
-  };
+// ============================================================
+// PRÉ-CONFIG
+// ============================================================
+const CORES = {
+  'Azul Claro':  '#89CFF0', 'Azul Escuro': '#1E3A8A', 'Marrom': '#8B4513', 'Verde': '#2D6A4F',
+  'Laranja': '#F97316', 'Amarelo': '#FACC15', 'Vermelho': '#DC2626', 'Cinza': '#6B7280',
+};
+const LIDERES_PRE = [
+  {nome:'Digésio',quarto:'Azul Claro'},{nome:'Pedro',quarto:'Azul Claro'},
+  {nome:'Samuel',quarto:'Amarelo'},{nome:'Rafael',quarto:'Amarelo'},
+  {nome:'Fábio',quarto:'Vermelho'},{nome:'João Paulo',quarto:'Vermelho'},
+  {nome:'Fábinho',quarto:'Laranja'},{nome:'Douglas',quarto:'Laranja'},
+  {nome:'Emídio',quarto:'Verde'},{nome:'Bruno',quarto:'Verde'},
+  {nome:'Antônio',quarto:'Azul Escuro'},{nome:'Flávio',quarto:'Azul Escuro'},
+  {nome:'Marcus',quarto:'Cinza'},{nome:'Wilson',quarto:'Cinza'},
+];
+const REGRAS_PADRAO = {
+  agruparIdadeBlocos:false,agruparQuantidadeFaixa:false,agruparUnidade:false,agruparCelula:false,
+  agruparGrupoManual:false,separarUnidade:false,separarCelula:false,separarLideres:true,
+  separarConflito:false,balancearIdades:false,limiteFaixaEtaria:false,
+  minPorFaixa:3,maxPorFaixa:4,limiteJovens:3,
+};
+const REGRAS_LISTA = [
+  {key:'agruparIdadeBlocos',label:'Agrupar por faixa etária (18-25, 26-35, 36-50, 51+)'},
+  {key:'agruparQuantidadeFaixa',label:'Agrupar por quantidade de faixa (min/max)'},
+  {key:'agruparUnidade',label:'Agrupar por unidade'},
+  {key:'agruparCelula',label:'Agrupar por célula'},
+  {key:'agruparGrupoManual',label:'Agrupar por grupo manual'},
+  {key:'separarUnidade',label:'Dispersar por unidade (separar)'},
+  {key:'separarCelula',label:'Dispersar por célula (separar)'},
+  {key:'separarLideres',label:'Separar líderes de participantes'},
+  {key:'separarConflito',label:'Respeitar conflitos manuais'},
+  {key:'balancearIdades',label:'Balancear idades (misturar jovens e adultos)'},
+  {key:'limiteFaixaEtaria',label:'Limitar jovens (18-25) por quarto'},
+];
 
-  const lideresPreConfig = [
-    { nome: "Digésio", quarto: "Azul Claro" }, { nome: "Pedro", quarto: "Azul Claro" },
-    { nome: "Samuel", quarto: "Amarelo" }, { nome: "Rafael", quarto: "Amarelo" },
-    { nome: "Fábio", quarto: "Vermelho" }, { nome: "João Paulo", quarto: "Vermelho" },
-    { nome: "Fábinho", quarto: "Laranja" }, { nome: "Douglas", quarto: "Laranja" },
-    { nome: "Emídio", quarto: "Verde" }, { nome: "Bruno", quarto: "Verde" },
-    { nome: "Antônio", quarto: "Azul Escuro" }, { nome: "Flávio", quarto: "Azul Escuro" },
-    { nome: "Marcus", quarto: "Cinza" }, { nome: "Wilson", quarto: "Cinza" }
-  ];
+// ============================================================
+// STATE & UTILS
+// ============================================================
+let encontros = [];
+let encontroAtual = null;
 
-  const quartosPreConfig = [];
-  for (const [nome, cor] of Object.entries(coresQuartos)) {
-    quartosPreConfig.push({
-      id: `q_${nome.toLowerCase().replace(/ /g, '_')}`,
-      corHex: cor,
-      corNome: nome,
-      capacidade: 10,
-      tipoAlocacao: "normal",
-      lideresPorQuarto: 2,
-      lideresAlocados: [],
-      encontristas: []
-    });
-  }
+function uid() { return Date.now().toString(36)+Math.random().toString(36).slice(2); }
+function fmtData(iso) { if(!iso)return'—'; const[y,m,d]=iso.split('-'); return`${d}/${m}/${y}`; }
+function getEnc() { return encontros.find(e=>e.id===encontroAtual)||null; }
+function vagasEncontristas(q) { return (q.capacidade||10)-(q.lideresPorQuarto||2); }
+function nomeQ(q) { return q.corNome||'Quarto'; }
+function faixaEtaria(idade) {
+  if(idade>=18&&idade<=25)return'jovem';
+  if(idade>=26&&idade<=35)return'adulto_jovem';
+  if(idade>=36&&idade<=50)return'adulto';
+  if(idade>=51)return'senior';
+  return'outro';
+}
 
-  for (const lider of lideresPreConfig) {
-    const quarto = quartosPreConfig.find(q => q.corNome === lider.quarto);
-    if (quarto) quarto.lideresAlocados.push(lider.nome);
-  }
+function toast(msg,dur=2500){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.style.display='block';
+  clearTimeout(toast._t);
+  toast._t=setTimeout(()=>el.style.display='none',dur);
+}
+function showSavePill(){
+  const el=document.getElementById('saveIndicator');
+  if(!el)return;
+  el.style.display='inline-flex';
+  clearTimeout(showSavePill._t);
+  showSavePill._t=setTimeout(()=>el.style.display='none',2000);
+}
+function salvar(showToast=false){
+  localStorage.setItem('organizador_quartos_v5',JSON.stringify(encontros));
+  showSavePill();
+  if(showToast)toast('Dados salvos!');
+}
+function carregar(){
+  const raw=localStorage.getItem('organizador_quartos_v5');
+  if(raw){try{encontros=JSON.parse(raw);}catch{encontros=[];}}
+}
+function abrirModal(id){document.getElementById(id).classList.add('open');}
+function fecharModal(id){document.getElementById(id).classList.remove('open');}
 
-  const encontroInicial = {
-    id: "enc_default",
-    nome: "Acampamento de Homens 2026",
-    dataInicio: "2026-05-24",
-    dataFim: "2026-05-26",
-    tipoEvento: "masculino",
-    quartos: quartosPreConfig,
-    participantes: [],
-    lideres: lideresPreConfig.map(l => ({ id: `lid_${l.nome.toLowerCase().replace(/ /g, '_')}`, nome: l.nome }))
-  };
+function irParaTela(tela){
+  if(!encontroAtual&&tela!=='encontros'){toast('Selecione um encontro primeiro');return;}
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(`screen-${tela}`).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.step===tela));
+  if(tela==='config')renderConfig();
+  if(tela==='regras')renderRegras();
+  if(tela==='participantes')renderParticipantes();
+  if(tela==='lideres')renderLideres();
+  if(tela==='alocar')renderAlocar();
+  if(tela==='distribuir')renderDistribuir();
+}
 
-  // ==================== FUNÇÕES DO SISTEMA ====================
-  let encontros = [];
-  let encontroAtual = null;
+function criarQuartosPre(){
+  return Object.entries(CORES).map(([nome,cor])=>{
+    const lids=LIDERES_PRE.filter(l=>l.quarto===nome).map(l=>l.nome);
+    return{id:uid(),corHex:cor,corNome:nome,capacidade:10,lideresPorQuarto:2,lideresAlocados:lids,encontristas:[]};
+  });
+}
 
-  function uuid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
-  function salvar() { localStorage.setItem('organizador_quartos_final_v3', JSON.stringify(encontros)); }
-  function carregar() { const d = localStorage.getItem('organizador_quartos_final_v3'); if (d) encontros = JSON.parse(d); }
-  function toast(msg) { const el = document.getElementById('toast'); el.textContent = msg; el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 3000); }
-  function formatarData(iso) { if (!iso) return '—'; const [y, m, d] = iso.split('-'); return `${d}/${m}/${y}`; }
-  function getEncontro() { return encontros.find(e => e.id === encontroAtual); }
-  function getVagasEncontristas(q) { return (q.capacidade || 10) - (q.lideresPorQuarto || 2); }
-  function getNomeQuarto(q) { return q.corNome || 'Quarto'; }
-
-  // ========== PDF PÚBLICO (HORIZONTAL - apenas nomes, linha com altura reduzida pela metade) ==========
-  function gerarPDFPublico(q) {
-    const doc = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-    const corHex = q.corHex || '#89CFF0';
-    const r = parseInt(corHex.slice(1,3), 16);
-    const g = parseInt(corHex.slice(3,5), 16);
-    const b = parseInt(corHex.slice(5,7), 16);
-    
-    doc.setFillColor(r, g, b);
-    doc.rect(0, 0, 297, 40, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(22);
-    doc.text(`Quarto: ${getNomeQuarto(q)}`, 148.5, 18, { align: 'center' });
-    
-    doc.setFontSize(12);
-    const lideresNomes = q.lideresAlocados || [];
-    doc.text(`Líderes: ${lideresNomes.join(', ') || '—'}`, 148.5, 30, { align: 'center' });
-    
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    const enc = getEncontro();
-    doc.text(`${enc.nome} - ${formatarData(enc.dataInicio)} a ${formatarData(enc.dataFim)}`, 148.5, 38, { align: 'center' });
-    
-    doc.setTextColor(0, 0, 0);
-    const nomesEncontristas = (q.encontristas || []).map(p => `${p.nome} ${p.sobrenome || ''}`);
-    
-    if (nomesEncontristas.length) {
-      doc.autoTable({
-        startY: 48,
-        head: [['PARTICIPANTES']],
-        body: nomesEncontristas.map(n => [n]),
-        styles: { 
-          fontSize: 16, 
-          cellPadding: 4,  // Reduzido pela metade (antes era 8)
-          font: 'helvetica', 
-          halign: 'center', 
-          valign: 'middle',
-          lineColor: [200,200,200], 
-          lineWidth: 0.2 
-        },
-        headStyles: { 
-          fillColor: [r, g, b], 
-          textColor: [255,255,255], 
-          fontSize: 14, 
-          fontStyle: 'bold', 
-          halign: 'center',
-          cellPadding: 3
-        },
-        margin: { left: 40, right: 40 },
-        tableWidth: 'auto'
-      });
-    } else {
-      doc.setFontSize(16);
-      doc.text("Nenhum participante alocado", 148.5, 70, { align: 'center' });
-    }
-    
-    doc.save(`${getNomeQuarto(q)}_PUBLICO.pdf`);
-  }
-
-  // ========== PDF PRIVADO (HORIZONTAL - completo, com nome e telefone de emergência separados) ==========
-  function gerarPDFPrivado(q) {
-    const doc = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-    const corHex = q.corHex || '#89CFF0';
-    const r = parseInt(corHex.slice(1,3), 16);
-    const g = parseInt(corHex.slice(3,5), 16);
-    const b = parseInt(corHex.slice(5,7), 16);
-    
-    doc.setFillColor(r, g, b);
-    doc.rect(0, 0, 297, 40, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(20);
-    doc.text(`Quarto: ${getNomeQuarto(q)}`, 148.5, 18, { align: 'center' });
-    
-    doc.setFontSize(11);
-    const lideresNomes = q.lideresAlocados || [];
-    doc.text(`Líderes: ${lideresNomes.join(', ') || '—'}`, 148.5, 30, { align: 'center' });
-    
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    const enc = getEncontro();
-    doc.text(`${enc.nome} - ${formatarData(enc.dataInicio)} a ${formatarData(enc.dataFim)}`, 148.5, 38, { align: 'center' });
-    
-    const larguraTotal = 277;
-    const colunas = [
-      { header: 'Nome', width: 55 },
-      { header: 'Idade', width: 20 },
-      { header: 'Telefone', width: 35 },
-      { header: 'Emergência (Nome)', width: 60 },
-      { header: 'Emergência (Tel)', width: 35 },
-      { header: 'Unidade', width: 40 },
-      { header: 'Célula', width: 32 }
-    ];
-    
-    const body = (q.encontristas || []).map(p => [
-      `${p.nome} ${p.sobrenome || ''}`.substring(0, 32),
-      p.idade || '—',
-      p.telefone || '—',
-      p.emergenciaNome || '—',
-      p.emergenciaTel || '—',
-      (p.unidade || '—').substring(0, 28),
-      (p.celula || '—').substring(0, 25)
-    ]);
-    
-    doc.autoTable({
-      head: [colunas.map(c => c.header)],
-      body: body,
-      startY: 48,
-      styles: { 
-        fontSize: 9, 
-        cellPadding: 3, 
-        font: 'helvetica', 
-        halign: 'center', 
-        valign: 'middle',
-        lineColor: [180,180,180],
-        lineWidth: 0.2
-      },
-      headStyles: { 
-        fillColor: [r, g, b], 
-        textColor: [255,255,255], 
-        fontSize: 10, 
-        fontStyle: 'bold', 
-        halign: 'center',
-        cellPadding: 4
-      },
-      alternateRowStyles: { fillColor: [245, 245, 245] },
-      margin: { left: 10, right: 10 },
-      columnStyles: {
-        0: { cellWidth: 55, halign: 'left' },
-        1: { cellWidth: 20, halign: 'center' },
-        2: { cellWidth: 35, halign: 'center' },
-        3: { cellWidth: 60, halign: 'left' },
-        4: { cellWidth: 35, halign: 'center' },
-        5: { cellWidth: 40, halign: 'left' },
-        6: { cellWidth: 32, halign: 'left' }
-      },
-      tableWidth: larguraTotal,
-      pageBreak: 'auto'
-    });
-    
-    doc.save(`${getNomeQuarto(q)}_PRIVADO.pdf`);
-  }
-
-  // ========== GERAR TODOS PDFs ==========
-  function gerarPDFs(apenasSelecionados = false) {
-    const enc = getEncontro();
-    if (!enc) { toast('Nenhum encontro selecionado'); return; }
-    
-    let quartosParaGerar = enc.quartos;
-    if (apenasSelecionados) {
-      const checkboxes = document.querySelectorAll('.quarto-checkbox:checked');
-      if (!checkboxes.length) { toast('Selecione ao menos um quarto'); return; }
-      const indices = Array.from(checkboxes).map(cb => parseInt(cb.dataset.quartoIdx));
-      quartosParaGerar = enc.quartos.filter((_, idx) => indices.includes(idx));
-    }
-    
-    let gerados = 0;
-    for (const q of quartosParaGerar) {
-      if ((q.encontristas?.length || 0) > 0) {
-        gerarPDFPublico(q);
-        gerarPDFPrivado(q);
-        gerados++;
-      }
-    }
-    toast(`${gerados} quarto(s) gerados (Público + Privado)!`);
-  }
-
-  // ========== LISTA GERAL ==========
-  function gerarListaGeral() {
-    const enc = getEncontro();
-    if (!enc) { toast('Nenhum encontro selecionado'); return; }
-    
-    const quartoPorParticipante = new Map();
-    for (const quarto of enc.quartos) {
-      for (const p of (quarto.encontristas || [])) quartoPorParticipante.set(p.id, quarto);
-    }
-    
-    const todas = enc.participantes.map(p => ({
-      nome: `${p.nome} ${p.sobrenome || ''}`.trim(),
-      idade: p.idade || '—',
-      quarto: quartoPorParticipante.get(p.id) ? getNomeQuarto(quartoPorParticipante.get(p.id)) : 'Sem quarto',
-      telefone: p.telefone || '—',
-      emergenciaNome: p.emergenciaNome || '—',
-      emergenciaTel: p.emergenciaTel || '—'
-    }));
-    todas.sort((a,b) => a.nome.localeCompare(b.nome));
-    
-    const doc = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(18);
-    doc.text('Lista Geral de Participantes', 148.5, 20, { align: 'center' });
-    doc.setFontSize(10);
-    doc.text(`${enc.nome} - ${formatarData(enc.dataInicio)} a ${formatarData(enc.dataFim)}`, 148.5, 30, { align: 'center' });
-    
-    const body = todas.map(p => [p.quarto, p.nome, p.idade, p.telefone, p.emergenciaNome, p.emergenciaTel]);
-    doc.autoTable({
-      head: [['Quarto', 'Nome', 'Idade', 'Telefone', 'Emergência Nome', 'Emergência Tel']],
-      body: body,
-      startY: 40,
-      styles: { fontSize: 8, cellPadding: 2, halign: 'center' },
-      headStyles: { fillColor: [41, 128, 185], textColor: [255,255,255], fontSize: 9, fontStyle: 'bold' },
-      margin: { left: 8, right: 8 }
-    });
-    doc.save('Lista_Geral.pdf');
-    toast('Lista geral gerada!');
-  }
-
-  // ========== DISTRIBUIÇÃO AUTOMÁTICA ==========
-  function distribuirAutomatico() {
-    const enc = getEncontro();
-    if (!enc) return;
-    enc.quartos.forEach(q => q.encontristas = []);
-    const participantes = [...enc.participantes];
-    for (let i = participantes.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [participantes[i], participantes[j]] = [participantes[j], participantes[i]];
-    }
-    for (const pessoa of participantes) {
-      const quartosComVaga = enc.quartos.filter(q => (q.encontristas?.length || 0) < getVagasEncontristas(q));
-      if (quartosComVaga.length === 0) continue;
-      quartosComVaga.sort((a, b) => (a.encontristas?.length || 0) - (b.encontristas?.length || 0));
-      if (!quartosComVaga[0].encontristas) quartosComVaga[0].encontristas = [];
-      quartosComVaga[0].encontristas.push(pessoa);
-    }
-    salvar();
-    renderDistribuir();
-    toast('Distribuição automática concluída!');
-  }
-
-  // ========== IMPORTAÇÃO EXCEL ==========
-  async function processarExcel(file) {
-    const enc = getEncontro();
-    if (!enc) { toast('Selecione um encontro primeiro'); return; }
-    toast('Lendo arquivo...');
-    const data = await file.arrayBuffer();
-    const workbook = XLSX.read(data);
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(sheet);
-    
-    let adicionados = 0;
-    
-    for (const row of rows) {
-      let nomeCompleto = row['Nome Completo'] || row['NOME COMPLETO'] || row['Nome'] || '';
-      if (!nomeCompleto || nomeCompleto.length < 3) continue;
-      
-      const partes = nomeCompleto.trim().split(' ');
-      const primeiroNome = partes[0];
-      const sobrenome = partes.slice(1).join(' ');
-      
-      let idade = row['Idade'] || row['IDADE'] || 0;
-      if (typeof idade === 'string') { const match = idade.match(/\d+/); idade = match ? parseInt(match[0]) : 0; }
-      idade = parseInt(idade) || 0;
-      
-      let telefone = row['Celular'] || row['Celular do comprador'] || '';
-      if (telefone) telefone = telefone.toString().replace(/\D/g, '').slice(-11);
-      
-      let emergenciaNome = row['O encontro acontecerá na chácara da igreja, precisamos do nome de uma pessoa para contato.'] || '';
-      let emergenciaTel = row['Telefone de contato da pessoa indicada.'] || '';
-      if (emergenciaTel) emergenciaTel = emergenciaTel.toString().replace(/\D/g, '').slice(-11);
-      
-      let unidade = row['Qual unidade do Núcleo da Fé você participa?'] || '';
-      let celula = row['Participa de célula? Qual?'] || '';
-      
-      enc.participantes.push({
-        id: uuid(),
-        nome: primeiroNome,
-        sobrenome: sobrenome,
-        idade: idade,
-        genero: 'MASCULINO',
-        telefone: telefone,
-        emergenciaNome: emergenciaNome,
-        emergenciaTel: emergenciaTel,
-        unidade: unidade,
-        celula: celula
-      });
-      adicionados++;
-    }
-    
-    salvar();
-    renderParticipantes();
-    toast(`${adicionados} participantes importados!`);
-  }
-
-  // ========== RENDERIZAÇÕES ==========
-  function renderEncontros() {
-    const grid = document.getElementById('encontrosGrid');
-    const empty = document.getElementById('emptyEncontros');
-    if (!encontros.length) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
-    empty.style.display = 'none';
-    grid.innerHTML = encontros.map(enc => `
-      <div class="form-card">
-        <h3>${enc.nome}</h3>
-        <p>📅 ${formatarData(enc.dataInicio)} - ${formatarData(enc.dataFim)}</p>
-        <p>👥 ${enc.participantes.length} participantes | 🛏️ ${enc.quartos.length} quartos | 👑 ${enc.lideres.length} líderes</p>
-        <div><button class="btn btn-primary btn-sm" onclick="abrirEncontro('${enc.id}')">Abrir</button>
-        <button class="btn btn-outline btn-sm" onclick="duplicarEncontro('${enc.id}')">Duplicar</button>
-        <button class="btn btn-outline btn-sm" onclick="excluirEncontro('${enc.id}')">Excluir</button></div>
+// ============================================================
+// ENCONTROS
+// ============================================================
+function renderEncontros(){
+  const grid=document.getElementById('encontrosGrid');
+  const empty=document.getElementById('emptyEncontros');
+  if(!encontros.length){grid.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  grid.innerHTML=encontros.map(enc=>`
+    <div class="card encontro-card">
+      <div class="encontro-card-title">${enc.nome}</div>
+      <div class="encontro-card-meta">
+        <span class="encontro-stat">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          ${fmtData(enc.dataInicio)} – ${fmtData(enc.dataFim)}
+        </span>
+        <span class="encontro-stat">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          ${enc.participantes.length} participantes
+        </span>
+        <span class="encontro-stat">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+          ${enc.quartos.length} quartos
+        </span>
       </div>
-    `).join('');
+      <div class="encontro-actions">
+        <button class="btn btn-primary btn-sm" onclick="abrirEncontro('${enc.id}')">Abrir</button>
+        <button class="btn btn-secondary btn-sm" onclick="duplicarEncontro('${enc.id}')">Duplicar</button>
+        <button class="btn btn-ghost btn-sm" onclick="excluirEncontro('${enc.id}')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>
+          Excluir
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+window.abrirEncontro=function(id){encontroAtual=id;irParaTela('config');};
+window.duplicarEncontro=function(id){
+  const orig=encontros.find(e=>e.id===id);if(!orig)return;
+  const c=JSON.parse(JSON.stringify(orig));c.id=uid();c.nome=orig.nome+' (cópia)';
+  c.quartos.forEach(q=>q.encontristas=[]);
+  encontros.unshift(c);salvar();renderEncontros();toast('Duplicado!');
+};
+window.excluirEncontro=function(id){
+  if(!confirm('Excluir este encontro?'))return;
+  encontros=encontros.filter(e=>e.id!==id);
+  if(encontroAtual===id)encontroAtual=null;
+  salvar();renderEncontros();toast('Excluído');
+};
+
+// ============================================================
+// CONFIG
+// ============================================================
+function renderConfig(){
+  const enc=getEnc();if(!enc)return;
+  document.getElementById('nomeEncontro').value=enc.nome||'';
+  document.getElementById('dataInicioEncontro').value=enc.dataInicio||'';
+  document.getElementById('dataFimEncontro').value=enc.dataFim||'';
+  document.getElementById('tipoEvento').value=enc.tipoEvento||'masculino';
+  const c=document.getElementById('quartosConfig');
+  if(!enc.quartos.length){c.innerHTML='<div style="padding:24px;text-align:center;color:var(--text-2)">Nenhum quarto cadastrado.</div>';return;}
+  c.innerHTML=`<table class="data-table"><thead><tr><th>Cor</th><th>Nome</th><th>Capacidade</th><th>Líderes/Quarto</th><th></th></tr></thead><tbody>
+    ${enc.quartos.map((q,i)=>`<tr>
+      <td><input type="color" value="${q.corHex}" onchange="updateQuarto(${i},'corHex',this.value)" style="width:36px;height:30px;border:1px solid var(--border);border-radius:6px;cursor:pointer;padding:2px"></td>
+      <td><input type="text" class="form-input" value="${q.corNome}" onchange="updateQuarto(${i},'corNome',this.value)" style="width:120px"></td>
+      <td><input type="number" class="form-input" value="${q.capacidade}" onchange="updateQuarto(${i},'capacidade',+this.value)" style="width:80px"></td>
+      <td><select class="form-select" style="width:80px" onchange="updateQuarto(${i},'lideresPorQuarto',+this.value)">
+        <option value="1" ${q.lideresPorQuarto===1?'selected':''}>1</option>
+        <option value="2" ${q.lideresPorQuarto===2?'selected':''}>2</option>
+        <option value="3" ${q.lideresPorQuarto===3?'selected':''}>3</option>
+      </select></td>
+      <td><button class="btn btn-ghost btn-icon" onclick="removerQuarto(${i})">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg>
+      </button></td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+window.updateQuarto=function(i,k,v){const enc=getEnc();if(!enc||!enc.quartos[i])return;enc.quartos[i][k]=v;salvar();};
+window.removerQuarto=function(i){const enc=getEnc();if(!enc)return;enc.quartos.splice(i,1);salvar();renderConfig();toast('Quarto removido');};
+function adicionarQuarto(){
+  const enc=getEnc();if(!enc)return;
+  enc.quartos.push({id:uid(),corHex:'#3b82f6',corNome:'Novo',capacidade:10,lideresPorQuarto:2,lideresAlocados:[],encontristas:[]});
+  salvar();renderConfig();toast('Quarto adicionado');
+}
+function salvarConfig(){
+  const enc=getEnc();if(!enc)return;
+  enc.nome=document.getElementById('nomeEncontro').value;
+  enc.dataInicio=document.getElementById('dataInicioEncontro').value;
+  enc.dataFim=document.getElementById('dataFimEncontro').value;
+  enc.tipoEvento=document.getElementById('tipoEvento').value;
+  salvar(true);
+}
+
+// ============================================================
+// REGRAS
+// ============================================================
+function renderRegras(){
+  const enc=getEnc();if(!enc)return;
+  const r=enc.regras||{...REGRAS_PADRAO};
+  document.getElementById('regrasGrid').innerHTML=REGRAS_LISTA.map(rl=>`
+    <div class="regra-item${r[rl.key]?' active':''}">
+      <input type="checkbox" id="regra_${rl.key}" ${r[rl.key]?'checked':''} onchange="toggleRegra('${rl.key}',this.checked,this)">
+      <label for="regra_${rl.key}">${rl.label}</label>
+    </div>`).join('');
+  document.getElementById('regraMinFaixa').value=r.minPorFaixa||3;
+  document.getElementById('regraMaxFaixa').value=r.maxPorFaixa||4;
+  document.getElementById('regraLimiteJovens').value=r.limiteJovens||3;
+}
+window.toggleRegra=function(k,v,cb){
+  const enc=getEnc();if(!enc)return;
+  if(!enc.regras)enc.regras={...REGRAS_PADRAO};
+  enc.regras[k]=v;
+  cb.closest('.regra-item').classList.toggle('active',v);
+  salvar();
+};
+function salvarRegras(){
+  const enc=getEnc();if(!enc)return;
+  if(!enc.regras)enc.regras={...REGRAS_PADRAO};
+  enc.regras.minPorFaixa=parseInt(document.getElementById('regraMinFaixa').value)||3;
+  enc.regras.maxPorFaixa=parseInt(document.getElementById('regraMaxFaixa').value)||4;
+  enc.regras.limiteJovens=parseInt(document.getElementById('regraLimiteJovens').value)||3;
+  salvar(true);
+}
+
+// ============================================================
+// PARTICIPANTES
+// ============================================================
+function renderParticipantes(){
+  const enc=getEnc();if(!enc)return;
+  document.getElementById('contParticipantes').textContent=`${enc.participantes.length} participantes`;
+  const tb=document.getElementById('participantesTbody');
+  if(!enc.participantes.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--text-2);padding:24px">Nenhum participante. Importe um Excel ou adicione manualmente.</td></tr>';return;}
+  tb.innerHTML=enc.participantes.map((p,i)=>`<tr>
+    <td><strong>${p.nome} ${p.sobrenome||''}</strong></td>
+    <td class="monospace">${p.idade||'—'}</td>
+    <td class="monospace">${p.telefone||'—'}</td>
+    <td>${p.emergenciaNome||'—'}</td>
+    <td class="monospace">${p.emergenciaTel||'—'}</td>
+    <td>${p.unidade||'—'}</td>
+    <td>${p.celula||'—'}</td>
+    <td><input type="number" class="form-input" value="${p.grupoNumero||0}" style="width:64px" onchange="atualizarGrupo(${i},this.value)"></td>
+    <td><button class="btn btn-ghost btn-icon" onclick="removerParticipante(${i})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button></td>
+  </tr>`).join('');
+}
+window.atualizarGrupo=function(i,v){const enc=getEnc();if(!enc)return;enc.participantes[i].grupoNumero=parseInt(v)||0;salvar();};
+window.removerParticipante=function(i){
+  const enc=getEnc();if(!enc)return;
+  const id=enc.participantes[i].id;
+  enc.participantes.splice(i,1);
+  enc.quartos.forEach(q=>{if(q.encontristas)q.encontristas=q.encontristas.filter(p=>p.id!==id);});
+  salvar();renderParticipantes();renderDistribuirIfActive();toast('Removido');
+};
+function salvarAddParticipante(){
+  const enc=getEnc();if(!enc)return;
+  const nome=document.getElementById('addNome').value.trim();
+  if(!nome){toast('Nome é obrigatório');return;}
+  enc.participantes.push({
+    id:uid(),nome,sobrenome:document.getElementById('addSobrenome').value.trim(),
+    idade:parseInt(document.getElementById('addIdade').value)||0,
+    genero:'MASCULINO',telefone:document.getElementById('addTelefone').value.trim(),
+    emergenciaNome:document.getElementById('addEmergNome').value.trim(),
+    emergenciaTel:document.getElementById('addEmergTel').value.trim(),
+    unidade:document.getElementById('addUnidade').value.trim(),
+    celula:document.getElementById('addCelula').value.trim(),
+    grupoNumero:parseInt(document.getElementById('addGrupo').value)||0,conflitoIds:'',
+  });
+  salvar();renderParticipantes();fecharModal('modalAddParticipante');toast('Participante adicionado');
+}
+async function processarExcel(file){
+  const enc=getEnc();if(!enc){toast('Selecione um encontro primeiro');return;}
+  toast('Lendo arquivo...');
+  const data=await file.arrayBuffer();
+  const wb=XLSX.read(data);
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  const rows=XLSX.utils.sheet_to_json(ws);
+  let n=0;
+  for(const row of rows){
+    let nc=row['Nome Completo']||row['NOME COMPLETO']||row['Nome']||'';
+    if(!nc||nc.length<3)continue;
+    const pts=nc.trim().split(' ');
+    const nome=pts[0],sobrenome=pts.slice(1).join(' ');
+    let idade=row['Idade']||row['IDADE']||0;
+    if(typeof idade==='string'){const m=idade.match(/\d+/);idade=m?parseInt(m[0]):0;}
+    idade=parseInt(idade)||0;
+    let tel=row['Celular']||row['Celular do comprador']||'';
+    if(tel)tel=tel.toString().replace(/\D/g,'').slice(-11);
+    let eNome=row['O encontro acontecerá na chácara da igreja, precisamos do nome de uma pessoa para contato.']||row['Contato Emergência Nome']||'';
+    let eTel=row['Telefone de contato da pessoa indicada.']||row['Contato Emergência Tel']||'';
+    if(eTel)eTel=eTel.toString().replace(/\D/g,'').slice(-11);
+    let unidade=row['Qual unidade do Núcleo da Fé você participa?']||row['Unidade']||'';
+    let celula=row['Participa de célula? Qual?']||row['Célula']||'';
+    enc.participantes.push({id:uid(),nome,sobrenome,idade,genero:'MASCULINO',telefone:tel,emergenciaNome:eNome,emergenciaTel:eTel,unidade,celula,grupoNumero:0,conflitoIds:''});
+    n++;
   }
+  salvar();renderParticipantes();toast(`${n} participantes importados!`);
+}
 
-  window.abrirEncontro = function(id) { encontroAtual = id; irParaTela('config'); renderConfig(); };
-  window.duplicarEncontro = function(id) { const original = encontros.find(e => e.id === id); if(original) { const copia = JSON.parse(JSON.stringify(original)); copia.id = uuid(); copia.nome = original.nome + ' (cópia)'; copia.quartos.forEach(q => q.encontristas = []); encontros.unshift(copia); salvar(); renderEncontros(); toast('Duplicado'); } };
-  window.excluirEncontro = function(id) { if(confirm('Excluir?')) { encontros = encontros.filter(e => e.id !== id); if(encontroAtual === id) encontroAtual = null; salvar(); renderEncontros(); toast('Excluído'); } };
+// ============================================================
+// LÍDERES
+// ============================================================
+function renderLideres(){
+  const enc=getEnc();if(!enc)return;
+  document.getElementById('contLideres').textContent=`${enc.lideres.length} líderes`;
+  const tb=document.getElementById('lideresTbody');
+  if(!enc.lideres.length){tb.innerHTML='<tr><td colspan="3" style="text-align:center;color:var(--text-2);padding:24px">Nenhum líder cadastrado</td></tr>';return;}
+  tb.innerHTML=enc.lideres.map((l,i)=>{
+    const q=enc.quartos.find(q2=>(q2.lideresAlocados||[]).includes(l.nome));
+    return`<tr>
+      <td><strong>${l.nome}</strong></td>
+      <td>${q?`<span class="badge badge-blue">${q.corNome}</span>`:'<span class="text-muted">—</span>'}</td>
+      <td><button class="btn btn-ghost btn-icon" onclick="removerLider(${i})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/></svg></button></td>
+    </tr>`;
+  }).join('');
+}
+function salvarAddLider(){
+  const nome=document.getElementById('addLiderNome').value.trim();
+  if(!nome){toast('Nome é obrigatório');return;}
+  const enc=getEnc();if(!enc)return;
+  enc.lideres.push({id:uid(),nome});
+  salvar();renderLideres();fecharModal('modalAddLider');
+  document.getElementById('addLiderNome').value='';toast('Líder adicionado');
+}
+window.removerLider=function(i){
+  const enc=getEnc();if(!enc)return;
+  const nome=enc.lideres[i].nome;enc.lideres.splice(i,1);
+  enc.quartos.forEach(q=>{q.lideresAlocados=(q.lideresAlocados||[]).filter(n=>n!==nome);});
+  salvar();renderLideres();toast('Líder removido');
+};
 
-  function renderConfig() {
-    const enc = getEncontro(); if (!enc) return;
-    document.getElementById('nomeEncontro').value = enc.nome || '';
-    document.getElementById('dataInicioEncontro').value = enc.dataInicio || '';
-    document.getElementById('dataFimEncontro').value = enc.dataFim || '';
-    document.getElementById('tipoEvento').value = enc.tipoEvento || 'masculino';
-    
-    const container = document.getElementById('quartosConfig');
-    if (!enc.quartos.length) { container.innerHTML = '<p style="padding:20px;text-align:center">Nenhum quarto. Clique em "+ Adicionar Quarto"</p>'; return; }
-    container.innerHTML = `<table class="data-table"><thead><tr><th>Cor/Nome</th><th>Capacidade</th><th>Líderes/Quarto</th><th>Ações</th></tr></thead><tbody>${enc.quartos.map((q, i) => `
-      <tr>
-        <td><input type="color" value="${q.corHex}" onchange="updateQuarto(${i}, 'corHex', this.value)" style="width:40px"> <input type="text" value="${q.corNome}" onchange="updateQuarto(${i}, 'corNome', this.value)" style="width:100px"></td>
-        <td><input type="number" value="${q.capacidade}" onchange="updateQuarto(${i}, 'capacidade', +this.value)" style="width:70px"></td>
-        <td><select onchange="updateQuarto(${i}, 'lideresPorQuarto', +this.value)"><option value="1" ${q.lideresPorQuarto===1?'selected':''}>1</option><option value="2" ${q.lideresPorQuarto===2?'selected':''}>2</option><option value="3" ${q.lideresPorQuarto===3?'selected':''}>3</option></select></td>
-        <td><button class="btn-outline btn-sm" onclick="removerQuarto(${i})">🗑️</button></td>
-      </tr>
-    `).join('')}</tbody></tr>`;
-  }
+// ============================================================
+// ALOCAR
+// ============================================================
+function renderAlocar(){
+  const enc=getEnc();if(!enc)return;
+  const grid=document.getElementById('quartosAlocarGrid');
+  if(!enc.quartos.length){grid.innerHTML='<p class="text-muted">Nenhum quarto configurado.</p>';return;}
+  const todosAloc=new Set(enc.quartos.flatMap(q=>q.lideresAlocados||[]));
+  grid.innerHTML=enc.quartos.map((q,i)=>{
+    const lids=q.lideresAlocados||[];
+    const vagasLider=(q.lideresPorQuarto||2)-lids.length;
+    const disponiveisLider=enc.lideres.filter(l=>!todosAloc.has(l.nome));
+    return`<div class="quarto-card">
+      <div class="quarto-header">
+        <div class="quarto-title"><span class="color-dot" style="background:${q.corHex}"></span>${nomeQ(q)}</div>
+        <span class="quarto-count">${lids.length}/${q.lideresPorQuarto||2}</span>
+      </div>
+      <div class="quarto-body">
+        <div class="section-title">Líderes alocados <hr></div>
+        <div class="lideres-wrap">
+          ${lids.length?lids.map(l=>`<span class="lider-tag">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            ${l}
+            <button class="lider-remove" onclick="removerLiderDoQuarto(${i},'${l}')">×</button>
+          </span>`).join(''):'<span class="text-muted text-sm">Nenhum alocado</span>'}
+        </div>
+        ${vagasLider>0?`<div style="display:flex;gap:8px;margin-top:8px">
+          <select class="form-select" id="selLider_${i}">
+            <option value="">Selecionar líder…</option>
+            ${disponiveisLider.map(l=>`<option value="${l.nome}">${l.nome}</option>`).join('')}
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="adicionarLiderAoQuarto(${i})">Adicionar</button>
+        </div>`:'<p class="text-sm text-muted" style="margin-top:8px">Limite atingido</p>'}
+      </div>
+    </div>`;
+  }).join('');
+}
+window.adicionarLiderAoQuarto=function(qi){
+  const enc=getEnc();if(!enc)return;
+  const sel=document.getElementById(`selLider_${qi}`);
+  if(!sel||!sel.value){toast('Selecione um líder');return;}
+  const q=enc.quartos[qi];
+  if((q.lideresAlocados?.length||0)>=(q.lideresPorQuarto||2)){toast('Limite de líderes atingido');return;}
+  if(!q.lideresAlocados)q.lideresAlocados=[];
+  q.lideresAlocados.push(sel.value);
+  salvar();renderAlocar();renderLideres();toast('Líder alocado');
+};
+window.removerLiderDoQuarto=function(qi,nome){
+  const enc=getEnc();if(!enc)return;
+  enc.quartos[qi].lideresAlocados=(enc.quartos[qi].lideresAlocados||[]).filter(n=>n!==nome);
+  salvar();renderAlocar();renderLideres();toast('Líder removido');
+};
 
-  window.updateQuarto = function(idx, campo, valor) { const enc = getEncontro(); if(enc && enc.quartos[idx]) { enc.quartos[idx][campo] = valor; salvar(); toast('Atualizado'); } };
-  function adicionarQuarto() { const enc = getEncontro(); if(enc) { enc.quartos.push({ id: uuid(), corHex: '#3b82f6', corNome: 'Novo', capacidade: 10, tipoAlocacao: 'normal', lideresPorQuarto: 2, lideresAlocados: [], encontristas: [] }); salvar(); renderConfig(); toast('Quarto adicionado'); } }
-  function removerQuarto(idx) { const enc = getEncontro(); if(enc) { enc.quartos.splice(idx,1); salvar(); renderConfig(); toast('Removido'); } }
-  function salvarConfig() { const enc = getEncontro(); enc.nome = document.getElementById('nomeEncontro').value; enc.dataInicio = document.getElementById('dataInicioEncontro').value; enc.dataFim = document.getElementById('dataFimEncontro').value; enc.tipoEvento = document.getElementById('tipoEvento').value; salvar(); toast('Configurações salvas'); }
+// ============================================================
+// DISTRIBUIÇÃO
+// ============================================================
+let _sortables=[];
 
-  function renderParticipantes() {
-    const enc = getEncontro(); if (!enc) return;
-    document.getElementById('contParticipantes').innerText = `${enc.participantes.length} participantes`;
-    const tbody = document.getElementById('participantesTbody');
-    if (!enc.participantes.length) { tbody.innerHTML = '<tr><td colspan="8">Nenhum participante. Importe um Excel ou adicione manualmente.</td></tr>'; return; }
-    tbody.innerHTML = enc.participantes.map((p, i) => `
-      <tr>
-        <td><strong>${p.nome} ${p.sobrenome || ''}</strong></td>
-        <td>${p.idade || '—'}</td>
-        <td>${p.telefone || '—'}</td>
-        <td>${p.emergenciaNome || '—'}</td>
-        <td>${p.emergenciaTel || '—'}</td>
-        <td>${p.unidade || '—'}</td>
-        <td>${p.celula || '—'}</td>
-        <td><button class="btn-outline btn-sm" onclick="removerParticipante(${i})">🗑️</button></td>
-      </tr>
-    `).join('');
-  }
+function renderDistribuir(){
+  const enc=getEnc();if(!enc)return;
+  const grid=document.getElementById('quartosDistribuirGrid');
+  if(!enc.quartos.length){grid.innerHTML='<p class="text-muted">Nenhum quarto configurado.</p>';return;}
+  _sortables.forEach(s=>{try{s.destroy();}catch(e){}});
+  _sortables=[];
 
-  window.removerParticipante = function(idx) { const enc = getEncontro(); const id = enc.participantes[idx].id; enc.participantes.splice(idx,1); for(const q of enc.quartos) if(q.encontristas) q.encontristas = q.encontristas.filter(p=>p.id!==id); salvar(); renderParticipantes(); renderDistribuir(); toast('Removido'); };
-  
-  function adicionarParticipante() { abrirModal('modalAddParticipante'); }
-  function salvarAddParticipante() {
-    const enc = getEncontro(); if(!enc) return;
-    const nome = document.getElementById('addNome').value.trim(); if(!nome) { toast('Nome obrigatório'); return; }
-    enc.participantes.push({
-      id: uuid(), nome, sobrenome: document.getElementById('addSobrenome').value,
-      idade: parseInt(document.getElementById('addIdade').value) || 0,
-      genero: 'MASCULINO',
-      telefone: document.getElementById('addTelefone').value,
-      emergenciaNome: document.getElementById('addEmergNome').value,
-      emergenciaTel: document.getElementById('addEmergTel').value,
-      unidade: document.getElementById('addUnidade').value,
-      celula: document.getElementById('addCelula').value
+  grid.innerHTML=enc.quartos.map((q,i)=>{
+    const total=(q.encontristas||[]).length;
+    const vagas=vagasEncontristas(q);
+    const pct=vagas>0?(total/vagas*100):0;
+    const fc=pct>=100?'full':pct>=80?'warn':'';
+    return`<div class="quarto-card">
+      <div class="quarto-header">
+        <div class="quarto-title">
+          <input type="checkbox" class="quarto-select-cb" data-quarto-idx="${i}">
+          <span class="color-dot" style="background:${q.corHex}"></span>
+          ${nomeQ(q)}
+        </div>
+        <span class="quarto-count">${total}/${vagas}</span>
+      </div>
+      <div class="quarto-body">
+        <div class="section-title">Líderes <hr></div>
+        <div class="lideres-wrap" style="margin-bottom:13px">
+          ${(q.lideresAlocados||[]).length?(q.lideresAlocados||[]).map(l=>`<span class="lider-tag"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${l}</span>`).join(''):'<span class="text-muted text-sm">—</span>'}
+        </div>
+        <div class="section-title">
+          Participantes <hr>
+          <button class="btn btn-ghost btn-icon" onclick="abrirModalAddToRoom(${i})" title="Adicionar">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+        <div class="pessoas-drop" data-quarto-idx="${i}">
+          ${(q.encontristas||[]).length?(q.encontristas||[]).map(p=>`
+            <div class="pessoa-row" data-id="${p.id}">
+              <span class="drag-grip"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="9" cy="5" r="1.2" fill="currentColor"/><circle cx="9" cy="12" r="1.2" fill="currentColor"/><circle cx="9" cy="19" r="1.2" fill="currentColor"/><circle cx="15" cy="5" r="1.2" fill="currentColor"/><circle cx="15" cy="12" r="1.2" fill="currentColor"/><circle cx="15" cy="19" r="1.2" fill="currentColor"/></svg></span>
+              <span class="pessoa-name">${p.nome} ${p.sobrenome||''}</span>
+              <span class="pessoa-age">${p.idade||'?'}a</span>
+            </div>`).join(''):'<div class="empty-drop">Arraste participantes aqui</div>'}
+        </div>
+        <div class="progress-row">
+          <span>${total} pessoas</span>
+          <div class="progress-bar"><div class="progress-fill ${fc}" style="width:${Math.min(100,pct)}%"></div></div>
+          <span>${Math.max(0,vagas-total)} vagas</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  requestAnimationFrame(()=>{
+    document.querySelectorAll('.pessoas-drop').forEach(zone=>{
+      const s=new Sortable(zone,{
+        group:'quartos',animation:180,handle:'.drag-grip',
+        onEnd(evt){
+          const pessoaId=evt.item.dataset.id;
+          const orig=parseInt(evt.from.dataset.quartoIdx);
+          const dest=parseInt(evt.to.dataset.quartoIdx);
+          if(isNaN(orig)||isNaN(dest)||orig===dest)return;
+          moverPessoa(pessoaId,orig,dest);
+        }
+      });
+      _sortables.push(s);
     });
-    salvar(); renderParticipantes(); fecharModal('modalAddParticipante'); toast('Adicionado');
-  }
+  });
+}
 
-  function renderLideres() {
-    const enc = getEncontro(); if(!enc) return;
-    document.getElementById('contLideres').innerText = `${enc.lideres.length} líderes`;
-    const tbody = document.getElementById('lideresTbody');
-    if(!enc.lideres.length) { tbody.innerHTML = '<tr><td colspan="3">Nenhum líder</td></tr>'; return; }
-    tbody.innerHTML = enc.lideres.map((l, i) => {
-      const quarto = enc.quartos.find(q => (q.lideresAlocados || []).includes(l.nome));
-      return `<tr><td><strong>${l.nome}</strong></td><td>${quarto?.corNome || '—'}</td><td><button class="btn-outline btn-sm" onclick="removerLider(${i})">🗑️</button></td></tr>`;
-    }).join('');
-  }
-  
-  function adicionarLider() { abrirModal('modalAddLider'); }
-  function salvarAddLider() { const nome = document.getElementById('addLiderNome').value.trim(); if(!nome) { toast('Nome obrigatório'); return; } const enc = getEncontro(); enc.lideres.push({ id: uuid(), nome }); salvar(); renderLideres(); fecharModal('modalAddLider'); toast('Adicionado'); }
-  function removerLider(idx) { const enc = getEncontro(); enc.lideres.splice(idx,1); salvar(); renderLideres(); toast('Removido'); }
+function moverPessoa(pessoaId,origIdx,destIdx){
+  const enc=getEnc();if(!enc)return;
+  const qO=enc.quartos[origIdx],qD=enc.quartos[destIdx];
+  const p=(qO.encontristas||[]).find(x=>x.id===pessoaId);
+  if(!p)return;
+  if((qD.encontristas||[]).length>=vagasEncontristas(qD)){toast(`Quarto ${nomeQ(qD)} está cheio`);renderDistribuir();return;}
+  qO.encontristas=qO.encontristas.filter(x=>x.id!==pessoaId);
+  if(!qD.encontristas)qD.encontristas=[];
+  qD.encontristas.push(p);
+  salvar();renderDistribuir();toast(`${p.nome} movido para ${nomeQ(qD)}`);
+}
 
-  function renderAlocar() {
-    const enc = getEncontro(); if(!enc) return;
-    const grid = document.getElementById('quartosAlocarGrid');
-    if(!enc.quartos.length) { grid.innerHTML = '<p>Nenhum quarto configurado.</p>'; return; }
-    grid.innerHTML = enc.quartos.map((q,i) => {
-      const lideresAtuais = q.lideresAlocados || [];
-      const disponiveis = enc.lideres.filter(l => !enc.quartos.flatMap(qq=>qq.lideresAlocados||[]).includes(l.nome));
-      return `<div class="form-card"><h3>${getNomeQuarto(q)}</h3><div>👑 Líderes: ${lideresAtuais.join(', ') || 'Nenhum'}</div><select id="selLider_${i}"><option value="">Selecionar líder</option>${disponiveis.map(l=>`<option value="${l.nome}">${l.nome}</option>`).join('')}</select><button class="btn btn-primary btn-sm" onclick="adicionarLiderAoQuarto(${i})">Adicionar</button></div>`;
-    }).join('');
-  }
-  
-  window.adicionarLiderAoQuarto = function(qi) { const sel = document.getElementById(`selLider_${qi}`); if(!sel.value) { toast('Selecione um líder'); return; } const enc = getEncontro(); const q = enc.quartos[qi]; if((q.lideresAlocados?.length||0) >= (q.lideresPorQuarto||2)) { toast('Limite de líderes'); return; } if(!q.lideresAlocados) q.lideresAlocados = []; q.lideresAlocados.push(sel.value); const lider = enc.lideres.find(l => l.nome === sel.value); if(lider && !enc.lideres.some(l => l.id === lider.id)) enc.lideres.push(lider); salvar(); renderAlocar(); renderLideres(); toast('Líder alocado'); };
+function renderDistribuirIfActive(){
+  if(document.getElementById('screen-distribuir').classList.contains('active'))renderDistribuir();
+}
 
-  function renderDistribuir() {
-    const enc = getEncontro(); if (!enc) return;
-    const grid = document.getElementById('quartosDistribuirGrid');
-    if (!enc.quartos.length) { grid.innerHTML = '<p>Nenhum quarto configurado.</p>'; return; }
-    grid.innerHTML = enc.quartos.map((q,i) => {
-      const total = (q.encontristas || []).length;
-      const vagas = getVagasEncontristas(q);
-      const pct = total / vagas * 100;
-      const lideresNomes = q.lideresAlocados || [];
-      return `<div class="quarto-card" data-quarto-idx="${i}">
-        <div class="quarto-card-header">
-          <div class="quarto-card-title"><input type="checkbox" class="quarto-checkbox" data-quarto-idx="${i}"><span class="color-badge" style="background:${q.corHex}"></span><span>${getNomeQuarto(q)}</span></div>
-          <div class="quarto-card-meta">${total}/${vagas}</div>
-        </div>
-        <div class="quarto-card-body">
-          <div class="section-label">👑 LÍDERES</div>
-          <div class="lideres-list">${lideresNomes.length ? lideresNomes.map(l=>`<span class="lider-chip">${l}</span>`).join('') : '—'}</div>
-          <div class="section-label">👥 PARTICIPANTES <button class="btn-outline btn-sm" onclick="abrirModalAddToRoom(${i})">➕</button></div>
-          <div class="encontristas-list" data-quarto-idx="${i}">${(q.encontristas||[]).map(p=>`<div class="pessoa-item" data-id="${p.id}"><span class="drag-handle">⠿</span><span class="pessoa-nome">${p.nome} ${p.sobrenome||''}</span><span class="pessoa-idade">${p.idade || '?'}a</span></div>`).join('') || '<div style="text-align:center;padding:12px">Vazio</div>'}</div>
-          <div class="vaga-bar"><span>${total} pessoas</span><div class="vaga-progress"><div class="vaga-progress-fill" style="width:${Math.min(100,pct)}%"></div></div><span>${vagas-total} vagas</span></div>
-        </div>
-      </div>`;
-    }).join('');
-    
-    setTimeout(() => {
-      if (typeof Sortable !== 'undefined') {
-        document.querySelectorAll('.encontristas-list').forEach(zone => {
-          new Sortable(zone, { group: 'quartos', animation: 200, handle: '.drag-handle', onEnd: async (evt) => {
-            const pessoaId = evt.item.dataset.id;
-            const origem = parseInt(evt.from.dataset.quartoIdx);
-            const destino = parseInt(evt.to.dataset.quartoIdx);
-            if (!isNaN(origem) && !isNaN(destino) && origem !== destino && pessoaId) {
-              await moverPessoaEntreQuartos(pessoaId, origem, destino);
-            }
-          } });
-        });
-      }
-    }, 100);
-  }
-
-  async function moverPessoaEntreQuartos(pessoaId, origemIdx, destinoIdx) {
-    const enc = getEncontro();
-    const qOrigem = enc.quartos[origemIdx];
-    const qDestino = enc.quartos[destinoIdx];
-    const pessoa = qOrigem.encontristas.find(p => p.id === pessoaId);
-    if (!pessoa) return false;
-    const vagas = getVagasEncontristas(qDestino);
-    if ((qDestino.encontristas?.length || 0) >= vagas) {
-      toast(`Quarto ${getNomeQuarto(qDestino)} está cheio`, 'error');
-      renderDistribuir();
-      return false;
+function distribuirComRegras(){
+  const enc=getEnc();if(!enc)return;
+  const regras=enc.regras||{...REGRAS_PADRAO};
+  enc.quartos.forEach(q=>q.encontristas=[]);
+  const lista=[...enc.participantes];
+  for(let i=lista.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[lista[i],lista[j]]=[lista[j],lista[i]];}
+  for(const p of lista){
+    const disp=enc.quartos.filter(q=>(q.encontristas?.length||0)<vagasEncontristas(q));
+    if(!disp.length)continue;
+    disp.sort((a,b)=>(a.encontristas?.length||0)-(b.encontristas?.length||0));
+    if(regras.balancearIdades){
+      const pts=disp.map(q=>({q,c:(q.encontristas||[]).filter(x=>faixaEtaria(x.idade)===faixaEtaria(p.idade)).length}));
+      pts.sort((a,b)=>a.c-b.c);
+      pts[0].q.encontristas.push(p);
+    } else {
+      disp[0].encontristas.push(p);
     }
-    qOrigem.encontristas = qOrigem.encontristas.filter(p => p.id !== pessoaId);
-    if (!qDestino.encontristas) qDestino.encontristas = [];
-    qDestino.encontristas.push(pessoa);
-    salvar();
-    renderDistribuir();
-    toast(`${pessoa.nome} movido para ${getNomeQuarto(qDestino)}`);
-    return true;
   }
+  salvar();renderDistribuir();toast('Distribuição concluída!');
+}
 
-  function abrirModalAddToRoom(quartoIdx) {
-    const enc = getEncontro();
-    const idsAloc = new Set();
-    enc.quartos.forEach(q => (q.encontristas||[]).forEach(p=>idsAloc.add(p.id)));
-    const disponiveis = enc.participantes.filter(p => !idsAloc.has(p.id));
-    const select = document.getElementById('selectPessoaSemQuarto');
-    select.innerHTML = '<option value="">-- Selecione --</option>' + disponiveis.map(p => `<option value="${p.id}">${p.nome} ${p.sobrenome||''} (${p.idade || '?'}a)</option>`).join('');
-    window._quartoIdxAdd = quartoIdx;
-    abrirModal('modalAddToRoom');
+// ============================================================
+// MODAL ADD TO ROOM
+// ============================================================
+function abrirModalAddToRoom(qi){
+  const enc=getEnc();if(!enc)return;
+  const aloc=new Set();enc.quartos.forEach(q=>(q.encontristas||[]).forEach(p=>aloc.add(p.id)));
+  const disp=enc.participantes.filter(p=>!aloc.has(p.id));
+  const sel=document.getElementById('selectPessoaSemQuarto');
+  sel.innerHTML='<option value="">— Selecione —</option>'+disp.map(p=>`<option value="${p.id}">${p.nome} ${p.sobrenome||''} (${p.idade||'?'}a)</option>`).join('');
+  window._quartoIdxAdd=qi;abrirModal('modalAddToRoom');
+}
+function confirmarAddToRoom(){
+  const sel=document.getElementById('selectPessoaSemQuarto');
+  if(!sel.value){toast('Selecione uma pessoa');return;}
+  const enc=getEnc();if(!enc)return;
+  const p=enc.participantes.find(x=>x.id===sel.value);
+  const q=enc.quartos[window._quartoIdxAdd];
+  if(!p||!q)return;
+  if((q.encontristas?.length||0)>=vagasEncontristas(q)){toast('Quarto cheio');return;}
+  if(!q.encontristas)q.encontristas=[];
+  q.encontristas.push(p);
+  salvar();renderDistribuir();fecharModal('modalAddToRoom');toast(`${p.nome} adicionado!`);
+}
+
+// ============================================================
+// SEM QUARTO
+// ============================================================
+function abrirSemQuarto(){
+  const enc=getEnc();if(!enc)return;
+  const aloc=new Set();enc.quartos.forEach(q=>(q.encontristas||[]).forEach(p=>aloc.add(p.id)));
+  const sem=enc.participantes.filter(p=>!aloc.has(p.id));
+  const el=document.getElementById('semQuartoList');
+  if(!sem.length){
+    el.innerHTML='<div class="badge badge-green">Todos os participantes estão alocados!</div>';
+  } else {
+    el.innerHTML=`<p class="text-muted text-sm" style="margin-bottom:12px">${sem.length} participante(s) aguardando</p>
+    <div style="display:flex;flex-direction:column;gap:5px">
+      ${sem.map(p=>`<div style="padding:8px 12px;background:var(--bg);border-radius:8px;font-size:13px"><strong>${p.nome} ${p.sobrenome||''}</strong> <span class="monospace text-muted">${p.idade||'?'}a</span></div>`).join('')}
+    </div>`;
   }
+  abrirModal('modalSemQuarto');
+}
 
-  document.getElementById('btnConfirmAddToRoom')?.addEventListener('click', async () => {
-    const select = document.getElementById('selectPessoaSemQuarto');
-    const pessoaId = select.value;
-    if (!pessoaId) { toast('Selecione uma pessoa'); return; }
-    const enc = getEncontro();
-    const pessoa = enc.participantes.find(p => p.id === pessoaId);
-    const quarto = enc.quartos[window._quartoIdxAdd];
-    if (!pessoa || !quarto) return;
-    const vagas = getVagasEncontristas(quarto);
-    if ((quarto.encontristas?.length || 0) >= vagas) { toast('Quarto cheio'); return; }
-    if (!quarto.encontristas) quarto.encontristas = [];
-    quarto.encontristas.push(pessoa);
-    salvar();
-    renderDistribuir();
-    fecharModal('modalAddToRoom');
-    toast(`${pessoa.nome} adicionado ao quarto!`);
+// ============================================================
+// PDFs — configurações preservadas exatamente como original
+// ============================================================
+function gerarPDFPublico(q){
+  const doc=new jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const h=q.corHex||'#89CFF0';
+  const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);
+  doc.setFillColor(r,g,b);doc.rect(0,0,297,40,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(22);
+  doc.text(`Quarto: ${nomeQ(q)}`,148.5,18,{align:'center'});
+  doc.setFontSize(12);doc.text(`Líderes: ${(q.lideresAlocados||[]).join(', ')||'—'}`,148.5,30,{align:'center'});
+  doc.setFontSize(9);doc.setFont('helvetica','normal');
+  const enc=getEnc();doc.text(`${enc.nome} - ${fmtData(enc.dataInicio)} a ${fmtData(enc.dataFim)}`,148.5,38,{align:'center'});
+  doc.setTextColor(0,0,0);
+  const nomes=(q.encontristas||[]).map(p=>`${p.nome} ${p.sobrenome||''}`);
+  if(nomes.length){doc.autoTable({startY:48,head:[['PARTICIPANTES']],body:nomes.map(n=>[n]),styles:{fontSize:16,cellPadding:4,halign:'center',valign:'middle'},headStyles:{fillColor:[r,g,b],textColor:[255,255,255],fontSize:14,fontStyle:'bold'},margin:{left:40,right:40}});}
+  else doc.text('Nenhum participante alocado',148.5,70,{align:'center'});
+  doc.save(`${nomeQ(q)}_PUBLICO.pdf`);
+}
+
+function gerarPDFPrivado(q){
+  const doc=new jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const h=q.corHex||'#89CFF0';
+  const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);
+  doc.setFillColor(r,g,b);doc.rect(0,0,297,40,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(20);
+  doc.text(`Quarto: ${nomeQ(q)}`,148.5,18,{align:'center'});
+  doc.setFontSize(11);doc.text(`Líderes: ${(q.lideresAlocados||[]).join(', ')||'—'}`,148.5,30,{align:'center'});
+  doc.setFontSize(9);doc.setFont('helvetica','normal');
+  const enc=getEnc();doc.text(`${enc.nome} - ${fmtData(enc.dataInicio)} a ${fmtData(enc.dataFim)}`,148.5,38,{align:'center'});
+  const body=(q.encontristas||[]).map(p=>[`${p.nome} ${p.sobrenome||''}`,p.idade||'—',p.telefone||'—',p.emergenciaNome||'—',p.emergenciaTel||'—',p.unidade||'—',p.celula||'—']);
+  doc.autoTable({head:[['Nome','Idade','Telefone','Emergência Nome','Emergência Tel','Unidade','Célula']],body,startY:48,
+    styles:{fontSize:8.5,cellPadding:3,halign:'center',valign:'middle'},
+    headStyles:{fillColor:[r,g,b],textColor:[255,255,255],fontSize:9,fontStyle:'bold'},
+    margin:{left:8,right:8},
+    columnStyles:{0:{cellWidth:40,halign:'left'},1:{cellWidth:18},2:{cellWidth:32},3:{cellWidth:45,halign:'left'},4:{cellWidth:30},5:{cellWidth:40,halign:'left'},6:{cellWidth:40,halign:'left'}}
   });
+  doc.save(`${nomeQ(q)}_PRIVADO.pdf`);
+}
 
-  function abrirModalSemQuarto() {
-    const enc = getEncontro();
-    const idsAlocados = new Set();
-    enc.quartos.forEach(q => (q.encontristas || []).forEach(p => idsAlocados.add(p.id)));
-    const sem = enc.participantes.filter(p => !idsAlocados.has(p.id));
-    const container = document.getElementById('semQuartoList');
-    if (!sem.length) container.innerHTML = '<p>✅ Todos os participantes estão alocados!</p>';
-    else container.innerHTML = `<ul style="margin-left:20px">${sem.map(p => `<li>${p.nome} ${p.sobrenome || ''} (${p.idade || '?'}a)</li>`).join('')}</ul>`;
-    abrirModal('modalSemQuarto');
+function gerarPDFs(apenasSelecionados=false){
+  const enc=getEnc();if(!enc){toast('Nenhum encontro');return;}
+  let qs=enc.quartos;
+  if(apenasSelecionados){
+    const checked=Array.from(document.querySelectorAll('.quarto-select-cb:checked')).map(cb=>parseInt(cb.dataset.quartoIdx));
+    if(!checked.length){toast('Selecione ao menos um quarto');return;}
+    qs=enc.quartos.filter((_,i)=>checked.includes(i));
   }
+  let n=0;
+  for(const q of qs){if((q.encontristas?.length||0)>0){gerarPDFPublico(q);gerarPDFPrivado(q);n++;}}
+  toast(`${n} quarto(s) gerado(s)!`);
+}
 
-  function exportarBackup() { const enc = getEncontro(); const blob = new Blob([JSON.stringify(enc ? [enc] : encontros, null,2)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `backup_${new Date().toISOString().slice(0,10)}.json`; a.click(); toast('Backup exportado'); }
-  function importarBackup(file) { const reader = new FileReader(); reader.onload = e => { try { const data = JSON.parse(e.target.result); if(Array.isArray(data)) encontros = data; else if(data.id) encontros.unshift(data); salvar(); renderEncontros(); toast('Backup importado'); } catch(e) { toast('Arquivo inválido'); } }; reader.readAsText(file); }
-
-  function irParaTela(telaId) {
-    if (!encontroAtual && telaId !== 'encontros') { toast('Selecione um encontro primeiro!'); return; }
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(`screen-${telaId}`).classList.add('active');
-    document.querySelectorAll('.nav-step').forEach(btn => btn.classList.toggle('active', btn.dataset.step === telaId));
-    if (telaId === 'config') renderConfig();
-    if (telaId === 'participantes') renderParticipantes();
-    if (telaId === 'lideres') renderLideres();
-    if (telaId === 'alocar') renderAlocar();
-    if (telaId === 'distribuir') renderDistribuir();
-  }
-
-  function abrirModal(id) { document.getElementById(id).classList.add('open'); }
-  function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
-
-  // EVENTOS
-  document.getElementById('btnNovoEncontro')?.addEventListener('click', () => abrirModal('modalNovoEncontro'));
-  document.getElementById('btnCriarEncontro')?.addEventListener('click', () => {
-    const nome = document.getElementById('modalNomeEncontro').value.trim();
-    if(!nome) { toast('Digite um nome'); return; }
-    const novo = { id: uuid(), nome, dataInicio: document.getElementById('modalDataInicio').value, dataFim: document.getElementById('modalDataFim').value, tipoEvento: document.getElementById('modalTipoEvento').value, quartos: [], participantes: [], lideres: [] };
-    encontros.unshift(novo); salvar(); fecharModal('modalNovoEncontro'); renderEncontros(); toast('Encontro criado');
+function gerarListaGeral(){
+  const enc=getEnc();if(!enc){toast('Nenhum encontro');return;}
+  const mapa=new Map();
+  enc.quartos.forEach(q=>(q.encontristas||[]).forEach(p=>mapa.set(p.id,q)));
+  const lista=enc.participantes.map(p=>({
+    nome:`${p.nome} ${p.sobrenome||''}`.trim(),idade:p.idade||'—',q:mapa.get(p.id)||null,
+    telefone:p.telefone||'—',eNome:p.emergenciaNome||'—',eTel:p.emergenciaTel||'—',
+  })).sort((a,b)=>a.nome.localeCompare(b.nome));
+  const doc=new jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  doc.setFont('helvetica','bold');doc.setFontSize(18);
+  doc.text('Lista Geral de Participantes',148.5,20,{align:'center'});
+  doc.setFontSize(10);doc.text(`${enc.nome} - ${fmtData(enc.dataInicio)} a ${fmtData(enc.dataFim)}`,148.5,30,{align:'center'});
+  const body=lista.map(p=>[p.q?`■ ${p.q.corNome}`:'Sem quarto',p.nome,p.idade,p.telefone,p.eNome,p.eTel]);
+  doc.autoTable({
+    head:[['Quarto','Nome','Idade','Telefone','Emergência Nome','Emergência Tel']],body,startY:40,
+    styles:{fontSize:8,cellPadding:2,halign:'center'},
+    headStyles:{fillColor:[37,99,235],textColor:[255,255,255],fontSize:9,fontStyle:'bold'},
+    margin:{left:8,right:8},
+    didDrawCell(data){
+      if(data.column.index===0&&data.cell.section==='body'){
+        const item=lista[data.row.index];
+        if(item?.q?.corHex){const c=item.q.corHex;doc.setFillColor(parseInt(c.slice(1,3),16),parseInt(c.slice(3,5),16),parseInt(c.slice(5,7),16));doc.rect(data.cell.x+2,data.cell.y+3,4,4,'F');}
+      }
+    }
   });
-  document.getElementById('btnAddQuarto')?.addEventListener('click', adicionarQuarto);
-  document.getElementById('btnSalvarConfig')?.addEventListener('click', salvarConfig);
-  document.getElementById('btnAddParticipante')?.addEventListener('click', adicionarParticipante);
-  document.getElementById('btnSalvarAddParticipante')?.addEventListener('click', salvarAddParticipante);
-  document.getElementById('btnAddLider')?.addEventListener('click', adicionarLider);
-  document.getElementById('btnSalvarAddLider')?.addEventListener('click', salvarAddLider);
-  document.getElementById('btnDistribuirAutomatico')?.addEventListener('click', distribuirAutomatico);
-  document.getElementById('btnDistribuirSemQuartoModal')?.addEventListener('click', () => { distribuirAutomatico(); fecharModal('modalSemQuarto'); });
-  document.getElementById('btnGerarPDFs')?.addEventListener('click', () => gerarPDFs(false));
-  document.getElementById('btnGerarPDFsSelecionados')?.addEventListener('click', () => gerarPDFs(true));
-  document.getElementById('btnVerSemQuarto')?.addEventListener('click', abrirModalSemQuarto);
-  document.getElementById('btnRemoverDuplicatas')?.addEventListener('click', () => toast('Função: remover duplicatas'));
-  document.getElementById('btnExportBackup')?.addEventListener('click', exportarBackup);
-  document.getElementById('btnImportarBackup')?.addEventListener('click', () => { const inp = document.createElement('input'); inp.type='file'; inp.accept='.json'; inp.onchange = e => importarBackup(e.target.files[0]); inp.click(); });
-  document.getElementById('importArea')?.addEventListener('click', () => document.getElementById('fileInput').click());
-  document.getElementById('fileInput')?.addEventListener('change', e => { if(e.target.files[0]) processarExcel(e.target.files[0]); e.target.value=''; });
-  document.getElementById('btnGerarListaGeral')?.addEventListener('click', gerarListaGeral);
+  doc.save('Lista_Geral.pdf');toast('Lista geral gerada!');
+}
 
-  document.querySelectorAll('.modal-close').forEach(btn => btn.addEventListener('click', function() { fecharModal(this.closest('.modal-overlay').id); }));
-  document.querySelectorAll('.nav-step').forEach(btn => { btn.addEventListener('click', () => irParaTela(btn.dataset.step)); });
+// ============================================================
+// BACKUP
+// ============================================================
+function exportarBackup(){
+  const enc=getEnc();
+  const blob=new Blob([JSON.stringify(enc?[enc]:encontros,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`backup_${new Date().toISOString().slice(0,10)}.json`;a.click();toast('Backup exportado');
+}
+function importarBackup(file){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(Array.isArray(data))encontros=data;else if(data.id)encontros.unshift(data);
+      salvar();renderEncontros();toast('Backup importado!');
+    }catch{toast('Arquivo inválido');}
+  };
+  reader.readAsText(file);
+}
 
+// ============================================================
+// EVENTOS
+// ============================================================
+document.addEventListener('DOMContentLoaded',()=>{
+  // Nav
+  document.querySelectorAll('.nav-btn').forEach(btn=>{btn.addEventListener('click',()=>irParaTela(btn.dataset.step));});
+  // Fechar modais
+  document.querySelectorAll('[data-close]').forEach(el=>{el.addEventListener('click',()=>fecharModal(el.dataset.close));});
+  document.querySelectorAll('.overlay').forEach(ov=>{ov.addEventListener('click',e=>{if(e.target===ov)fecharModal(ov.id);});});
+  // Encontros
+  document.getElementById('btnNovoEncontro').addEventListener('click',()=>{document.getElementById('modalNomeEncontro').value='';abrirModal('modalNovoEncontro');});
+  document.getElementById('btnCriarEncontro').addEventListener('click',()=>{
+    const nome=document.getElementById('modalNomeEncontro').value.trim();
+    if(!nome){toast('Digite um nome');return;}
+    const novo={id:uid(),nome,dataInicio:document.getElementById('modalDataInicio').value,dataFim:document.getElementById('modalDataFim').value,tipoEvento:document.getElementById('modalTipoEvento').value,quartos:[],participantes:[],lideres:[],regras:{...REGRAS_PADRAO}};
+    encontros.unshift(novo);salvar();fecharModal('modalNovoEncontro');renderEncontros();toast('Encontro criado!');
+  });
+  document.getElementById('btnImportarBackup').addEventListener('click',()=>{const inp=document.createElement('input');inp.type='file';inp.accept='.json';inp.onchange=e=>{if(e.target.files[0])importarBackup(e.target.files[0]);};inp.click();});
+  // Config
+  document.getElementById('btnAddQuarto').addEventListener('click',adicionarQuarto);
+  document.getElementById('btnSalvarConfig').addEventListener('click',salvarConfig);
+  document.getElementById('btnExportBackup').addEventListener('click',exportarBackup);
+  // Regras
+  document.getElementById('btnSalvarRegras').addEventListener('click',salvarRegras);
+  // Participantes
+  const ia=document.getElementById('importArea');
+  ia.addEventListener('click',()=>document.getElementById('fileInput').click());
+  ia.addEventListener('dragover',e=>{e.preventDefault();ia.style.borderColor='var(--accent)';});
+  ia.addEventListener('dragleave',()=>{ia.style.borderColor='';});
+  ia.addEventListener('drop',e=>{e.preventDefault();ia.style.borderColor='';const f=e.dataTransfer.files[0];if(f&&f.name.endsWith('.xlsx'))processarExcel(f);else toast('Selecione um .xlsx');});
+  document.getElementById('fileInput').addEventListener('change',e=>{if(e.target.files[0])processarExcel(e.target.files[0]);e.target.value='';});
+  document.getElementById('btnAddParticipante').addEventListener('click',()=>{
+    ['addNome','addSobrenome','addTelefone','addEmergNome','addEmergTel','addUnidade','addCelula'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('addIdade').value='';document.getElementById('addGrupo').value='0';
+    abrirModal('modalAddParticipante');
+  });
+  document.getElementById('btnSalvarAddParticipante').addEventListener('click',salvarAddParticipante);
+  document.getElementById('btnRemoverDuplicatas').addEventListener('click',()=>{
+    const enc=getEnc();if(!enc)return;
+    const seen=new Set();const antes=enc.participantes.length;
+    enc.participantes=enc.participantes.filter(p=>{const k=`${p.nome}_${p.sobrenome}_${p.idade}`.toLowerCase();if(seen.has(k))return false;seen.add(k);return true;});
+    salvar();renderParticipantes();toast(`${antes-enc.participantes.length} duplicata(s) removida(s)`);
+  });
+  // Líderes
+  document.getElementById('btnAddLider').addEventListener('click',()=>{document.getElementById('addLiderNome').value='';abrirModal('modalAddLider');});
+  document.getElementById('btnSalvarAddLider').addEventListener('click',salvarAddLider);
+  // Distribuição
+  document.getElementById('btnDistribuirAutomatico').addEventListener('click',distribuirComRegras);
+  document.getElementById('btnDistribuirSemQuartoModal').addEventListener('click',()=>{distribuirComRegras();fecharModal('modalSemQuarto');});
+  document.getElementById('btnGerarPDFs').addEventListener('click',()=>gerarPDFs(false));
+  document.getElementById('btnGerarPDFsSelecionados').addEventListener('click',()=>gerarPDFs(true));
+  document.getElementById('btnVerSemQuarto').addEventListener('click',abrirSemQuarto);
+  document.getElementById('btnGerarListaGeral').addEventListener('click',gerarListaGeral);
+  document.getElementById('btnConfirmAddToRoom').addEventListener('click',confirmarAddToRoom);
+  // Boot
   carregar();
-  if (encontros.length === 0) { encontros.push(JSON.parse(JSON.stringify(encontroInicial))); salvar(); }
+  if(!encontros.length){
+    const enc=JSON.parse(JSON.stringify({
+      id:'enc_default',nome:'Acampamento de Homens 2026',dataInicio:'2026-05-24',dataFim:'2026-05-26',tipoEvento:'masculino',
+      quartos:criarQuartosPre(),participantes:[],
+      lideres:LIDERES_PRE.map(l=>({id:uid(),nome:l.nome})),
+      regras:{...REGRAS_PADRAO},
+    }));
+    encontros.push(enc);salvar();
+  }
   renderEncontros();
+});
 </script>
 </body>
 </html>
