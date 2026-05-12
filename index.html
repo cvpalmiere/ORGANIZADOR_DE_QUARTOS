@@ -1097,43 +1097,38 @@ function abrirSemQuarto(){
 // ============================================================
 // PDFs — configurações preservadas exatamente como original
 // ============================================================
-function gerarPDFPublico(q){
-  const doc=new jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
-  const h=q.corHex||'#89CFF0';
-  const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);
-  doc.setFillColor(r,g,b);doc.rect(0,0,297,40,'F');
-  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(22);
-  doc.text(`Quarto: ${nomeQ(q)}`,148.5,18,{align:'center'});
-  doc.setFontSize(12);doc.text(`Líderes: ${(q.lideresAlocados||[]).join(', ')||'—'}`,148.5,30,{align:'center'});
-  doc.setFontSize(9);doc.setFont('helvetica','normal');
-  const enc=getEnc();doc.text(`${enc.nome} - ${fmtData(enc.dataInicio)} a ${fmtData(enc.dataFim)}`,148.5,38,{align:'center'});
-  doc.setTextColor(0,0,0);
-  const nomes=(q.encontristas||[]).map(p=>`${p.nome} ${p.sobrenome||''}`);
-  if(nomes.length){doc.autoTable({startY:48,head:[['PARTICIPANTES']],body:nomes.map(n=>[n]),styles:{fontSize:16,cellPadding:4,halign:'center',valign:'middle'},headStyles:{fillColor:[r,g,b],textColor:[255,255,255],fontSize:14,fontStyle:'bold'},margin:{left:40,right:40}});}
-  else doc.text('Nenhum participante alocado',148.5,70,{align:'center'});
+// ========== PDF PÚBLICO (estilo bonito) ==========
+function gerarPDFPublico(q) {
+  const doc = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  const corHex = q.corHex || '#89CFF0';
+  const r = parseInt(corHex.slice(1,3), 16), g = parseInt(corHex.slice(3,5), 16), b = parseInt(corHex.slice(5,7), 16);
+  doc.setFillColor(r, g, b); doc.rect(0, 0, 297, 40, 'F');
+  doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(22);
+  doc.text(`Quarto: ${nomeQ(q)}`, 148.5, 18, { align: 'center' });
+  doc.setFontSize(12); const lideresNomes = q.lideresAlocados || []; doc.text(`Líderes: ${lideresNomes.join(', ') || '—'}`, 148.5, 30, { align: 'center' });
+  doc.setFontSize(9); doc.setFont('helvetica', 'normal'); const enc = getEnc(); doc.text(`${enc.nome} - ${fmtData(enc.dataInicio)} a ${fmtData(enc.dataFim)}`, 148.5, 38, { align: 'center' });
+  doc.setTextColor(0, 0, 0); const nomes = (q.encontristas || []).map(p => `${p.nome} ${p.sobrenome || ''}`);
+  if (nomes.length) { doc.autoTable({ startY: 48, head: [['PARTICIPANTES']], body: nomes.map(n => [n]), styles: { fontSize: 16, cellPadding: 4, halign: 'center', valign: 'middle' }, headStyles: { fillColor: [r, g, b], textColor: [255,255,255], fontSize: 14, fontStyle: 'bold' }, margin: { left: 40, right: 40 } }); }
+  else doc.text("Nenhum participante alocado", 148.5, 70, { align: 'center' });
   doc.save(`${nomeQ(q)}_PUBLICO.pdf`);
 }
 
-function gerarPDFPrivado(q){
-  const doc=new jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
-  const h=q.corHex||'#89CFF0';
-  const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);
-  doc.setFillColor(r,g,b);doc.rect(0,0,297,40,'F');
-  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(20);
-  doc.text(`Quarto: ${nomeQ(q)}`,148.5,18,{align:'center'});
-  doc.setFontSize(11);doc.text(`Líderes: ${(q.lideresAlocados||[]).join(', ')||'—'}`,148.5,30,{align:'center'});
-  doc.setFontSize(9);doc.setFont('helvetica','normal');
-  const enc=getEnc();doc.text(`${enc.nome} - ${fmtData(enc.dataInicio)} a ${fmtData(enc.dataFim)}`,148.5,38,{align:'center'});
-  const body=(q.encontristas||[]).map(p=>[`${p.nome} ${p.sobrenome||''}`,p.idade||'—',p.telefone||'—',p.emergenciaNome||'—',p.emergenciaTel||'—',p.unidade||'—',p.celula||'—']);
-  doc.autoTable({head:[['Nome','Idade','Telefone','Emergência Nome','Emergência Tel','Unidade','Célula']],body,startY:48,
-    styles:{fontSize:8.5,cellPadding:3,halign:'center',valign:'middle'},
-    headStyles:{fillColor:[r,g,b],textColor:[255,255,255],fontSize:9,fontStyle:'bold'},
-    margin:{left:8,right:8},
-    columnStyles:{0:{cellWidth:40,halign:'left'},1:{cellWidth:18},2:{cellWidth:32},3:{cellWidth:45,halign:'left'},4:{cellWidth:30},5:{cellWidth:40,halign:'left'},6:{cellWidth:40,halign:'left'}}
-  });
+// ========== PDF PRIVADO (estilo bonito) ==========
+function gerarPDFPrivado(q) {
+  const doc = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  const corHex = q.corHex || '#89CFF0';
+  const r = parseInt(corHex.slice(1,3), 16), g = parseInt(corHex.slice(3,5), 16), b = parseInt(corHex.slice(5,7), 16);
+  doc.setFillColor(r, g, b); doc.rect(0, 0, 297, 40, 'F');
+  doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(20);
+  doc.text(`Quarto: ${nomeQ(q)}`, 148.5, 18, { align: 'center' });
+  doc.setFontSize(11); const lideresNomes = q.lideresAlocados || []; doc.text(`Líderes: ${lideresNomes.join(', ') || '—'}`, 148.5, 30, { align: 'center' });
+  doc.setFontSize(9); doc.setFont('helvetica', 'normal'); const enc = getEnc(); doc.text(`${enc.nome} - ${fmtData(enc.dataInicio)} a ${fmtData(enc.dataFim)}`, 148.5, 38, { align: 'center' });
+  const body = (q.encontristas || []).map(p => [`${p.nome} ${p.sobrenome || ''}`, p.idade || '—', p.telefone || '—', p.emergenciaNome || '—', p.emergenciaTel || '—', p.unidade || '—', p.celula || '—']);
+  doc.autoTable({ head: [['Nome', 'Idade', 'Telefone', 'Emergência Nome', 'Emergência Tel', 'Unidade', 'Célula']], body: body, startY: 48,
+    styles: { fontSize: 8.5, cellPadding: 3, halign: 'center', valign: 'middle' }, headStyles: { fillColor: [r, g, b], textColor: [255,255,255], fontSize: 9, fontStyle: 'bold' },
+    margin: { left: 8, right: 8 }, columnStyles: { 0: { cellWidth: 40, halign: 'left' }, 1: { cellWidth: 18 }, 2: { cellWidth: 32 }, 3: { cellWidth: 45, halign: 'left' }, 4: { cellWidth: 30 }, 5: { cellWidth: 40, halign: 'left' }, 6: { cellWidth: 40, halign: 'left' } } });
   doc.save(`${nomeQ(q)}_PRIVADO.pdf`);
 }
-
 function gerarPDFs(apenasSelecionados=false){
   const enc=getEnc();if(!enc){toast('Nenhum encontro');return;}
   let qs=enc.quartos;
