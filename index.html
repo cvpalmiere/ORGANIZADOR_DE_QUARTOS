@@ -801,35 +801,58 @@ function salvarAddParticipante(){
   });
   salvar();renderParticipantes();fecharModal('modalAddParticipante');toast('Participante adicionado');
 }
-async function processarExcel(file){
-  const enc=getEnc();if(!enc){toast('Selecione um encontro primeiro');return;}
+async function processarExcel(file) {
+  const enc = getEnc();
+  if (!enc) { toast('Selecione um encontro primeiro'); return; }
   toast('Lendo arquivo...');
-  const data=await file.arrayBuffer();
-  const wb=XLSX.read(data);
-  const ws=wb.Sheets[wb.SheetNames[0]];
-  const rows=XLSX.utils.sheet_to_json(ws);
-  let n=0;
-  for(const row of rows){
-    let nc=row['Nome Completo']||row['NOME COMPLETO']||row['Nome']||'';
-    if(!nc||nc.length<3)continue;
-    const pts=nc.trim().split(' ');
-    const nome=pts[0],sobrenome=pts.slice(1).join(' ');
-    let idade=row['Idade']||row['IDADE']||0;
-    if(typeof idade==='string'){const m=idade.match(/\d+/);idade=m?parseInt(m[0]):0;}
-    idade=parseInt(idade)||0;
-    let tel=row['Celular']||row['Celular do comprador']||'';
-    if(tel)tel=tel.toString().replace(/\D/g,'').slice(-11);
-    let eNome=row['O encontro acontecerá na chácara da igreja, precisamos do nome de uma pessoa para contato.']||row['Contato Emergência Nome']||'';
-    let eTel=row['Telefone de contato da pessoa indicada.']||row['Contato Emergência Tel']||'';
-    if(eTel)eTel=eTel.toString().replace(/\D/g,'').slice(-11);
-    let unidade=row['Qual unidade do Núcleo da Fé você participa?']||row['Unidade']||'';
-    let celula=row['Participa de célula? Qual?']||row['Célula']||'';
-    enc.participantes.push({id:uid(),nome,sobrenome,idade,genero:'MASCULINO',telefone:tel,emergenciaNome:eNome,emergenciaTel:eTel,unidade,celula,grupoNumero:0,conflitoIds:''});
+  const data = await file.arrayBuffer();
+  const wb = XLSX.read(data);
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(ws);
+  let n = 0;
+  
+  for (const row of rows) {
+    // Nome Completo
+    let nc = row['Nome Completo'] || row['NOME COMPLETO'] || row['Nome'] || '';
+    if (!nc || nc.length < 3) continue;
+    const pts = nc.trim().split(' ');
+    const nome = pts[0];
+    const sobrenome = pts.slice(1).join(' ');
+    
+    // Idade
+    let idade = row['Idade'] || row['IDADE'] || 0;
+    if (typeof idade === 'string') { const m = idade.match(/\d+/); idade = m ? parseInt(m[0]) : 0; }
+    idade = parseInt(idade) || 0;
+    
+    // Telefone pessoal
+    let tel = row['Celular'] || row['Celular do comprador'] || '';
+    if (tel) tel = tel.toString().replace(/\D/g, '').slice(-11);
+    
+    // ✅ CORREÇÃO: Emergência - NOME e TELEFONE separados
+    let eNome = row['O encontro acontecerá na chácara da igreja, precisamos do nome de uma pessoa para contato.'] || '';
+    let eTel = row['Telefone de contato da pessoa indicada.'] || '';
+    
+    // Se não encontrou, tenta nomes alternativos
+    if (!eNome) eNome = row['Contato Emergência'] || row['Emergência Nome'] || '';
+    if (!eTel) eTel = row['Tel Emergência'] || row['Emergência Tel'] || '';
+    
+    if (eTel) eTel = eTel.toString().replace(/\D/g, '').slice(-11);
+    
+    // Unidade e Célula
+    let unidade = row['Qual unidade do Núcleo da Fé você participa?'] || row['Unidade'] || '';
+    let celula = row['Participa de célula? Qual?'] || row['Célula'] || '';
+    
+    enc.participantes.push({
+      id: uid(), nome, sobrenome, idade, genero: 'MASCULINO',
+      telefone: tel, emergenciaNome: eNome, emergenciaTel: eTel,
+      unidade, celula, grupoNumero: 0, conflitoIds: ''
+    });
     n++;
   }
-  salvar();renderParticipantes();toast(`${n} participantes importados!`);
+  salvar();
+  renderParticipantes();
+  toast(`${n} participantes importados!`);
 }
-
 // ============================================================
 // LÍDERES
 // ============================================================
@@ -1198,7 +1221,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   ia.addEventListener('dragover',e=>{e.preventDefault();ia.style.borderColor='var(--accent)';});
   ia.addEventListener('dragleave',()=>{ia.style.borderColor='';});
   ia.addEventListener('drop',e=>{e.preventDefault();ia.style.borderColor='';const f=e.dataTransfer.files[0];if(f&&f.name.endsWith('.xlsx'))processarExcel(f);else toast('Selecione um .xlsx');});
-  document.getElementById('fileInput').addEventListener('change',e=>{if(e.target.files[0])processarExcel(e.target.files[0]);e.target.value='';});
+  document.getElementById('fileInput').addEventListener('change',e=>{if(e.target.files[0])(e.target.files[0]);e.target.value='';});
   document.getElementById('btnAddParticipante').addEventListener('click',()=>{
     ['addNome','addSobrenome','addTelefone','addEmergNome','addEmergTel','addUnidade','addCelula'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('addIdade').value='';document.getElementById('addGrupo').value='0';
