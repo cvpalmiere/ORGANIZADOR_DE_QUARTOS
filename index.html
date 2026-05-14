@@ -26,13 +26,12 @@
     .btn-success { background: #10b981; color: white; }
     .btn-success:hover { background: #059669; }
     .btn-danger { background: #ef4444; color: white; }
-    .btn-danger:hover { background: #dc2626; }
+    .btn-warning { background: #f59e0b; color: white; }
+    .btn-warning:hover { background: #d97706; }
     .table-wrapper { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
-    th { background: #f8fafc; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; color: #64748b; }
-    .import-zone { border: 2px dashed #cbd5e1; border-radius: 16px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 20px; }
-    .import-zone:hover { border-color: #3b82f6; background: #eff6ff; }
+    th { background: #f8fafc; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; color: #64748b; }
     .quartos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
     .quarto-card { background: white; border-radius: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
     .quarto-header { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; color: white; }
@@ -42,72 +41,78 @@
     .pessoas-drop { background: #f8fafc; border-radius: 12px; min-height: 200px; max-height: 300px; overflow-y: auto; padding: 8px; }
     .pessoa-row { background: white; padding: 8px 12px; margin-bottom: 6px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; cursor: grab; border: 1px solid #e2e8f0; }
     .pessoa-row:active { cursor: grabbing; }
-    .pessoa-nome { font-weight: 500; }
-    .pessoa-idade { font-size: 0.75rem; color: #64748b; }
-    .empty-drop { text-align: center; padding: 30px; color: #94a3b8; }
+    .pessoa-nome { font-weight: 500; font-size: 0.85rem; }
+    .pessoa-idade { font-size: 0.7rem; color: #64748b; background: #f1f5f9; padding: 2px 6px; border-radius: 12px; }
+    .empty-drop { text-align: center; padding: 30px; color: #94a3b8; font-size: 0.8rem; }
+    .progress-bar { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; margin-top: 10px; }
+    .progress-fill { height: 100%; background: #10b981; transition: width 0.3s; }
+    .progress-fill.warning { background: #f59e0b; }
+    .progress-fill.full { background: #ef4444; }
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
     .modal-overlay.open { display: flex; }
     .modal { background: white; border-radius: 16px; width: 500px; max-width: 90%; max-height: 80vh; overflow-y: auto; }
     .modal-header { padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
     .modal-body { padding: 20px; }
     .modal-footer { padding: 16px 20px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 10px; }
-    .form-group { margin-bottom: 16px; }
-    .form-label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.8rem; color: #475569; }
-    input, select { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; width: 100%; }
-    .progress-bar { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; margin-top: 10px; }
-    .progress-fill { height: 100%; background: #10b981; transition: width 0.3s; }
-    .progress-fill.warning { background: #f59e0b; }
-    .progress-fill.full { background: #ef4444; }
     .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 30px; font-size: 0.85rem; display: none; z-index: 2000; }
-    .flex { display: flex; gap: 10px; flex-wrap: wrap; }
     .actions { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
     .text-muted { color: #64748b; }
+    .badge-success { background: #d1fae5; color: #065f46; padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; }
+    .badge-warning { background: #fed7aa; color: #92400e; padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; }
+    .flex-between { display: flex; justify-content: space-between; align-items: center; }
+    .mb-3 { margin-bottom: 12px; }
+    .mt-3 { margin-top: 12px; }
   </style>
 </head>
 <body>
 <div class="container">
   <div class="header">
     <h1>🏠 Organizador de Quartos - Encontro com Deus</h1>
-    <span class="badge" id="totalParticipantesBadge">0 participantes</span>
-  </div>
-
-  <div class="tabs" id="tabs">
-    <div class="tab" data-tab="encontros">📋 Encontros</div>
-    <div class="tab" data-tab="participantes">👥 Participantes</div>
-    <div class="tab" data-tab="distribuir">🎯 Distribuir</div>
-  </div>
-
-  <div id="tab-encontros" class="tab-content">
-    <div class="card">
-      <div class="card-header">Meus Encontros</div>
-      <div class="card-body" id="encontrosList"></div>
+    <div class="flex" style="gap: 8px;">
+      <span class="badge" id="totalParticipantesBadge">0 participantes</span>
+      <span class="badge" id="totalAlocadosBadge">0 alocados</span>
     </div>
   </div>
 
-  <div id="tab-participantes" class="tab-content" style="display:none">
-    <div class="import-zone" id="importZone">📂 Clique ou arraste um arquivo Excel (.xlsx) para importar novos participantes</div>
-    <input type="file" id="fileInput" accept=".xlsx" style="display:none">
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-tab="distribuir">🎯 Distribuir nos Quartos</div>
+    <div class="tab" data-tab="participantes">👥 Lista de Participantes</div>
+    <div class="tab" data-tab="resumo">📊 Resumo</div>
+  </div>
+
+  <!-- Aba: Distribuir -->
+  <div id="tab-distribuir" class="tab-content">
     <div class="actions">
-      <button class="btn btn-secondary" id="btnRemoverDuplicatas">🗑️ Remover Duplicatas</button>
-      <button class="btn btn-secondary" id="btnAdicionarManual">➕ Adicionar Manualmente</button>
+      <button class="btn btn-success" id="btnDistribuirNovos">🎲 Distribuir Novos Automaticamente</button>
+      <button class="btn btn-primary" id="btnGerarListaGeral">📄 Gerar Lista Geral (PDF)</button>
+      <button class="btn btn-secondary" id="btnVerSemQuarto">👥 Ver Sem Quarto</button>
+    </div>
+    <div id="quartosDistribuirGrid" class="quartos-grid"></div>
+  </div>
+
+  <!-- Aba: Participantes -->
+  <div id="tab-participantes" class="tab-content" style="display:none">
+    <div class="actions">
+      <button class="btn btn-secondary" id="btnAdicionarManual">➕ Adicionar Participante</button>
     </div>
     <div class="card">
       <div class="table-wrapper">
         <table id="participantesTable">
-          <thead><tr><th>Nome</th><th>Idade</th><th>Telefone</th><th>Unidade</th><th>Célula</th><th>Quarto Atual</th><th></th></tr></thead>
+          <thead><tr><th>Nome</th><th>Idade</th><th>Telefone</th><th>Unidade</th><th>Célula</th><th>Status</th><th>Quarto</th><th></th></tr></thead>
           <tbody id="participantesTbody"></tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <div id="tab-distribuir" class="tab-content" style="display:none">
-    <div class="actions">
-      <button class="btn btn-success" id="btnDistribuirAutomatico">🎲 Distribuir Novos Automaticamente</button>
-      <button class="btn btn-primary" id="btnGerarListaGeral">📄 Gerar Lista Geral (PDF)</button>
-      <button class="btn btn-secondary" id="btnVerSemQuarto">👥 Ver Sem Quarto</button>
+  <!-- Aba: Resumo -->
+  <div id="tab-resumo" class="tab-content" style="display:none">
+    <div class="card">
+      <div class="card-header">Resumo do Evento</div>
+      <div class="card-body">
+        <div id="resumoContent"></div>
+      </div>
     </div>
-    <div id="quartosDistribuirGrid" class="quartos-grid"></div>
   </div>
 </div>
 
@@ -116,13 +121,13 @@
   <div class="modal">
     <div class="modal-header"><h3>Adicionar Participante</h3><button class="btn btn-secondary" onclick="fecharModal('modalParticipante')">✕</button></div>
     <div class="modal-body">
-      <div class="form-group"><label class="form-label">Nome Completo</label><input type="text" id="addNome"></div>
-      <div class="form-group"><label class="form-label">Idade</label><input type="number" id="addIdade"></div>
-      <div class="form-group"><label class="form-label">Telefone</label><input type="text" id="addTelefone"></div>
-      <div class="form-group"><label class="form-label">Unidade</label><input type="text" id="addUnidade"></div>
-      <div class="form-group"><label class="form-label">Célula</label><input type="text" id="addCelula"></div>
-      <div class="form-group"><label class="form-label">Emergência - Nome</label><input type="text" id="addEmergNome"></div>
-      <div class="form-group"><label class="form-label">Emergência - Tel</label><input type="text" id="addEmergTel"></div>
+      <div class="form-group mb-3"><label class="text-muted">Nome Completo</label><input type="text" id="addNome" style="width:100%;padding:8px;border-radius:8px;border:1px solid #cbd5e1"></div>
+      <div class="form-group mb-3"><label class="text-muted">Idade</label><input type="number" id="addIdade" style="width:100%;padding:8px;border-radius:8px;border:1px solid #cbd5e1"></div>
+      <div class="form-group mb-3"><label class="text-muted">Telefone</label><input type="text" id="addTelefone" style="width:100%;padding:8px;border-radius:8px;border:1px solid #cbd5e1"></div>
+      <div class="form-group mb-3"><label class="text-muted">Unidade</label><input type="text" id="addUnidade" style="width:100%;padding:8px;border-radius:8px;border:1px solid #cbd5e1"></div>
+      <div class="form-group mb-3"><label class="text-muted">Célula</label><input type="text" id="addCelula" style="width:100%;padding:8px;border-radius:8px;border:1px solid #cbd5e1"></div>
+      <div class="form-group mb-3"><label class="text-muted">Emergência - Nome</label><input type="text" id="addEmergNome" style="width:100%;padding:8px;border-radius:8px;border:1px solid #cbd5e1"></div>
+      <div class="form-group mb-3"><label class="text-muted">Emergência - Tel</label><input type="text" id="addEmergTel" style="width:100%;padding:8px;border-radius:8px;border:1px solid #cbd5e1"></div>
     </div>
     <div class="modal-footer"><button class="btn btn-secondary" onclick="fecharModal('modalParticipante')">Cancelar</button><button class="btn btn-primary" id="btnSalvarParticipante">Salvar</button></div>
   </div>
@@ -139,101 +144,15 @@
 
 <div id="toast" class="toast"></div>
 
-<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
 <script>
-// ==================== DADOS PRÉ-CARREGADOS DOS PDFs ====================
-// Todos os participantes que já estão em quartos (extraídos dos seus PDFs)
+// ==================== DADOS COMPLETOS (TUDO PRÉ-CADASTRADO) ====================
 
-const participantesPreAlocados = [
-  // LARANJA (do PDF Laranja_PRIVADO.pdf)
-  { nome: "Marcos Felipe Sena Melo Martins", idade: 33, telefone: "61998505648", unidade: "Núcleo da Fé - Sede", celula: "não", emergenciaNome: "Vitória Sena", emergenciaTel: "61999882235", quarto: "Laranja" },
-  { nome: "Francisco Claudio", idade: 44, telefone: "6198519901", unidade: "católica", celula: "Nao participa", emergenciaNome: "Juliana", emergenciaTel: "61998209901", quarto: "Laranja" },
-  { nome: "Alessandro Roosevelt Gonçalves Lucas", idade: 46, telefone: "61984182988", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Sim", emergenciaTel: "82981053531", quarto: "Laranja" },
-  { nome: "John Anderson Alves", idade: 42, telefone: "61985261597", unidade: "Núcleo da Fé - Jardim Botânico", celula: "Não", emergenciaNome: "Michele", emergenciaTel: "61986014061", quarto: "Laranja" },
-  { nome: "Raphael Silva Corrêa", idade: 36, telefone: "61983361184", unidade: "Núcleo da Fé - Jardim Botânico", celula: "não", emergenciaNome: "Karol", emergenciaTel: "61986330833", quarto: "Laranja" },
-  { nome: "Jean Juinior Ribeiro Fonseca", idade: 35, telefone: "61993307022", unidade: "Núcleo da Fé - Sede", celula: "Nao", emergenciaNome: "Tainara", emergenciaTel: "993307022", quarto: "Laranja" },
-  { nome: "Rodrigo Regis Teles", idade: 51, telefone: "61992107454", unidade: "Núcleo da Fé - Planaltina", celula: "Casais", emergenciaNome: "Michelle Ribeiro Oliveira", emergenciaTel: "985033301", quarto: "Laranja" },
-  { nome: "Lucas Seidii Shinohara Moura", idade: 21, telefone: "61994409743", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Rafaella", emergenciaTel: "61998489765", quarto: "Laranja" },
-
-  // VERMELHO (do PDF Vermelho_PRIVADO.pdf)
-  { nome: "Marcos Uéric Gomes Pereira", idade: 39, telefone: "61990447754", unidade: "Núcleo da Fé - Sede", celula: "Aimda nao", emergenciaNome: "(Mãe Margarida) (amiga Taísa)", emergenciaTel: "48996166404", quarto: "Vermelho" },
-  { nome: "Bruno Soares Da Silva", idade: 41, telefone: "61984528169", unidade: "Núcleo da Fé - Sede", celula: "Casais", emergenciaNome: "Raquel", emergenciaTel: "61982225224", quarto: "Vermelho" },
-  { nome: "Anderson Macena da Silva", idade: 34, telefone: "81995431594", unidade: "Núcleo da Fé - Noroeste", celula: "Não", emergenciaNome: "Jéssica Rodrigues", emergenciaTel: "61991340276", quarto: "Vermelho" },
-  { nome: "Iuri de Castro Carvalho", idade: 24, telefone: "61999890939", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Alliny Vitória Neves Lourenço", emergenciaTel: "61981219482", quarto: "Vermelho" },
-  { nome: "Darlan Nunes do Nascimento", idade: 47, telefone: "61992002121", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Loreana", emergenciaTel: "61996246817", quarto: "Vermelho" },
-  { nome: "Eid Yuji Lima Hirano", idade: 40, telefone: "61982892266", unidade: "Nova Vida", celula: "Nenhuma, sou de outra igreja", emergenciaNome: "N", emergenciaTel: "61986462934", quarto: "Vermelho" },
-  { nome: "LUIZ CARLOS LEITE SAO JOSE", idade: 58, telefone: "61998357850", unidade: "Núcleo da Fé - Planaltina", celula: "Casais", emergenciaNome: "Igreja", emergenciaTel: "61998357850", quarto: "Vermelho" },
-  { nome: "Diego Henrique Ramos Dos Santos", idade: 36, telefone: "61985954894", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Leiliane", emergenciaTel: "61985954894", quarto: "Vermelho" },
-
-  // MARROM (do PDF Marrom_PRIVADO.pdf)
-  { nome: "josé Francisco Antunes dos Reis", idade: 61, telefone: "61999944880", unidade: "Núcleo da Fé - Sede", celula: "Sozo", emergenciaNome: "Samuel", emergenciaTel: "61998214870", quarto: "Marrom" },
-  { nome: "Andre Luiz Arneitz Galante", idade: 50, telefone: "61996679333", unidade: "Núcleo da Fé - Sede", celula: "nenhuma", emergenciaNome: "Eder", emergenciaTel: "61981313026", quarto: "Marrom" },
-  { nome: "Randerson Neves Barbosa", idade: 48, telefone: "61996171636", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Ana - esposa", emergenciaTel: "61999837277", quarto: "Marrom" },
-  { nome: "Lucas Ribeiro Alves Pereira", idade: 34, telefone: "61995580223", unidade: "Não participa da igreja núcleo da fé", celula: "não", emergenciaNome: "Patrícia", emergenciaTel: "61996282820", quarto: "Marrom" },
-  { nome: "daniel rota", idade: 46, telefone: "61981247254", unidade: "Núcleo da Fé - Noroeste", celula: "pncm 01", emergenciaNome: "Gislayne santos rota", emergenciaTel: "61981298436", quarto: "Marrom" },
-  { nome: "Ruan Lucca Moura Diniz", idade: 22, telefone: "61985069933", unidade: "Núcleo da Fé - Sede", celula: "Nao", emergenciaNome: "Sofia Borges Guimarães", emergenciaTel: "61996092828", quarto: "Marrom" },
-  { nome: "Juliano yonekawa", idade: 49, telefone: "61981515663", unidade: "Núcleo da Fé - Sede", celula: "Homens na forja", emergenciaNome: "Jardins inga", emergenciaTel: "61981515663", quarto: "Marrom" },
-  { nome: "Everton Alves Dos Santos", idade: 31, telefone: "61993272442", unidade: "Núcleo da Fé - Planaltina", celula: "Célula de Casais", emergenciaNome: "Sara", emergenciaTel: "61995273099", quarto: "Marrom" },
-
-  // AMARELO (do PDF Amarelo_PRIVADO.pdf)
-  { nome: "Gustavo Costa Ribeiro Soares", idade: 33, telefone: "61994297900", unidade: "Núcleo da Fé - Sede", celula: "sim Seguidores de Cristo", emergenciaNome: "Kellen", emergenciaTel: "61994297900", quarto: "Amarelo" },
-  { nome: "Elivelton Vieira", idade: 40, telefone: "61999966177", unidade: "Núcleo da Fé - Planaltina", celula: "sim, de casais", emergenciaNome: "Michelle S. Vieira", emergenciaTel: "61999738015", quarto: "Amarelo" },
-  { nome: "Arthur Eduardo Nepomuceno Poli Landim", idade: 23, telefone: "61999456645", unidade: "Núcleo da Fé - Sede", celula: "não", emergenciaNome: "Carolina Poli", emergenciaTel: "61992446803", quarto: "Amarelo" },
-  { nome: "Wagner Rodrigues de Lira", idade: 48, telefone: "61984823390", unidade: "Núcleo da Fé - Planaltina", celula: "Sim. De casais", emergenciaNome: "Carla", emergenciaTel: "61998525011", quarto: "Amarelo" },
-  { nome: "Leandro Stutzel", idade: 43, telefone: "61995095048", unidade: "Núcleo da Fé - Jardim Botânico", celula: "Jardim Botânico", emergenciaNome: "Patrícia", emergenciaTel: "61995567776", quarto: "Amarelo" },
-  { nome: "Renan Do Nascimento Venâncio", idade: 28, telefone: "61981050667", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Michelly", emergenciaTel: "61991604713", quarto: "Amarelo" },
-  { nome: "Mateus de Souza Ribeiro", idade: 53, telefone: "61996777837", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Stela", emergenciaTel: "61996168914", quarto: "Amarelo" },
-  { nome: "Levi Ribeiro Torres", idade: 24, telefone: "61996141017", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Ana Luíza", emergenciaTel: "61981414131", quarto: "Amarelo" },
-
-  // AZUL ESCURO (do PDF Azul Escuro_PRIVADO.pdf)
-  { nome: "BRUNO FREITAS DE SANTANA", idade: 34, telefone: "61986379788", unidade: "Núcleo da Fé - Sede", celula: "NÃO", emergenciaNome: "Tawana", emergenciaTel: "61985711866", quarto: "Azul Escuro" },
-  { nome: "Matheus Vilela Gonçalves da Fonseca", idade: 38, telefone: "61981701567", unidade: "Núcleo da Fé - Noroeste", celula: "não", emergenciaNome: "Laís Vilela", emergenciaTel: "61996671737", quarto: "Azul Escuro" },
-  { nome: "THIAGO OSVAIR CRUZ DE OLIVEIRA", idade: 36, telefone: "61991174707", unidade: "Núcleo da Fé - Sede", celula: "Nao", emergenciaNome: "LAYS", emergenciaTel: "61991324645", quarto: "Azul Escuro" },
-  { nome: "Joao Victor Velloso Lira Granado", idade: 22, telefone: "61981463732", unidade: "Núcleo da Fé - Sede", celula: "Nao", emergenciaNome: "Eduardo velloso (Pai)", emergenciaTel: "61981161219", quarto: "Azul Escuro" },
-  { nome: "Deivid Bandeira Magalhães", idade: 45, telefone: "61986082084", unidade: "Núcleo da Fé - Gama", celula: "Não", emergenciaNome: "Keyla Mary Santiago Carvalho", emergenciaTel: "61982320955", quarto: "Azul Escuro" },
-  { nome: "Leonardo Silva Damasceno", idade: 45, telefone: "61981633013", unidade: "Núcleo da Fé - Sede", celula: "Pn trilha", emergenciaNome: "Cláudia", emergenciaTel: "61981299966", quarto: "Azul Escuro" },
-  { nome: "Thiago Ribeiro Cavalcanti", idade: 29, telefone: "61983171091", unidade: "Núcleo da Fé - Sede", celula: "sim, Rodrigo e Isabela", emergenciaNome: "Lorrane", emergenciaTel: "61991766158", quarto: "Azul Escuro" },
-  { nome: "Jânio Ferreira Breta", idade: 57, telefone: "61991755217", unidade: "Núcleo da Fé - Sede", celula: "sim, Regis e Angélica", emergenciaNome: "Viviane Matos", emergenciaTel: "62992409251", quarto: "Azul Escuro" },
-
-  // AZUL CLARO (do PDF Azul Claro_PRIVADO.pdf)
-  { nome: "Leandro Augusto Abib", idade: 46, telefone: "61999946584", unidade: "Núcleo da Fé - Noroeste", celula: "dos homens", emergenciaNome: "Osvaldo abib", emergenciaTel: "61999856050", quarto: "Azul Claro" },
-  { nome: "Hyago Moreira dos Santos", idade: 31, telefone: "61996560940", unidade: "Núcleo da Fé - Planaltina", celula: "PN Casais Planaltina", emergenciaNome: "Hinngridy Barbosa Dourado", emergenciaTel: "61999608252", quarto: "Azul Claro" },
-  { nome: "Luiz Humberto Borges", idade: 66, telefone: "61984097389", unidade: "Núcleo da Fé - Jardim Botânico", celula: "Não", emergenciaNome: "Fabricio", emergenciaTel: "992685362", quarto: "Azul Claro" },
-  { nome: "Rafael Cardoso Veras", idade: 38, telefone: "61995715453", unidade: "Núcleo da Fé - Planaltina", celula: "Não", emergenciaNome: "Rayssa Gonçalves", emergenciaTel: "999185184", quarto: "Azul Claro" },
-  { nome: "Thiago Valentim de Souza", idade: 43, telefone: "61983406142", unidade: "Núcleo da Fé - Sede", celula: "não", emergenciaNome: "Laís", emergenciaTel: "61998620610", quarto: "Azul Claro" },
-  { nome: "Carlos Henrique De Araujo Ramos", idade: 35, telefone: "61985251451", unidade: "Núcleo da Fé - Sede", celula: "Nao", emergenciaNome: "Jessica Diniz", emergenciaTel: "62995003883", quarto: "Azul Claro" },
-  { nome: "Pedro Henrique Teles de Sousa", idade: 24, telefone: "61995238248", unidade: "Núcleo da Fé - Samambaia", celula: "não", emergenciaNome: "Flávia Teles (irmã)", emergenciaTel: "61996507127", quarto: "Azul Claro" },
-  { nome: "Matheus Santos Lima", idade: 23, telefone: "61992013448", unidade: "Núcleo da Fé - Sede", celula: "ARTUR", emergenciaNome: "MARIA CLARA", emergenciaTel: "19984023868", quarto: "Azul Claro" },
-  { nome: "Jurandi Arruda Da Silva Junior", idade: 47, telefone: "61998840250", unidade: "Núcleo da Fé - Sede", celula: "Nucleo de Homens", emergenciaNome: "Allana Sandes", emergenciaTel: "81985016672", quarto: "Azul Claro" },
-  { nome: "Eduardo Reis Mota", idade: 30, telefone: "61995671139", unidade: "Núcleo da Fé - Planaltina", celula: "Expansores", emergenciaNome: "Luna Vieira Reis", emergenciaTel: "61992180087", quarto: "Azul Claro" },
-
-  // VERDE (do PDF Verde_PRIVADO.pdf)
-  { nome: "Rodrigo Santana Arouca", idade: 37, telefone: "61996252134", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Flavia Arouca", emergenciaTel: "61999090244", quarto: "Verde" },
-  { nome: "Kalebe Mendes Rodrigues", idade: 20, telefone: "61995058129", unidade: "Núcleo da Fé - Sede", celula: "Nenhuma", emergenciaNome: "Cristina Mendes", emergenciaTel: "61996980351", quarto: "Verde" },
-  { nome: "Frederico Elil de Gois", idade: 49, telefone: "61992588002", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Não tenho conhecimento", emergenciaTel: "11915546892", quarto: "Verde" },
-  { nome: "Ederson Freire Rodrigues Teixeira", idade: 43, telefone: "61984050057", unidade: "Núcleo da Fé - Sede", celula: "não", emergenciaNome: "Kelly", emergenciaTel: "61985284104", quarto: "Verde" },
-  { nome: "João Paulo Cunha Botelho", idade: 33, telefone: "61992649116", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Angélica", emergenciaTel: "41997153024", quarto: "Verde" },
-  { nome: "William Johnny Rodrigues coelho marques", idade: 33, telefone: "6194593311", unidade: "nao", celula: "Não", emergenciaNome: "Carolina do nascimento coelho marques", emergenciaTel: "61998817583", quarto: "Verde" },
-  { nome: "Robert Souza de Araujo", idade: 39, telefone: "61996572076", unidade: "Núcleo da Fé - Sede", celula: "Célula de líderes BJJHOPE", emergenciaNome: "Sheilla (esposa)", emergenciaTel: "61996572033", quarto: "Verde" },
-  { nome: "Matheus Augustus da Silva Batista Ribeiro", idade: 18, telefone: "61992223599", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Stela", emergenciaTel: "61996168914", quarto: "Verde" },
-
-  // CINZA (do PDF Cinza_PRIVADO.pdf)
-  { nome: "Gleiviton Da Silva Oliveira", idade: 42, telefone: "6192550006", unidade: "Núcleo da Fé - Planaltina", celula: "Sim. Pequeno núcleo", emergenciaNome: "Nilma", emergenciaTel: "61993949628", quarto: "Cinza" },
-  { nome: "Lucas José de Oliveira Cunha", idade: 37, telefone: "61981373070", unidade: "Núcleo da Fé - Sede", celula: "sim, Homens na forja", emergenciaNome: "Ruthenia", emergenciaTel: "61982783035", quarto: "Cinza" },
-  { nome: "João Henrique Ortiz", idade: 33, telefone: "61999586496", unidade: "Núcleo da Fé - Sede", celula: "Nucleo da Fé", emergenciaNome: "Jaqueliny", emergenciaTel: "61999089651", quarto: "Cinza" },
-  { nome: "Rauricio Puça dos Santos", idade: 49, telefone: "61991621133", unidade: "Núcleo da Fé - Sede", celula: "não", emergenciaNome: "Tamires", emergenciaTel: "61991621133", quarto: "Cinza" },
-  { nome: "Pedro Sergio", idade: 29, telefone: "61981993450", unidade: "Núcleo da Fé - Sede", celula: "Sim, luis", emergenciaNome: "Larissa", emergenciaTel: "99794520", quarto: "Cinza" },
-  { nome: "Thiago", idade: 37, telefone: "61982737373", unidade: "Núcleo da Fé - Noroeste", celula: "líderes do jiujitsu", emergenciaNome: "Aline", emergenciaTel: "61995443439", quarto: "Cinza" },
-  { nome: "Otávio de Miranda Lins", idade: 41, telefone: "61991880633", unidade: "Núcleo da Fé - Sede", celula: "não", emergenciaNome: "ana beatriz Oliveira", emergenciaTel: "61999916144", quarto: "Cinza" },
-  { nome: "Lissandro Landim Oliveira", idade: 47, telefone: "61984237850", unidade: "Núcleo da Fé - Sede", celula: "não", emergenciaNome: "Silvânia", emergenciaTel: "61998014493", quarto: "Cinza" }
-];
-
-// Configuração dos quartos
-const quartosConfig = [
+// 1. QUARTOS com líderes
+const quartosData = [
   { nome: "Laranja", cor: "#F97316", capacidade: 10, lideresPorQuarto: 2, lideres: ["Fábinho", "Douglas"] },
   { nome: "Vermelho", cor: "#DC2626", capacidade: 10, lideresPorQuarto: 2, lideres: ["Fábio", "João Paulo"] },
   { nome: "Marrom", cor: "#8B4513", capacidade: 10, lideresPorQuarto: 2, lideres: ["Eduardo", "Guilherme"] },
@@ -244,15 +163,150 @@ const quartosConfig = [
   { nome: "Cinza", cor: "#6B7280", capacidade: 10, lideresPorQuarto: 2, lideres: ["Marcus", "Wilson"] }
 ];
 
-// ==================== ESTADO GLOBAL ====================
+// 2. PARTICIPANTES QUE JÁ ESTÃO EM QUARTOS (extraídos dos PDFs)
+const participantesComQuarto = [
+  // LARANJA (8)
+  { nome: "Marcos Felipe Sena Melo Martins", idade: 33, telefone: "61998505648", unidade: "Núcleo da Fé - Sede", celula: "não", emergenciaNome: "Vitória Sena", emergenciaTel: "61999882235", quarto: "Laranja" },
+  { nome: "Francisco Claudio", idade: 44, telefone: "6198519901", unidade: "católica", celula: "Nao participa", emergenciaNome: "Juliana", emergenciaTel: "61998209901", quarto: "Laranja" },
+  { nome: "Alessandro Roosevelt Gonçalves Lucas", idade: 46, telefone: "61984182988", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Sim", emergenciaTel: "82981053531", quarto: "Laranja" },
+  { nome: "John Anderson Alves", idade: 42, telefone: "61985261597", unidade: "Núcleo da Fé - Jardim Botânico", celula: "Não", emergenciaNome: "Michele", emergenciaTel: "61986014061", quarto: "Laranja" },
+  { nome: "Raphael Silva Corrêa", idade: 36, telefone: "61983361184", unidade: "Núcleo da Fé - Jardim Botânico", celula: "não", emergenciaNome: "Karol", emergenciaTel: "61986330833", quarto: "Laranja" },
+  { nome: "Jean Juinior Ribeiro Fonseca", idade: 35, telefone: "61993307022", unidade: "Núcleo da Fé - Sede", celula: "Nao", emergenciaNome: "Tainara", emergenciaTel: "993307022", quarto: "Laranja" },
+  { nome: "Rodrigo Regis Teles", idade: 51, telefone: "61992107454", unidade: "Núcleo da Fé - Planaltina", celula: "Casais", emergenciaNome: "Michelle Ribeiro Oliveira", emergenciaTel: "985033301", quarto: "Laranja" },
+  { nome: "Lucas Seidii Shinohara Moura", idade: 21, telefone: "61994409743", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Rafaella", emergenciaTel: "61998489765", quarto: "Laranja" },
+  // VERMELHO (8)
+  { nome: "Marcos Uéric Gomes Pereira", idade: 39, telefone: "61990447754", unidade: "Núcleo da Fé - Sede", celula: "Aimda nao", emergenciaNome: "(Mãe Margarida) (amiga Taísa)", emergenciaTel: "48996166404", quarto: "Vermelho" },
+  { nome: "Bruno Soares Da Silva", idade: 41, telefone: "61984528169", unidade: "Núcleo da Fé - Sede", celula: "Casais", emergenciaNome: "Raquel", emergenciaTel: "61982225224", quarto: "Vermelho" },
+  { nome: "Anderson Macena da Silva", idade: 34, telefone: "81995431594", unidade: "Núcleo da Fé - Noroeste", celula: "Não", emergenciaNome: "Jéssica Rodrigues", emergenciaTel: "61991340276", quarto: "Vermelho" },
+  { nome: "Iuri de Castro Carvalho", idade: 24, telefone: "61999890939", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Alliny Vitória Neves Lourenço", emergenciaTel: "61981219482", quarto: "Vermelho" },
+  { nome: "Darlan Nunes do Nascimento", idade: 47, telefone: "61992002121", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Loreana", emergenciaTel: "61996246817", quarto: "Vermelho" },
+  { nome: "Eid Yuji Lima Hirano", idade: 40, telefone: "61982892266", unidade: "Nova Vida", celula: "Nenhuma, sou de outra igreja", emergenciaNome: "N", emergenciaTel: "61986462934", quarto: "Vermelho" },
+  { nome: "LUIZ CARLOS LEITE SAO JOSE", idade: 58, telefone: "61998357850", unidade: "Núcleo da Fé - Planaltina", celula: "Casais", emergenciaNome: "Igreja", emergenciaTel: "61998357850", quarto: "Vermelho" },
+  { nome: "Diego Henrique Ramos Dos Santos", idade: 36, telefone: "61985954894", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Leiliane", emergenciaTel: "61985954894", quarto: "Vermelho" },
+  // MARROM (8)
+  { nome: "josé Francisco Antunes dos Reis", idade: 61, telefone: "61999944880", unidade: "Núcleo da Fé - Sede", celula: "Sozo", emergenciaNome: "Samuel", emergenciaTel: "61998214870", quarto: "Marrom" },
+  { nome: "Andre Luiz Arneitz Galante", idade: 50, telefone: "61996679333", unidade: "Núcleo da Fé - Sede", celula: "nenhuma", emergenciaNome: "Eder", emergenciaTel: "61981313026", quarto: "Marrom" },
+  { nome: "Randerson Neves Barbosa", idade: 48, telefone: "61996171636", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Ana - esposa", emergenciaTel: "61999837277", quarto: "Marrom" },
+  { nome: "Lucas Ribeiro Alves Pereira", idade: 34, telefone: "61995580223", unidade: "Não participa da igreja núcleo da fé", celula: "não", emergenciaNome: "Patrícia", emergenciaTel: "61996282820", quarto: "Marrom" },
+  { nome: "daniel rota", idade: 46, telefone: "61981247254", unidade: "Núcleo da Fé - Noroeste", celula: "pncm 01", emergenciaNome: "Gislayne santos rota", emergenciaTel: "61981298436", quarto: "Marrom" },
+  { nome: "Ruan Lucca Moura Diniz", idade: 22, telefone: "61985069933", unidade: "Núcleo da Fé - Sede", celula: "Nao", emergenciaNome: "Sofia Borges Guimarães", emergenciaTel: "61996092828", quarto: "Marrom" },
+  { nome: "Juliano yonekawa", idade: 49, telefone: "61981515663", unidade: "Núcleo da Fé - Sede", celula: "Homens na forja", emergenciaNome: "Jardins inga", emergenciaTel: "61981515663", quarto: "Marrom" },
+  { nome: "Everton Alves Dos Santos", idade: 31, telefone: "61993272442", unidade: "Núcleo da Fé - Planaltina", celula: "Célula de Casais", emergenciaNome: "Sara", emergenciaTel: "61995273099", quarto: "Marrom" },
+  // AMARELO (8)
+  { nome: "Gustavo Costa Ribeiro Soares", idade: 33, telefone: "61994297900", unidade: "Núcleo da Fé - Sede", celula: "sim Seguidores de Cristo", emergenciaNome: "Kellen", emergenciaTel: "61994297900", quarto: "Amarelo" },
+  { nome: "Elivelton Vieira", idade: 40, telefone: "61999966177", unidade: "Núcleo da Fé - Planaltina", celula: "sim, de casais", emergenciaNome: "Michelle S. Vieira", emergenciaTel: "61999738015", quarto: "Amarelo" },
+  { nome: "Arthur Eduardo Nepomuceno Poli Landim", idade: 23, telefone: "61999456645", unidade: "Núcleo da Fé - Sede", celula: "não", emergenciaNome: "Carolina Poli", emergenciaTel: "61992446803", quarto: "Amarelo" },
+  { nome: "Wagner Rodrigues de Lira", idade: 48, telefone: "61984823390", unidade: "Núcleo da Fé - Planaltina", celula: "Sim. De casais", emergenciaNome: "Carla", emergenciaTel: "61998525011", quarto: "Amarelo" },
+  { nome: "Leandro Stutzel", idade: 43, telefone: "61995095048", unidade: "Núcleo da Fé - Jardim Botânico", celula: "Jardim Botânico", emergenciaNome: "Patrícia", emergenciaTel: "61995567776", quarto: "Amarelo" },
+  { nome: "Renan Do Nascimento Venâncio", idade: 28, telefone: "61981050667", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Michelly", emergenciaTel: "61991604713", quarto: "Amarelo" },
+  { nome: "Mateus de Souza Ribeiro", idade: 53, telefone: "61996777837", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Stela", emergenciaTel: "61996168914", quarto: "Amarelo" },
+  { nome: "Levi Ribeiro Torres", idade: 24, telefone: "61996141017", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Ana Luíza", emergenciaTel: "61981414131", quarto: "Amarelo" },
+  // AZUL ESCURO (8)
+  { nome: "BRUNO FREITAS DE SANTANA", idade: 34, telefone: "61986379788", unidade: "Núcleo da Fé - Sede", celula: "NÃO", emergenciaNome: "Tawana", emergenciaTel: "61985711866", quarto: "Azul Escuro" },
+  { nome: "Matheus Vilela Gonçalves da Fonseca", idade: 38, telefone: "61981701567", unidade: "Núcleo da Fé - Noroeste", celula: "não", emergenciaNome: "Laís Vilela", emergenciaTel: "61996671737", quarto: "Azul Escuro" },
+  { nome: "THIAGO OSVAIR CRUZ DE OLIVEIRA", idade: 36, telefone: "61991174707", unidade: "Núcleo da Fé - Sede", celula: "Nao", emergenciaNome: "LAYS", emergenciaTel: "61991324645", quarto: "Azul Escuro" },
+  { nome: "Joao Victor Velloso Lira Granado", idade: 22, telefone: "61981463732", unidade: "Núcleo da Fé - Sede", celula: "Nao", emergenciaNome: "Eduardo velloso (Pai)", emergenciaTel: "61981161219", quarto: "Azul Escuro" },
+  { nome: "Deivid Bandeira Magalhães", idade: 45, telefone: "61986082084", unidade: "Núcleo da Fé - Gama", celula: "Não", emergenciaNome: "Keyla Mary Santiago Carvalho", emergenciaTel: "61982320955", quarto: "Azul Escuro" },
+  { nome: "Leonardo Silva Damasceno", idade: 45, telefone: "61981633013", unidade: "Núcleo da Fé - Sede", celula: "Pn trilha", emergenciaNome: "Cláudia", emergenciaTel: "61981299966", quarto: "Azul Escuro" },
+  { nome: "Thiago Ribeiro Cavalcanti", idade: 29, telefone: "61983171091", unidade: "Núcleo da Fé - Sede", celula: "sim, Rodrigo e Isabela", emergenciaNome: "Lorrane", emergenciaTel: "61991766158", quarto: "Azul Escuro" },
+  { nome: "Jânio Ferreira Breta", idade: 57, telefone: "61991755217", unidade: "Núcleo da Fé - Sede", celula: "sim, Regis e Angélica", emergenciaNome: "Viviane Matos", emergenciaTel: "62992409251", quarto: "Azul Escuro" },
+  // AZUL CLARO (10)
+  { nome: "Leandro Augusto Abib", idade: 46, telefone: "61999946584", unidade: "Núcleo da Fé - Noroeste", celula: "dos homens", emergenciaNome: "Osvaldo abib", emergenciaTel: "61999856050", quarto: "Azul Claro" },
+  { nome: "Hyago Moreira dos Santos", idade: 31, telefone: "61996560940", unidade: "Núcleo da Fé - Planaltina", celula: "PN Casais Planaltina", emergenciaNome: "Hinngridy Barbosa Dourado", emergenciaTel: "61999608252", quarto: "Azul Claro" },
+  { nome: "Luiz Humberto Borges", idade: 66, telefone: "61984097389", unidade: "Núcleo da Fé - Jardim Botânico", celula: "Não", emergenciaNome: "Fabricio", emergenciaTel: "992685362", quarto: "Azul Claro" },
+  { nome: "Rafael Cardoso Veras", idade: 38, telefone: "61995715453", unidade: "Núcleo da Fé - Planaltina", celula: "Não", emergenciaNome: "Rayssa Gonçalves", emergenciaTel: "999185184", quarto: "Azul Claro" },
+  { nome: "Thiago Valentim de Souza", idade: 43, telefone: "61983406142", unidade: "Núcleo da Fé - Sede", celula: "não", emergenciaNome: "Laís", emergenciaTel: "61998620610", quarto: "Azul Claro" },
+  { nome: "Carlos Henrique De Araujo Ramos", idade: 35, telefone: "61985251451", unidade: "Núcleo da Fé - Sede", celula: "Nao", emergenciaNome: "Jessica Diniz", emergenciaTel: "62995003883", quarto: "Azul Claro" },
+  { nome: "Pedro Henrique Teles de Sousa", idade: 24, telefone: "61995238248", unidade: "Núcleo da Fé - Samambaia", celula: "não", emergenciaNome: "Flávia Teles (irmã)", emergenciaTel: "61996507127", quarto: "Azul Claro" },
+  { nome: "Matheus Santos Lima", idade: 23, telefone: "61992013448", unidade: "Núcleo da Fé - Sede", celula: "ARTUR", emergenciaNome: "MARIA CLARA", emergenciaTel: "19984023868", quarto: "Azul Claro" },
+  { nome: "Jurandi Arruda Da Silva Junior", idade: 47, telefone: "61998840250", unidade: "Núcleo da Fé - Sede", celula: "Nucleo de Homens", emergenciaNome: "Allana Sandes", emergenciaTel: "81985016672", quarto: "Azul Claro" },
+  { nome: "Eduardo Reis Mota", idade: 30, telefone: "61995671139", unidade: "Núcleo da Fé - Planaltina", celula: "Expansores", emergenciaNome: "Luna Vieira Reis", emergenciaTel: "61992180087", quarto: "Azul Claro" },
+  // VERDE (8)
+  { nome: "Rodrigo Santana Arouca", idade: 37, telefone: "61996252134", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Flavia Arouca", emergenciaTel: "61999090244", quarto: "Verde" },
+  { nome: "Kalebe Mendes Rodrigues", idade: 20, telefone: "61995058129", unidade: "Núcleo da Fé - Sede", celula: "Nenhuma", emergenciaNome: "Cristina Mendes", emergenciaTel: "61996980351", quarto: "Verde" },
+  { nome: "Frederico Elil de Gois", idade: 49, telefone: "61992588002", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Não tenho conhecimento", emergenciaTel: "11915546892", quarto: "Verde" },
+  { nome: "Ederson Freire Rodrigues Teixeira", idade: 43, telefone: "61984050057", unidade: "Núcleo da Fé - Sede", celula: "não", emergenciaNome: "Kelly", emergenciaTel: "61985284104", quarto: "Verde" },
+  { nome: "João Paulo Cunha Botelho", idade: 33, telefone: "61992649116", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Angélica", emergenciaTel: "41997153024", quarto: "Verde" },
+  { nome: "William Johnny Rodrigues coelho marques", idade: 33, telefone: "6194593311", unidade: "nao", celula: "Não", emergenciaNome: "Carolina do nascimento coelho marques", emergenciaTel: "61998817583", quarto: "Verde" },
+  { nome: "Robert Souza de Araujo", idade: 39, telefone: "61996572076", unidade: "Núcleo da Fé - Sede", celula: "Célula de líderes BJJHOPE", emergenciaNome: "Sheilla (esposa)", emergenciaTel: "61996572033", quarto: "Verde" },
+  { nome: "Matheus Augustus da Silva Batista Ribeiro", idade: 18, telefone: "61992223599", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Stela", emergenciaTel: "61996168914", quarto: "Verde" },
+  // CINZA (8)
+  { nome: "Gleiviton Da Silva Oliveira", idade: 42, telefone: "6192550006", unidade: "Núcleo da Fé - Planaltina", celula: "Sim. Pequeno núcleo", emergenciaNome: "Nilma", emergenciaTel: "61993949628", quarto: "Cinza" },
+  { nome: "Lucas José de Oliveira Cunha", idade: 37, telefone: "61981373070", unidade: "Núcleo da Fé - Sede", celula: "sim, Homens na forja", emergenciaNome: "Ruthenia", emergenciaTel: "61982783035", quarto: "Cinza" },
+  { nome: "João Henrique Ortiz", idade: 33, telefone: "61999586496", unidade: "Núcleo da Fé - Sede", celula: "Nucleo da Fé", emergenciaNome: "Jaqueliny", emergenciaTel: "61999089651", quarto: "Cinza" },
+  { nome: "Rauricio Puça dos Santos", idade: 49, telefone: "61991621133", unidade: "Núcleo da Fé - Sede", celula: "não", emergenciaNome: "Tamires", emergenciaTel: "61991621133", quarto: "Cinza" },
+  { nome: "Pedro Sergio", idade: 29, telefone: "61981993450", unidade: "Núcleo da Fé - Sede", celula: "Sim, luis", emergenciaNome: "Larissa", emergenciaTel: "99794520", quarto: "Cinza" },
+  { nome: "Thiago", idade: 37, telefone: "61982737373", unidade: "Núcleo da Fé - Noroeste", celula: "líderes do jiujitsu", emergenciaNome: "Aline", emergenciaTel: "61995443439", quarto: "Cinza" },
+  { nome: "Otávio de Miranda Lins", idade: 41, telefone: "61991880633", unidade: "Núcleo da Fé - Sede", celula: "não", emergenciaNome: "ana beatriz Oliveira", emergenciaTel: "61999916144", quarto: "Cinza" },
+  { nome: "Lissandro Landim Oliveira", idade: 47, telefone: "61984237850", unidade: "Núcleo da Fé - Sede", celula: "não", emergenciaNome: "Silvânia", emergenciaTel: "61998014493", quarto: "Cinza" }
+];
+
+// 3. PARTICIPANTES NOVOS (do Excel - NÃO estão nos PDFs) - JÁ CADASTRADOS, SEM QUARTO
+const participantesNovos = [
+  { nome: "André Luiz Milani", idade: 29, telefone: "61982212026", unidade: "Núcleo da Fé - Noroeste", celula: "não", emergenciaNome: "Amanda", emergenciaTel: "61982168451" },
+  { nome: "VANDERLEY ANDRADE SANTOS", idade: 36, telefone: "61995613156", unidade: "Núcleo da Fé - Sede", celula: "nenhuma", emergenciaNome: "creuza (esposa)", emergenciaTel: "61983420301" },
+  { nome: "DIEGO RODRIGUES MAGALHAES", idade: 41, telefone: "61992229823", unidade: "Núcleo da Fé - Sede", celula: "nenhuma", emergenciaNome: "Maria auxiliadora (mãe)", emergenciaTel: "61991073922" },
+  { nome: "Bruno maike Duraes de melo", idade: 27, telefone: "61994484848", unidade: "Núcleo da Fé - Planaltina", celula: "não", emergenciaNome: "61991724897", emergenciaTel: "61994484848" },
+  { nome: "Pablo Braz Dos Santos Lopes", idade: 25, telefone: "61981594303", unidade: "Núcleo da Fé - Sede", celula: "Sim", emergenciaNome: "Luiza esposa", emergenciaTel: "61991783024" },
+  { nome: "Mauro Cury", idade: 44, telefone: "61981963700", unidade: "Núcleo da Fé - Samambaia", celula: "Andre", emergenciaNome: "Patrícia", emergenciaTel: "61996311901" },
+  { nome: "josé esmael do nascimento", idade: 48, telefone: "61991694899", unidade: "Núcleo da Fé - Planaltina", celula: "não.", emergenciaNome: "Lucineia afonso", emergenciaTel: "61994590510" },
+  { nome: "miguel afonso do nascimento", idade: 25, telefone: "61995709832", unidade: "Núcleo da Fé - Planaltina", celula: "sim, gps.", emergenciaNome: "michaely vasconcelos", emergenciaTel: "61992594002" },
+  { nome: "Manoel de Souza Silva", idade: 48, telefone: "61996012929", unidade: "Núcleo da Fé - Planaltina", celula: "não", emergenciaNome: "Camila", emergenciaTel: "61993219544" },
+  { nome: "Pedro Cesar De Pontes Lima", idade: 27, telefone: "61996620508", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Larissa", emergenciaTel: "61981817096" },
+  { nome: "Tiberio Rocha", idade: 50, telefone: "61984338020", unidade: "Núcleo da Fé - Sede", celula: "Célula de casais e estudo bíblico", emergenciaNome: "Malú", emergenciaTel: "61985160991" }
+];
+
+// ==================== INICIALIZAÇÃO ====================
 let encontroAtual = null;
 let encontros = [];
 let sortables = [];
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).substr(2); }
 function toast(msg) { const el = document.getElementById('toast'); el.textContent = msg; el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 2500); }
-function salvar() { localStorage.setItem('encontros_quartos', JSON.stringify(encontros)); }
 function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
+function salvar() { localStorage.setItem('encontros_quartos', JSON.stringify(encontros)); }
+
+function inicializarEncontro() {
+  // Criar quartos
+  const quartos = quartosData.map(q => ({
+    id: uid(), nome: q.nome, cor: q.cor, capacidade: q.capacidade,
+    lideresPorQuarto: q.lideresPorQuarto, lideres: [...q.lideres], participantesIds: []
+  }));
+  
+  const quartoMap = new Map();
+  quartos.forEach(q => quartoMap.set(q.nome, q));
+  
+  // Criar participantes com quarto
+  const participantesComIds = participantesComQuarto.map(p => {
+    const id = uid();
+    return { id, ...p, quarto: undefined };
+  });
+  
+  // Criar participantes novos (sem quarto)
+  const novosComIds = participantesNovos.map(p => {
+    const id = uid();
+    return { id, ...p, quarto: undefined };
+  });
+  
+  const todosParticipantes = [...participantesComIds, ...novosComIds];
+  
+  // Alocar quem tem quarto
+  participantesComIds.forEach(p => {
+    const quarto = quartoMap.get(p.quarto);
+    if (quarto && !quarto.participantesIds.includes(p.id)) {
+      quarto.participantesIds.push(p.id);
+    }
+  });
+  
+  return {
+    id: uid(),
+    nome: 'Acampamento de Homens 2026 - 15/05 a 17/05',
+    dataInicio: '2026-05-15',
+    dataFim: '2026-05-17',
+    participantes: todosParticipantes,
+    quartos: quartos
+  };
+}
 
 function carregar() {
   const data = localStorage.getItem('encontros_quartos');
@@ -260,96 +314,20 @@ function carregar() {
     encontros = JSON.parse(data);
   }
   if (!encontros.length) {
-    // Criar encontro padrão com quartos e participantes pré-alocados
-    const quartos = quartosConfig.map(q => ({
-      id: uid(), nome: q.nome, cor: q.cor, capacidade: q.capacidade,
-      lideresPorQuarto: q.lideresPorQuarto, lideres: q.lideres, participantesIds: []
-    }));
-    
-    const participantes = participantesPreAlocados.map(p => ({
-      id: uid(), nome: p.nome, idade: p.idade, telefone: p.telefone,
-      unidade: p.unidade, celula: p.celula, emergenciaNome: p.emergenciaNome,
-      emergenciaTel: p.emergenciaTel, grupoNumero: 0
-    }));
-    
-    // Alocar participantes nos quartos
-    const quartoMap = new Map();
-    quartos.forEach(q => quartoMap.set(q.nome, q));
-    
-    participantes.forEach(p => {
-      const pOriginal = participantesPreAlocados.find(pp => pp.nome === p.nome);
-      if (pOriginal && pOriginal.quarto) {
-        const quarto = quartoMap.get(pOriginal.quarto);
-        if (quarto) {
-          if (!quarto.participantesIds) quarto.participantesIds = [];
-          quarto.participantesIds.push(p.id);
-        }
-      }
-    });
-    
-    encontros = [{
-      id: uid(),
-      nome: 'Acampamento de Homens 2026 - 15/05 a 17/05',
-      dataInicio: '2026-05-15',
-      dataFim: '2026-05-17',
-      participantes: participantes,
-      quartos: quartos
-    }];
+    encontros = [inicializarEncontro()];
     salvar();
   }
 }
 
 function getEnc() { return encontros.find(e => e.id === encontroAtual); }
 
-function renderEncontros() {
-  const container = document.getElementById('encontrosList');
-  if (!encontros.length) {
-    container.innerHTML = '<div style="text-align:center;padding:40px;color:#64748b">Nenhum encontro criado.</div>';
-    return;
-  }
-  container.innerHTML = encontros.map(enc => `
-    <div style="border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
-      <div><strong style="font-size:1.1rem">${enc.nome}</strong><br><span class="text-muted" style="font-size:0.8rem">${enc.participantes.length} participantes | ${enc.quartos.length} quartos</span></div>
-      <div><button class="btn btn-primary" onclick="selecionarEncontro('${enc.id}')">Selecionar</button></div>
-    </div>
-  `).join('');
-}
-
-window.selecionarEncontro = (id) => {
-  encontroAtual = id;
-  document.getElementById('totalParticipantesBadge').innerHTML = `${getEnc().participantes.length} participantes`;
-  toast(`Encontro "${getEnc().nome}" selecionado`);
-  document.querySelector('[data-tab="participantes"]').click();
-};
-
-function renderParticipantes() {
-  const enc = getEnc();
-  if (!enc) return;
-  const tbody = document.getElementById('participantesTbody');
-  const quartoMap = new Map();
-  enc.quartos.forEach(q => { (q.participantesIds || []).forEach(pid => quartoMap.set(pid, q.nome)); });
-  
-  tbody.innerHTML = enc.participantes.map(p => `
-    <tr><td><strong>${p.nome}</strong></td><td>${p.idade || '—'}</td><td>${p.telefone || '—'}</td>
-    <td>${p.unidade || '—'}</td><td>${p.celula || '—'}</td>
-    <td>${quartoMap.get(p.id) ? `<span style="color:#10b981">✅ ${quartoMap.get(p.id)}</span>` : '<span style="color:#f59e0b">⚠️ Sem quarto</span>'}</td>
-    <td><button class="btn btn-secondary" onclick="removerParticipante('${p.id}')" style="padding:4px 8px">✕</button></td></tr>
-  `).join('');
-  document.getElementById('totalParticipantesBadge').innerHTML = `${enc.participantes.length} participantes`;
-}
-
-window.removerParticipante = (id) => {
-  const enc = getEnc();
-  enc.participantes = enc.participantes.filter(p => p.id !== id);
-  enc.quartos.forEach(q => { q.participantesIds = (q.participantesIds || []).filter(pid => pid !== id); });
-  salvar(); renderParticipantes(); renderDistribuir(); toast('Participante removido');
-};
-
 function renderDistribuir() {
   const enc = getEnc();
   if (!enc) return;
   const grid = document.getElementById('quartosDistribuirGrid');
   sortables.forEach(s => { try { s.destroy(); } catch(e) {} }); sortables = [];
+  
+  if (!enc.quartos.length) { grid.innerHTML = '<div class="card-body">Nenhum quarto configurado</div>'; return; }
   
   grid.innerHTML = enc.quartos.map((q, idx) => {
     const participantesQuarto = (q.participantesIds || []).map(pid => enc.participantes.find(p => p.id === pid)).filter(Boolean);
@@ -389,59 +367,52 @@ function renderDistribuir() {
         quartoOrigem.participantesIds = (quartoOrigem.participantesIds || []).filter(id => id !== pessoaId);
         if (!quartoDestino.participantesIds) quartoDestino.participantesIds = [];
         quartoDestino.participantesIds.push(pessoaId);
-        salvar(); renderDistribuir(); renderParticipantes(); toast(`${pessoa.nome} → ${quartoDestino.nome}`);
+        salvar(); renderDistribuir(); renderParticipantes(); atualizarBages(); toast(`${pessoa.nome} → ${quartoDestino.nome}`);
       }
     });
     sortables.push(s);
   });
 }
 
-async function importarExcel(file) {
-  const enc = getEnc(); if (!enc) { toast('Selecione um encontro'); return; }
-  toast('Lendo arquivo...');
-  const data = await file.arrayBuffer();
-  const wb = XLSX.read(data);
-  const ws = wb.Sheets[wb.SheetNames[0]];
-  const rows = XLSX.utils.sheet_to_json(ws);
-  let importados = 0;
-  for (const row of rows) {
-    let nome = row['Nome Completo'] || row['Nome'] || '';
-    if (!nome && row['Comprador']) nome = row['Comprador'];
-    if (!nome || nome.length < 3) continue;
-    nome = nome.trim().replace(/\n/g, ' ').replace(/\s+/g, ' ');
-    let idade = row['Idade'] || 0;
-    if (typeof idade === 'string') { const match = idade.match(/\d+/); idade = match ? parseInt(match[0]) : 0; }
-    idade = parseInt(idade) || 0;
-    let telefone = row['Celular'] || row['Celular do comprador'] || '';
-    if (telefone) telefone = telefone.toString().replace(/\D/g, '').slice(-11);
-    let unidade = row['Qual unidade do Núcleo da Fé você participa?'] || row['Igreja do comprador'] || '';
-    let celula = row['Participa de célula? Qual?'] || '';
-    let emergNome = row['Telefone de contato da pessoa indicada.'] || '';
-    let emergTel = row['Telefone de contato da pessoa indicada.'] || '';
-    enc.participantes.push({ id: uid(), nome, idade, telefone, unidade, celula, emergenciaNome: emergNome, emergenciaTel: emergTel, grupoNumero: 0 });
-    importados++;
-  }
-  salvar(); renderParticipantes(); renderDistribuir(); toast(`${importados} participantes importados!`);
+function renderParticipantes() {
+  const enc = getEnc();
+  if (!enc) return;
+  const quartoMap = new Map();
+  enc.quartos.forEach(q => { (q.participantesIds || []).forEach(pid => quartoMap.set(pid, q.nome)); });
+  
+  const tbody = document.getElementById('participantesTbody');
+  tbody.innerHTML = enc.participantes.map(p => `
+    <tr>
+      <td><strong>${p.nome}</strong></td>
+      <td>${p.idade || '—'}</td>
+      <td class="monospace">${p.telefone || '—'}</td>
+      <td>${p.unidade || '—'}</td>
+      <td>${p.celula || '—'}</td>
+      <td>${quartoMap.has(p.id) ? '<span class="badge-success">✓ Alocado</span>' : '<span class="badge-warning">⚠️ Sem quarto</span>'}</td>
+      <td>${quartoMap.get(p.id) || '—'}</td>
+      <td><button class="btn btn-secondary" onclick="removerParticipante('${p.id}')" style="padding:4px 8px">✕</button></td>
+    </table>
+  `).join('');
 }
 
-function removerDuplicatas() {
-  const enc = getEnc(); if (!enc) return;
-  const antes = enc.participantes.length;
-  const seen = new Map();
-  enc.participantes = enc.participantes.filter(p => { const chave = `${p.nome.toLowerCase()}_${p.idade}`; if (seen.has(chave)) return false; seen.set(chave, true); return true; });
-  salvar(); renderParticipantes(); toast(`${antes - enc.participantes.length} duplicatas removidas`);
-}
+window.removerParticipante = (id) => {
+  const enc = getEnc();
+  enc.participantes = enc.participantes.filter(p => p.id !== id);
+  enc.quartos.forEach(q => { q.participantesIds = (q.participantesIds || []).filter(pid => pid !== id); });
+  salvar(); renderParticipantes(); renderDistribuir(); atualizarBages(); toast('Participante removido');
+};
 
 function distribuirNovos() {
   const enc = getEnc(); if (!enc) return;
   const alocadosIds = new Set();
   enc.quartos.forEach(q => (q.participantesIds || []).forEach(id => alocadosIds.add(id)));
   const novos = enc.participantes.filter(p => !alocadosIds.has(p.id));
+  if (novos.length === 0) { toast('Todos já estão alocados!'); return; }
   for (const p of novos) {
     const disponiveis = enc.quartos.filter(q => { const vagas = (q.capacidade || 10) - (q.lideresPorQuarto || 2); return (q.participantesIds || []).length < vagas; });
     if (disponiveis.length) { disponiveis.sort((a,b) => (a.participantesIds || []).length - (b.participantesIds || []).length); disponiveis[0].participantesIds.push(p.id); }
   }
-  salvar(); renderDistribuir(); renderParticipantes(); toast(`${novos.length} novos participantes distribuídos!`);
+  salvar(); renderDistribuir(); renderParticipantes(); atualizarBages(); toast(`${novos.length} novos participantes distribuídos!`);
 }
 
 function verSemQuarto() {
@@ -449,12 +420,21 @@ function verSemQuarto() {
   const alocados = new Set(); enc.quartos.forEach(q => (q.participantesIds || []).forEach(id => alocados.add(id)));
   const sem = enc.participantes.filter(p => !alocados.has(p.id));
   const container = document.getElementById('semQuartoLista');
-  container.innerHTML = !sem.length ? '<div>✅ Todos estão alocados!</div>' : `<p>${sem.length} participante(s) sem quarto:</p>${sem.map(p => `<div style="padding:8px;background:#f1f5f9;border-radius:8px;margin-bottom:6px"><strong>${p.nome}</strong> (${p.idade || '?'}a)</div>`).join('')}`;
+  container.innerHTML = !sem.length ? '<div style="padding:20px;text-align:center">✅ Todos os participantes estão alocados!</div>' : `<div style="margin-bottom:12px">${sem.length} participante(s) sem quarto:</div>${sem.map(p => `<div style="padding:8px;background:#f1f5f9;border-radius:8px;margin-bottom:6px"><strong>${p.nome}</strong> (${p.idade || '?'} anos)</div>`).join('')}`;
   document.getElementById('modalSemQuarto').classList.add('open');
 }
 
+function atualizarBages() {
+  const enc = getEnc();
+  if (!enc) return;
+  const alocados = new Set();
+  enc.quartos.forEach(q => (q.participantesIds || []).forEach(id => alocados.add(id)));
+  document.getElementById('totalParticipantesBadge').innerHTML = `${enc.participantes.length} participantes`;
+  document.getElementById('totalAlocadosBadge').innerHTML = `${alocados.size} alocados`;
+}
+
 function gerarListaGeralPDF() {
-  const enc = getEnc(); if (!enc) { toast('Selecione um encontro'); return; }
+  const enc = getEnc(); if (!enc) { toast('Nenhum encontro'); return; }
   const doc = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
   const quartoMap = new Map(); enc.quartos.forEach(q => (q.participantesIds || []).forEach(pid => quartoMap.set(pid, { nome: q.nome, cor: q.cor })));
   const lista = enc.participantes.map(p => ({ nome: p.nome, idade: p.idade || '—', unidade: p.unidade || '—', telefone: p.telefone || '—', emergNome: p.emergenciaNome || '—', emergTel: p.emergenciaTel || '—', quarto: quartoMap.get(p.id) })).sort((a,b) => a.nome.localeCompare(b.nome));
@@ -466,9 +446,40 @@ function gerarListaGeralPDF() {
   doc.save('Lista_Geral.pdf'); toast('PDF gerado!');
 }
 
+function renderResumo() {
+  const enc = getEnc();
+  if (!enc) return;
+  const alocados = new Set();
+  enc.quartos.forEach(q => (q.participantesIds || []).forEach(id => alocados.add(id)));
+  const semQuarto = enc.participantes.filter(p => !alocados.has(p.id));
+  const container = document.getElementById('resumoContent');
+  container.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px">
+      <div style="padding:16px;background:#f8fafc;border-radius:12px">
+        <h3>📊 Totais</h3>
+        <p><strong>Total participantes:</strong> ${enc.participantes.length}</p>
+        <p><strong>Alocados em quartos:</strong> ${alocados.size}</p>
+        <p><strong>Sem quarto:</strong> ${semQuarto.length}</p>
+        <p><strong>Quartos disponíveis:</strong> ${enc.quartos.length}</p>
+      </div>
+      <div style="padding:16px;background:#f8fafc;border-radius:12px">
+        <h3>🛏️ Quartos</h3>
+        ${enc.quartos.map(q => {
+          const vagas = (q.capacidade || 10) - (q.lideresPorQuarto || 2);
+          const ocup = (q.participantesIds || []).length;
+          return `<p><strong style="color:${q.cor}">■ ${q.nome}</strong>: ${ocup}/${vagas} ocupantes</p>`;
+        }).join('')}
+      </div>
+      <div style="padding:16px;background:#f8fafc;border-radius:12px">
+        <h3>👤 Participantes sem quarto</h3>
+        ${semQuarto.length ? semQuarto.map(p => `<p>• ${p.nome} (${p.idade || '?'}a)</p>`).join('') : '<p>✅ Nenhum</p>'}
+      </div>
+    </div>
+  `;
+}
+
 // Eventos
-document.getElementById('btnRemoverDuplicatas').addEventListener('click', removerDuplicatas);
-document.getElementById('btnDistribuirAutomatico').addEventListener('click', distribuirNovos);
+document.getElementById('btnDistribuirNovos').addEventListener('click', distribuirNovos);
 document.getElementById('btnGerarListaGeral').addEventListener('click', gerarListaGeralPDF);
 document.getElementById('btnVerSemQuarto').addEventListener('click', verSemQuarto);
 document.getElementById('btnDistribuirSemQuarto').addEventListener('click', () => { distribuirNovos(); document.getElementById('modalSemQuarto').classList.remove('open'); });
@@ -476,16 +487,9 @@ document.getElementById('btnAdicionarManual').addEventListener('click', () => { 
 document.getElementById('btnSalvarParticipante').addEventListener('click', () => {
   const enc = getEnc(); const nome = document.getElementById('addNome').value.trim();
   if (!nome) { toast('Nome obrigatório'); return; }
-  enc.participantes.push({ id: uid(), nome, idade: parseInt(document.getElementById('addIdade').value) || 0, telefone: document.getElementById('addTelefone').value, unidade: document.getElementById('addUnidade').value, celula: document.getElementById('addCelula').value, emergenciaNome: document.getElementById('addEmergNome').value, emergenciaTel: document.getElementById('addEmergTel').value, grupoNumero: 0 });
-  salvar(); renderParticipantes(); document.getElementById('modalParticipante').classList.remove('open'); toast('Participante adicionado');
+  enc.participantes.push({ id: uid(), nome, idade: parseInt(document.getElementById('addIdade').value) || 0, telefone: document.getElementById('addTelefone').value, unidade: document.getElementById('addUnidade').value, celula: document.getElementById('addCelula').value, emergenciaNome: document.getElementById('addEmergNome').value, emergenciaTel: document.getElementById('addEmergTel').value });
+  salvar(); renderParticipantes(); renderDistribuir(); atualizarBages(); document.getElementById('modalParticipante').classList.remove('open'); toast('Participante adicionado');
 });
-
-const importZone = document.getElementById('importZone'), fileInput = document.getElementById('fileInput');
-importZone.addEventListener('click', () => fileInput.click());
-importZone.addEventListener('dragover', e => { e.preventDefault(); importZone.style.borderColor = '#3b82f6'; });
-importZone.addEventListener('dragleave', () => { importZone.style.borderColor = '#cbd5e1'; });
-importZone.addEventListener('drop', e => { e.preventDefault(); importZone.style.borderColor = '#cbd5e1'; const file = e.dataTransfer.files[0]; if (file && file.name.endsWith('.xlsx')) importarExcel(file); else toast('Selecione .xlsx'); });
-fileInput.addEventListener('change', e => { if (e.target.files[0]) importarExcel(e.target.files[0]); fileInput.value = ''; });
 
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
@@ -494,15 +498,16 @@ document.querySelectorAll('.tab').forEach(tab => {
     document.getElementById(`tab-${tabName}`).style.display = 'block';
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
-    if (tabName === 'encontros') renderEncontros();
-    else if (tabName === 'participantes' && getEnc()) renderParticipantes();
+    if (tabName === 'participantes' && getEnc()) renderParticipantes();
     else if (tabName === 'distribuir' && getEnc()) renderDistribuir();
-    if (getEnc()) document.getElementById('totalParticipantesBadge').innerHTML = `${getEnc().participantes.length} participantes`;
+    else if (tabName === 'resumo' && getEnc()) renderResumo();
+    if (getEnc()) atualizarBages();
   });
 });
 
-carregar(); renderEncontros();
-if (encontros.length) { encontroAtual = encontros[0].id; document.getElementById('totalParticipantesBadge').innerHTML = `${getEnc().participantes.length} participantes`; }
+// Inicializar
+carregar();
+if (encontros.length) { encontroAtual = encontros[0].id; renderDistribuir(); atualizarBages(); }
 </script>
 </body>
 </html>
