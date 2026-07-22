@@ -1296,13 +1296,25 @@ function renderDistribuir(){
     });
   });
   document.getElementById('btnVerSemQuarto').addEventListener('click', openSemQuartoModal);
-  document.getElementById('btnPdfGeral').addEventListener('click', ()=> gerarPdfListaGeral(enc));
-  document.getElementById('btnPdfPublicosSel').addEventListener('click', ()=> gerarPdfsQuartos(enc, 'publico', true));
-  document.getElementById('btnPdfPrivadosSel').addEventListener('click', ()=> gerarPdfsQuartos(enc, 'privado', true));
-  document.getElementById('btnPdfAmbosSel').addEventListener('click', ()=> gerarPdfsQuartos(enc, 'ambos', true));
-  document.getElementById('btnPdfPublicosTodos').addEventListener('click', ()=> gerarPdfsQuartos(enc, 'publico', false));
-  document.getElementById('btnPdfPrivadosTodos').addEventListener('click', ()=> gerarPdfsQuartos(enc, 'privado', false));
-  document.getElementById('btnPdfAmbosTodos').addEventListener('click', ()=> gerarPdfsQuartos(enc, 'ambos', false));
+
+  // Cada botão de PDF é religado individualmente a cada renderização (os
+  // botões são recriados junto com o innerHTML da aba, então nunca há
+  // listener duplicado ou "perdido"). Toda ação passa pelo wrapper de
+  // tratamento de erro, que avisa o usuário caso jsPDF/autoTable não tenham
+  // carregado ou qualquer outro erro ocorra durante a geração.
+  const PDF_ACTIONS = {
+    btnPdfGeral: () => gerarPdfListaGeral(enc),
+    btnPdfPublicosSel: () => gerarPdfsQuartos(enc, 'publico', true),
+    btnPdfPrivadosSel: () => gerarPdfsQuartos(enc, 'privado', true),
+    btnPdfAmbosSel: () => gerarPdfsQuartos(enc, 'ambos', true),
+    btnPdfPublicosTodos: () => gerarPdfsQuartos(enc, 'publico', false),
+    btnPdfPrivadosTodos: () => gerarPdfsQuartos(enc, 'privado', false),
+    btnPdfAmbosTodos: () => gerarPdfsQuartos(enc, 'ambos', false),
+  };
+  Object.keys(PDF_ACTIONS).forEach(id=>{
+    const btn = document.getElementById(id);
+    if(btn) btn.addEventListener('click', ()=> executarComTratamentoDeErro(PDF_ACTIONS[id]));
+  });
 
   el.querySelectorAll('[data-action="toggle-pdf"]').forEach(cb=>{
     cb.addEventListener('change', ()=>{ enc.pdfSelecionados[cb.dataset.qid] = cb.checked; saveDB(); });
@@ -1402,6 +1414,26 @@ function openSemQuartoModal(){
 /* ==========================================================================
    PDF GENERATION
    ========================================================================== */
+// Executa uma ação de geração de PDF protegendo contra falhas silenciosas:
+// se as bibliotecas jsPDF/autoTable não carregarem (ex.: bloqueio de rede/CDN)
+// ou qualquer erro ocorrer durante a geração, o usuário vê um aviso claro
+// em vez do botão parecer "não fazer nada".
+function executarComTratamentoDeErro(fn){
+  try{
+    if(!window.jspdf || !window.jspdf.jsPDF){
+      toast('Não foi possível carregar a biblioteca de geração de PDF (jsPDF). Verifique sua conexão com a internet e recarregue a página.', 'error');
+      return;
+    }
+    if(!window.jspdf.jsPDF.API || typeof window.jspdf.jsPDF.API.autoTable !== 'function'){
+      toast('Não foi possível carregar o plugin de tabelas do PDF (autoTable). Verifique sua conexão com a internet e recarregue a página.', 'error');
+      return;
+    }
+    fn();
+  }catch(err){
+    console.error('Erro ao gerar PDF:', err);
+    toast('Ocorreu um erro ao gerar o PDF: ' + (err && err.message ? err.message : 'erro desconhecido') + '. Veja o console para detalhes.', 'error');
+  }
+}
 function hexToRgb(hex){
   hex = (hex||'#888888').replace('#','');
   if(hex.length===3) hex = hex.split('').map(c=>c+c).join('');
@@ -1491,13 +1523,13 @@ function desenharCabecalhoQuarto(doc, enc, q){
 function desenharCorpoPublico(doc, enc, q){
   const membros = enc.participantes.filter(p=>p.quartoId===q.id).sort((a,b)=>(a.nome+a.sobrenome).localeCompare(b.nome+b.sobrenome));
   const pageW = doc.internal.pageSize.getWidth();
-  doc.setFont('helvetica','normal'); doc.setFontSize(18); doc.setTextColor(30);
+  doc.setFont('helvetica','normal'); doc.setFontSize(22); doc.setTextColor(30);
   let y = 130;
   const colWidth = pageW/2;
   membros.forEach((p,i)=>{
     const col = i % 2;
     const x = col===0 ? pageW/2 - colWidth/2 : pageW/2 + colWidth/2 - 40;
-    if(col===0 && i>0) y += 30;
+    if(col===0 && i>0) y += 60;
     doc.text(`${p.nome} ${p.sobrenome}`, x, y, {align:'center'});
   });
   if(membros.length===0) doc.text('Nenhum participante alocado.', pageW/2, 140, {align:'center'});
@@ -1511,7 +1543,7 @@ function desenharCorpoPrivado(doc, enc, q){
     startY: 96,
     head:[['Nome','Telefone','Tel. Emergência','Nome Emergência','Igreja/Unidade','Alergia/Restrição']],
     body,
-    styles:{ font:'helvetica', fontSize:9.5, cellPadding:5 },
+    styles:{ font:'helvetica', fontSize:12, cellPadding:10 },
     headStyles:{ fillColor:[35,35,35], textColor:255 },
     margin:{ left:40, right:40 },
   });
