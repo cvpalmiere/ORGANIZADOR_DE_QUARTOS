@@ -1,979 +1,1540 @@
-```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Organizador de Quartos - Encontro com Deus Homens 2026</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: #f0f4f8; color: #1e293b; padding: 20px; }
-    .container { max-width: 1400px; margin: 0 auto; }
-    .header { background: white; border-radius: 20px; padding: 20px 28px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; border: 1px solid #e2e8f0; }
-    .header h1 { font-size: 1.4rem; color: #0f172a; }
-    .badge { background: #e2e8f0; padding: 6px 14px; border-radius: 40px; font-size: 0.8rem; font-weight: 600; }
-    .badge-primary { background: #3b82f6; color: white; }
-    .badge-success { background: #10b981; color: white; }
-    .badge-warning { background: #f59e0b; color: white; }
-    .tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
-    .tab { background: white; border: 1px solid #e2e8f0; padding: 10px 22px; border-radius: 40px; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s; }
-    .tab:hover { background: #f1f5f9; }
-    .tab.active { background: #3b82f6; color: white; border-color: #3b82f6; }
-    .card { background: white; border-radius: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 24px; border: 1px solid #e2e8f0; }
-    .card-header { padding: 16px 24px; border-bottom: 1px solid #e2e8f0; font-weight: 700; font-size: 1rem; background: #fafcff; display: flex; justify-content: space-between; align-items: center; }
-    .card-body { padding: 20px 24px; }
-    .btn { padding: 8px 18px; border-radius: 40px; border: none; cursor: pointer; font-weight: 600; font-size: 0.8rem; transition: all 0.2s; }
-    .btn-primary { background: #3b82f6; color: white; }
-    .btn-primary:hover { background: #2563eb; }
-    .btn-success { background: #10b981; color: white; }
-    .btn-success:hover { background: #059669; }
-    .btn-secondary { background: #e2e8f0; color: #1e293b; }
-    .btn-secondary:hover { background: #cbd5e1; }
-    .btn-danger { background: #ef4444; color: white; }
-    .btn-danger:hover { background: #dc2626; }
-    .btn-outline { background: transparent; border: 1px solid #cbd5e1; color: #475569; }
-    .btn-outline:hover { background: #f1f5f9; border-color: #3b82f6; color: #3b82f6; }
-    .actions { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
-    .quartos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 20px; }
-    .quarto-card { background: white; border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; transition: box-shadow 0.2s; }
-    .quarto-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    .quarto-header { padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; color: white; font-weight: 700; }
-    .quarto-body { padding: 18px; }
-    .checkbox-container { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-    .checkbox-container input { width: 18px; height: 18px; cursor: pointer; }
-    .lideres-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; }
-    .lider-tag { background: #e2e8f0; padding: 5px 12px; border-radius: 30px; font-size: 0.75rem; font-weight: 600; color: #334155; display: inline-flex; align-items: center; gap: 6px; }
-    .pessoas-drop { background: #f8fafc; border-radius: 16px; min-height: 220px; max-height: 320px; overflow-y: auto; padding: 10px; border: 1px solid #e2e8f0; }
-    .pessoa-row { background: white; padding: 10px 14px; margin-bottom: 8px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; cursor: grab; border: 1px solid #e2e8f0; transition: all 0.15s; }
-    .pessoa-row:hover { border-color: #3b82f6; background: #eff6ff; }
-    .pessoa-row:active { cursor: grabbing; }
-    .pessoa-nome { font-weight: 600; font-size: 0.85rem; }
-    .pessoa-idade { font-size: 0.7rem; color: #64748b; background: #f1f5f9; padding: 2px 8px; border-radius: 20px; }
-    .empty-drop { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 0.8rem; }
-    .progress-bar { height: 6px; background: #e2e8f0; border-radius: 10px; overflow: hidden; margin-top: 14px; }
-    .progress-fill { height: 100%; background: #10b981; transition: width 0.3s; }
-    .progress-fill.warning { background: #f59e0b; }
-    .progress-fill.full { background: #ef4444; }
-    .table-wrapper { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 0.85rem; }
-    th { background: #f8fafc; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px; }
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
-    .modal-overlay.open { display: flex; }
-    .modal { background: white; border-radius: 24px; width: 560px; max-width: 90%; max-height: 85vh; overflow-y: auto; }
-    .modal-header { padding: 18px 22px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
-    .modal-body { padding: 22px; }
-    .modal-footer { padding: 16px 22px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 12px; }
-    .form-group { margin-bottom: 16px; }
-    .form-label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.75rem; color: #475569; text-transform: uppercase; letter-spacing: 0.3px; }
-    input, select { padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 0.85rem; width: 100%; }
-    input:focus, select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
-    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 24px; border-radius: 50px; font-size: 0.85rem; font-weight: 500; display: none; z-index: 2000; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-    .flex { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-    .text-muted { color: #64748b; font-size: 0.75rem; }
-    .badge-alocado { background: #d1fae5; color: #065f46; padding: 4px 10px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; }
-    .badge-semquarto { background: #fed7aa; color: #92400e; padding: 4px 10px; border-radius: 30px; font-size: 0.7rem; font-weight: 600; }
-    .mt-3 { margin-top: 12px; }
-    .mb-3 { margin-bottom: 12px; }
-    .reset-btn { background: #f1f5f9; color: #dc2626; border: 1px solid #e2e8f0; }
-    .reset-btn:hover { background: #fee2e2; border-color: #ef4444; }
-    .regras-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 24px; }
-    .regra-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.2s; }
-    .regra-item:hover { background: #eff6ff; border-color: #3b82f6; }
-    .regra-item.active { background: #eff6ff; border-color: #3b82f6; }
-    .regra-item input { width: 18px; height: 18px; cursor: pointer; }
-    .regra-item label { font-weight: 500; font-size: 0.85rem; cursor: pointer; flex: 1; }
-    .quarto-config-row { display: flex; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; }
-    .quarto-config-row input[type="color"] { width: 50px; height: 40px; padding: 4px; }
-    .quarto-config-row input[type="text"] { width: 120px; }
-    .quarto-config-row input[type="number"] { width: 80px; }
-    .quarto-config-row select { width: 100px; }
-  </style>
-</head>
-<body>
-<div class="container">
-  <div class="header">
-    <h1>🏠 Organizador de Quartos - Encontro com Deus Homens 2026</h1>
-    <div class="flex">
-      <span class="badge" id="totalParticipantesBadge">0 participantes</span>
-      <span class="badge badge-primary" id="totalAlocadosBadge">0 alocados</span>
-      <button class="btn btn-outline reset-btn" id="btnResetarSistema" style="font-size:0.7rem">🔄 Resetar Sistema</button>
-    </div>
-  </div>
-
-  <div class="tabs" id="tabs">
-    <div class="tab" data-tab="encontros">📋 Encontros</div>
-    <div class="tab" data-tab="configurar">⚙️ Configurar Quartos</div>
-    <div class="tab" data-tab="regras">📏 Regras</div>
-    <div class="tab" data-tab="participantes">👥 Participantes</div>
-    <div class="tab" data-tab="lideres">👑 Líderes</div>
-    <div class="tab" data-tab="alocar">🎯 Alocar Líderes</div>
-    <div class="tab active" data-tab="distribuir">🎲 Distribuir</div>
-  </div>
-
-  <!-- Aba: Encontros -->
-  <div id="tab-encontros" class="tab-content" style="display:none">
-    <div class="actions">
-      <button class="btn btn-primary" id="btnNovoEncontro">+ Novo Encontro</button>
-      <button class="btn btn-secondary" id="btnExportarBackup">💾 Exportar Backup</button>
-      <button class="btn btn-secondary" id="btnImportarBackup">📂 Importar Backup</button>
-      <input type="file" id="importBackupInput" accept=".json" style="display:none">
-    </div>
-    <div class="card">
-      <div class="card-header">Meus Encontros</div>
-      <div class="card-body" id="encontrosList"></div>
-    </div>
-  </div>
-
-  <!-- Aba: Configurar Quartos -->
-  <div id="tab-configurar" class="tab-content" style="display:none">
-    <div class="actions">
-      <button class="btn btn-primary" id="btnSalvarConfigQuartos">💾 Salvar Configurações</button>
-    </div>
-    <div class="card">
-      <div class="card-header">Configuração dos Quartos</div>
-      <div class="card-body" id="quartosConfigList"></div>
-    </div>
-  </div>
-
-  <!-- Aba: Regras -->
-  <div id="tab-regras" class="tab-content" style="display:none">
-    <div class="card">
-      <div class="card-header">Regras de Distribuição Automática</div>
-      <div class="card-body">
-        <div class="regras-grid" id="regrasGrid"></div>
-        <div class="actions mt-3">
-          <button class="btn btn-primary" id="btnSalvarRegras">💾 Salvar Regras</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Aba: Participantes -->
-  <div id="tab-participantes" class="tab-content" style="display:none">
-    <div class="actions">
-      <button class="btn btn-secondary" id="btnAdicionarManual">➕ Adicionar Participante</button>
-    </div>
-    <div class="card">
-      <div class="table-wrapper">
-        <table>
-          <thead><tr><th>Nome</th><th>Idade</th><th>Sobrenome</th><th>Telefone</th><th>Unidade</th><th>Célula</th><th>Status</th><th>Quarto</th><th></th></tr></thead>
-          <tbody id="participantesTbody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- Aba: Líderes -->
-  <div id="tab-lideres" class="tab-content" style="display:none">
-    <div class="actions">
-      <button class="btn btn-primary" id="btnAddLider">+ Adicionar Líder</button>
-    </div>
-    <div class="card">
-      <div class="table-wrapper">
-        <table>
-          <thead><tr><th>Nome</th><th>Quarto Atual</th><th></th></tr></thead>
-          <tbody id="lideresTbody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- Aba: Alocar Líderes -->
-  <div id="tab-alocar" class="tab-content" style="display:none">
-    <div class="card">
-      <div class="card-header">Alocar Líderes nos Quartos</div>
-      <div class="card-body" id="alocarLideresGrid"></div>
-    </div>
-  </div>
-
-  <!-- Aba: Distribuir -->
-  <div id="tab-distribuir" class="tab-content">
-    <div class="actions">
-      <button class="btn btn-success" id="btnDistribuirAutomatico">🎲 Distribuir Automático (com Regras)</button>
-      <button class="btn btn-primary" id="btnGerarListaGeral">📄 Lista Geral (PDF)</button>
-      <button class="btn btn-secondary" id="btnVerSemQuarto">👥 Ver Sem Quarto</button>
-    </div>
-    <div class="actions" style="background:#f1f5f9; padding:12px 16px; border-radius:16px; margin-bottom:20px">
-      <span style="font-weight:600">📑 GERAR PDFs:</span>
-      <button class="btn btn-primary" id="btnGerarPDFsSelecionadosPublicos">🟢 Públicos (Selecionados)</button>
-      <button class="btn btn-primary" id="btnGerarPDFsSelecionadosPrivados">🔒 Privados (Selecionados)</button>
-      <button class="btn btn-primary" id="btnGerarPDFsSelecionadosAmbos">📚 Ambos (Selecionados)</button>
-      <button class="btn btn-secondary" id="btnGerarPDFsTodosPublicos">🟢 Todos Públicos</button>
-      <button class="btn btn-secondary" id="btnGerarPDFsTodosPrivados">🔒 Todos Privados</button>
-      <button class="btn btn-secondary" id="btnGerarPDFsTodosAmbos">📚 Todos Ambos</button>
-    </div>
-    <div id="quartosDistribuirGrid" class="quartos-grid"></div>
-  </div>
-</div>
-
-<!-- Modal Adicionar Participante -->
-<div id="modalParticipante" class="modal-overlay">
-  <div class="modal">
-    <div class="modal-header"><h3>Adicionar Participante</h3><button class="btn btn-secondary" onclick="fecharModal('modalParticipante')">✕</button></div>
-    <div class="modal-body">
-      <div class="form-group"><label class="form-label">Nome</label><input type="text" id="addNome"></div>
-      <div class="form-group"><label class="form-label">Sobrenome</label><input type="text" id="addSobrenome"></div>
-      <div class="form-group"><label class="form-label">Idade</label><input type="number" id="addIdade"></div>
-      <div class="form-group"><label class="form-label">Telefone</label><input type="text" id="addTelefone"></div>
-      <div class="form-group"><label class="form-label">Unidade</label><input type="text" id="addUnidade"></div>
-      <div class="form-group"><label class="form-label">Célula</label><input type="text" id="addCelula"></div>
-      <div class="form-group"><label class="form-label">Emergência - Nome</label><input type="text" id="addEmergNome"></div>
-      <div class="form-group"><label class="form-label">Emergência - Tel</label><input type="text" id="addEmergTel"></div>
-    </div>
-    <div class="modal-footer"><button class="btn btn-secondary" onclick="fecharModal('modalParticipante')">Cancelar</button><button class="btn btn-primary" id="btnSalvarParticipante">Salvar</button></div>
-  </div>
-</div>
-
-<!-- Modal Adicionar Líder -->
-<div id="modalLider" class="modal-overlay">
-  <div class="modal">
-    <div class="modal-header"><h3>Adicionar Líder</h3><button class="btn btn-secondary" onclick="fecharModal('modalLider')">✕</button></div>
-    <div class="modal-body">
-      <div class="form-group"><label class="form-label">Nome do Líder</label><input type="text" id="addLiderNome" placeholder="Ex: João Silva"></div>
-    </div>
-    <div class="modal-footer"><button class="btn btn-secondary" onclick="fecharModal('modalLider')">Cancelar</button><button class="btn btn-primary" id="btnSalvarLider">Salvar</button></div>
-  </div>
-</div>
-
-<!-- Modal Sem Quarto -->
-<div id="modalSemQuarto" class="modal-overlay">
-  <div class="modal">
-    <div class="modal-header"><h3>👥 Participantes sem quarto</h3><button class="btn btn-secondary" onclick="fecharModal('modalSemQuarto')">✕</button></div>
-    <div class="modal-body" id="semQuartoLista"></div>
-    <div class="modal-footer"><button class="btn btn-secondary" onclick="fecharModal('modalSemQuarto')">Fechar</button><button class="btn btn-success" id="btnDistribuirSemQuarto">Distribuir Automático</button></div>
-  </div>
-</div>
-
-<div id="toast" class="toast"></div>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chácara · Organizador de Quartos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<style>
+/* ============================================================
+   DESIGN SYSTEM — Charcoal & Ember
+   ============================================================ */
+:root{
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-lg: 14px;
+  --bg: oklch(0.16 0 0);
+  --surface: oklch(0.19 0 0);
+  --surface-elevated: oklch(0.235 0.003 60);
+  --surface-hover: oklch(0.26 0.004 60);
+  --fg: oklch(0.96 0.005 60);
+  --muted-fg: oklch(0.68 0.01 60);
+  --border: oklch(0.3 0.005 60);
+  --border-soft: oklch(0.26 0.004 60);
+  --ember: oklch(0.66 0.19 38);
+  --ember-fg: oklch(0.14 0 0);
+  --ember-muted: oklch(0.4 0.11 38);
+  --ember-soft: oklch(0.66 0.19 38 / 0.12);
+  --destructive: oklch(0.6 0.22 25);
+  --destructive-soft: oklch(0.6 0.22 25 / 0.12);
+  --success: oklch(0.68 0.15 148);
+  --success-soft: oklch(0.68 0.15 148 / 0.14);
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --shadow-md: 0 8px 24px -8px oklch(0 0 0 / 0.5);
+}
+*{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; }
+body{
+  background:var(--bg); color:var(--fg);
+  font-family:var(--font-sans);
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+}
+h1,h2,h3,h4,.font-serif{ font-family:var(--font-serif); font-weight:600; letter-spacing:-0.01em; margin:0; }
+p{ margin:0; }
+button{ font-family:inherit; }
+svg.icon{ width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; display:block; flex-shrink:0; }
+svg.icon-lg{ width:22px; height:22px; }
+svg.icon-xl{ width:34px; height:34px; }
+
+/* ---------- layout ---------- */
+.app-header{
+  position:sticky; top:0; z-index:40;
+  background:oklch(0.19 0 0 / 0.9); backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border-soft);
+}
+.header-top{
+  max-width:1280px; margin:0 auto; padding:16px 24px;
+  display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+}
+.brand{ display:flex; align-items:center; gap:12px; }
+.brand-mark{
+  width:40px; height:40px; border-radius:var(--radius);
+  background:var(--ember); color:var(--ember-fg);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 0 0 1px oklch(0.66 0.19 38 / 0.35), 0 10px 30px -10px oklch(0.66 0.19 38 / 0.5);
+}
+.brand-title{ font-family:var(--font-serif); font-size:19px; line-height:1.1; }
+.brand-sub{ font-size:11px; text-transform:uppercase; letter-spacing:.14em; color:var(--muted-fg); margin-top:2px; }
+.active-encontro-pill{ text-align:right; }
+.active-encontro-pill .label{ font-size:10px; text-transform:uppercase; letter-spacing:.16em; color:var(--muted-fg); }
+.active-encontro-pill .value{ font-family:var(--font-serif); font-size:15px; margin-top:2px; }
+
+.tabs-wrap{ max-width:1280px; margin:0 auto; padding:0 24px; overflow-x:auto; }
+.tabs{ display:flex; gap:2px; }
+.tab-btn{
+  display:flex; align-items:center; gap:8px; white-space:nowrap;
+  padding:11px 16px; border:none; background:transparent; cursor:pointer;
+  color:var(--muted-fg); font-size:13.5px; font-weight:600;
+  border-bottom:2px solid transparent; transition:.15s;
+}
+.tab-btn:hover{ color:var(--fg); }
+.tab-btn.active{ color:var(--fg); border-bottom-color:var(--ember); }
+
+.container{ max-width:1280px; margin:0 auto; padding:28px 24px 60px; }
+.tab-panel{ display:none; }
+.tab-panel.active{ display:block; }
+
+.page-head{ margin-bottom:22px; display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+.page-eyebrow{ font-size:11px; text-transform:uppercase; letter-spacing:.18em; color:var(--ember); font-weight:700; margin-bottom:8px; }
+.page-title{ font-size:32px; }
+.page-desc{ color:var(--muted-fg); font-size:13.5px; margin-top:8px; max-width:560px; }
+
+/* ---------- buttons ---------- */
+.btn{
+  display:inline-flex; align-items:center; gap:8px; justify-content:center;
+  padding:10px 16px; border-radius:var(--radius-sm); border:1px solid transparent;
+  font-size:13.5px; font-weight:600; cursor:pointer; transition:.15s; line-height:1;
+}
+.btn:disabled{ opacity:.45; cursor:not-allowed; }
+.btn-primary{ background:var(--ember); color:var(--ember-fg); box-shadow:0 6px 18px -8px oklch(0.66 0.19 38 / 0.6); }
+.btn-primary:hover:not(:disabled){ filter:brightness(1.08); }
+.btn-outline{ background:var(--surface-elevated); border-color:var(--border); color:var(--fg); }
+.btn-outline:hover:not(:disabled){ border-color:var(--ember-muted); background:var(--surface-hover); }
+.btn-ghost{ background:transparent; color:var(--muted-fg); }
+.btn-ghost:hover:not(:disabled){ color:var(--fg); background:var(--surface-elevated); }
+.btn-danger{ background:var(--destructive-soft); color:oklch(0.75 0.18 25); }
+.btn-danger:hover:not(:disabled){ background:oklch(0.6 0.22 25 / 0.22); }
+.btn-sm{ padding:6px 11px; font-size:12.5px; }
+.btn-icon{ padding:8px; width:34px; height:34px; }
+.btn-block{ width:100%; }
+
+/* ---------- forms ---------- */
+label.field-label{ display:block; font-size:12px; font-weight:700; color:var(--muted-fg); text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; }
+.input, .select, textarea.textarea{
+  width:100%; background:var(--surface-elevated); border:1px solid var(--border);
+  color:var(--fg); border-radius:var(--radius-sm); padding:10px 12px; font-size:14px; font-family:inherit;
+  outline:none; transition:.15s;
+}
+.input:focus, .select:focus, textarea.textarea:focus{ border-color:var(--ember); box-shadow:0 0 0 3px var(--ember-soft); }
+.input[type=color]{ padding:4px; height:42px; cursor:pointer; }
+.field-row{ margin-bottom:14px; }
+.field-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.checkbox-row{
+  display:flex; align-items:flex-start; gap:10px; padding:12px 14px; border:1px solid var(--border-soft);
+  border-radius:var(--radius-sm); background:var(--surface); cursor:pointer; transition:.15s;
+}
+.checkbox-row:hover{ border-color:var(--ember-muted); background:var(--surface-elevated); }
+.checkbox-row input{ margin-top:2px; accent-color:var(--ember); width:16px; height:16px; cursor:pointer; }
+.checkbox-row .cb-text b{ display:block; font-size:13.5px; }
+.checkbox-row .cb-text span{ display:block; font-size:12px; color:var(--muted-fg); margin-top:2px; }
+
+/* ---------- cards ---------- */
+.card{ background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-lg); padding:22px; }
+.card + .card{ margin-top:16px; }
+.card-header{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; }
+.card-header h3{ font-size:17px; }
+.card-header .card-sub{ font-size:12.5px; color:var(--muted-fg); margin-top:3px; }
+
+.grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+@media(max-width:900px){ .grid-2,.grid-3,.field-grid{ grid-template-columns:1fr; } }
+
+/* ---------- stat boxes ---------- */
+.stats-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.stat-box{ background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius); padding:12px 14px; }
+.stat-box .stat-label{ font-size:10px; text-transform:uppercase; letter-spacing:.14em; color:var(--muted-fg); }
+.stat-box .stat-value{ font-family:var(--font-serif); font-size:22px; margin-top:4px; }
+.stat-box.warn .stat-value{ color:var(--ember); }
+
+/* ---------- badges/chips ---------- */
+.badge{ display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:99px; font-size:11.5px; font-weight:700; }
+.badge-success{ background:var(--success-soft); color:var(--success); }
+.badge-warn{ background:var(--ember-soft); color:var(--ember); }
+.badge-muted{ background:var(--surface-elevated); color:var(--muted-fg); border:1px solid var(--border); }
+.color-dot{ width:12px; height:12px; border-radius:4px; flex-shrink:0; box-shadow:inset 0 0 0 1px oklch(1 0 0/.15); }
+
+/* ---------- empty state ---------- */
+.empty-state{ text-align:center; padding:60px 20px; color:var(--muted-fg); }
+.empty-state svg{ width:40px; height:40px; margin:0 auto 14px; color:var(--muted-fg); opacity:.6; }
+.empty-state h4{ color:var(--fg); font-size:16px; margin-bottom:6px; }
+.empty-state p{ font-size:13px; max-width:340px; margin:0 auto; }
+
+/* ---------- table ---------- */
+.table-wrap{ overflow-x:auto; border:1px solid var(--border-soft); border-radius:var(--radius); }
+table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; min-width:640px; }
+table.data-table th{ text-align:left; padding:10px 14px; background:var(--surface-elevated); color:var(--muted-fg); font-size:11px; text-transform:uppercase; letter-spacing:.06em; font-weight:700; border-bottom:1px solid var(--border-soft); white-space:nowrap; }
+table.data-table td{ padding:11px 14px; border-bottom:1px solid var(--border-soft); vertical-align:middle; }
+table.data-table tr:last-child td{ border-bottom:none; }
+table.data-table tr:hover td{ background:var(--surface-elevated); }
+
+/* ---------- list rows (encontros/lideres) ---------- */
+.list-row{ display:flex; align-items:center; justify-content:space-between; gap:14px; padding:14px 16px; border:1px solid var(--border-soft); border-radius:var(--radius); background:var(--surface); transition:.15s; }
+.list-row + .list-row{ margin-top:10px; }
+.list-row:hover{ border-color:var(--ember-muted); }
+.list-row.selected{ border-color:var(--ember); background:var(--ember-soft); }
+.list-row .row-title{ font-family:var(--font-serif); font-size:15.5px; }
+.list-row .row-sub{ font-size:12px; color:var(--muted-fg); margin-top:3px; }
+.row-actions{ display:flex; gap:6px; flex-shrink:0; }
+
+/* ---------- room cards (distribuir) ---------- */
+.room-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
+.room-card{ position:relative; overflow:hidden; border-radius:var(--radius-lg); border:1px solid var(--border-soft); background:var(--surface); transition:.15s; }
+.room-card.dragover{ border-color:var(--ember); box-shadow:0 0 0 3px var(--ember-soft); }
+.room-color-bar{ height:6px; width:100%; }
+.room-body{ padding:18px; }
+.room-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+.room-name-wrap{ display:flex; align-items:center; gap:10px; }
+.room-swatch{ width:30px; height:30px; border-radius:8px; box-shadow:inset 0 0 0 1px oklch(1 0 0/.15); flex-shrink:0; }
+.room-name{ font-family:var(--font-serif); font-size:18px; line-height:1.15; }
+.room-vocacao{ font-size:10.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--muted-fg); margin-top:2px; }
+.room-leaders{ margin-top:12px; display:flex; flex-wrap:wrap; gap:6px; }
+.leader-chip{ display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:99px; font-size:11.5px; background:var(--ember-soft); color:var(--ember); border:1px solid oklch(0.66 0.19 38/.25); }
+.room-members{ margin-top:14px; min-height:44px; display:flex; flex-direction:column; gap:6px; }
+.member-chip{ display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:var(--radius-sm); background:var(--surface-elevated); font-size:13px; cursor:pointer; border:1px solid transparent; }
+.member-chip:hover{ border-color:var(--ember-muted); }
+.member-chip .grip{ color:var(--muted-fg); flex-shrink:0; }
+.member-chip.dragging{ opacity:.4; }
+.room-progress{ margin-top:16px; }
+.progress-top{ display:flex; align-items:baseline; justify-content:space-between; font-size:11.5px; color:var(--muted-fg); margin-bottom:6px; }
+.progress-track{ height:6px; border-radius:99px; background:var(--surface-elevated); overflow:hidden; }
+.progress-fill{ height:100%; border-radius:99px; transition:width .2s; }
+.room-pdf-check{ display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--muted-fg); }
+.room-pdf-check input{ accent-color:var(--ember); cursor:pointer; }
+.semquarto-dropzone{ margin-top:20px; border:1.5px dashed var(--border); border-radius:var(--radius-lg); padding:16px; }
+.semquarto-dropzone.dragover{ border-color:var(--destructive); background:var(--destructive-soft); }
+
+/* ---------- modal ---------- */
+.modal-overlay{ position:fixed; inset:0; background:oklch(0 0 0/.6); backdrop-filter:blur(2px); display:flex; align-items:center; justify-content:center; z-index:100; padding:20px; }
+.modal{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); width:100%; max-width:560px; max-height:88vh; overflow-y:auto; box-shadow:var(--shadow-md); }
+.modal.modal-lg{ max-width:820px; }
+.modal-head{ display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid var(--border-soft); position:sticky; top:0; background:var(--surface); z-index:2; }
+.modal-head h3{ font-size:17px; }
+.modal-body{ padding:22px; }
+.modal-foot{ padding:16px 22px; border-top:1px solid var(--border-soft); display:flex; justify-content:flex-end; gap:8px; position:sticky; bottom:0; background:var(--surface); }
+
+/* ---------- toast ---------- */
+.toast-container{ position:fixed; bottom:20px; right:20px; z-index:200; display:flex; flex-direction:column; gap:8px; }
+.toast{ background:var(--surface-elevated); border:1px solid var(--border); border-left:3px solid var(--ember); border-radius:var(--radius-sm); padding:12px 16px; font-size:13.5px; box-shadow:var(--shadow-md); min-width:240px; display:flex; align-items:center; gap:10px; animation:toast-in .2s ease; }
+.toast.error{ border-left-color:var(--destructive); }
+.toast.success{ border-left-color:var(--success); }
+@keyframes toast-in{ from{ opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+
+/* ---------- misc ---------- */
+.divider{ height:1px; background:var(--border-soft); margin:20px 0; }
+.hint-text{ font-size:12px; color:var(--muted-fg); }
+.upload-drop{ border:1.5px dashed var(--border); border-radius:var(--radius-lg); padding:34px 20px; text-align:center; cursor:pointer; transition:.15s; }
+.upload-drop:hover{ border-color:var(--ember-muted); background:var(--ember-soft); }
+.upload-drop svg{ width:30px; height:30px; margin:0 auto 10px; color:var(--ember); }
+.map-row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:center; padding:9px 0; border-bottom:1px solid var(--border-soft); }
+.map-row:last-child{ border-bottom:none; }
+.map-row .map-field-name{ font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px; }
+.pill-toggle{ display:inline-flex; border:1px solid var(--border); border-radius:99px; overflow:hidden; }
+.pill-toggle button{ border:none; background:transparent; color:var(--muted-fg); padding:7px 13px; font-size:12.5px; font-weight:700; cursor:pointer; }
+.pill-toggle button.active{ background:var(--ember); color:var(--ember-fg); }
+.action-icons{ display:flex; gap:4px; }
+::-webkit-scrollbar{ width:9px; height:9px; }
+::-webkit-scrollbar-thumb{ background:var(--border); border-radius:99px; }
+::-webkit-scrollbar-track{ background:transparent; }
+@media print{ body *{ visibility:hidden; } }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-top">
+    <div class="brand">
+      <div class="brand-mark" id="iconBrand"></div>
+      <div>
+        <div class="brand-title">Chácara</div>
+        <div class="brand-sub">Organizador de Quartos</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:18px;">
+      <div class="active-encontro-pill">
+        <div class="label">Encontro ativo</div>
+        <div class="value" id="activeEncontroLabel">Nenhum selecionado</div>
+      </div>
+      <button class="btn btn-outline btn-sm" id="btnBackupExport"></button>
+      <button class="btn btn-outline btn-sm" id="btnBackupImport"></button>
+      <input type="file" id="backupFileInput" accept="application/json" style="display:none">
+    </div>
+  </div>
+  <div class="tabs-wrap">
+    <nav class="tabs" id="tabsNav"></nav>
+  </div>
+</header>
+
+<div class="container">
+  <div class="tab-panel" id="tab-encontros"></div>
+  <div class="tab-panel" id="tab-quartos"></div>
+  <div class="tab-panel" id="tab-regras"></div>
+  <div class="tab-panel" id="tab-participantes"></div>
+  <div class="tab-panel" id="tab-lideres"></div>
+  <div class="tab-panel" id="tab-alocar"></div>
+  <div class="tab-panel" id="tab-distribuir"></div>
+</div>
+
+<div id="modalRoot"></div>
+<div class="toast-container" id="toastRoot"></div>
 
 <script>
-// ============================================================
-// DADOS FIXOS - PARTICIPANTES COM SEUS QUARTOS CORRETOS (66 pessoas dos PDFs)
-// ============================================================
-
-const QUARTOS_PADRAO = [
-  { nome: "Laranja", cor: "#F97316", capacidade: 10, lideresPorQuarto: 2, lideres: ["Fábinho", "Douglas"] },
-  { nome: "Vermelho", cor: "#DC2626", capacidade: 10, lideresPorQuarto: 2, lideres: ["Fábio", "João Paulo"] },
-  { nome: "Marrom", cor: "#8B4513", capacidade: 10, lideresPorQuarto: 2, lideres: ["Eduardo", "Guilherme"] },
-  { nome: "Amarelo", cor: "#FACC15", capacidade: 10, lideresPorQuarto: 2, lideres: ["Samuel", "Rafael"] },
-  { nome: "Azul Escuro", cor: "#1E3A8A", capacidade: 10, lideresPorQuarto: 2, lideres: ["Antônio", "Flávio"] },
-  { nome: "Azul Claro", cor: "#89CFF0", capacidade: 10, lideresPorQuarto: 2, lideres: ["Digésio", "Pedro"] },
-  { nome: "Verde", cor: "#2D6A4F", capacidade: 10, lideresPorQuarto: 2, lideres: ["Emídio", "Bruno"] },
-  { nome: "Cinza", cor: "#6B7280", capacidade: 10, lideresPorQuarto: 2, lideres: ["Marcus", "Wilson"] }
-];
-
-const REGRAS_PADRAO = {
-  separarSobrenome: false,
-  juntarSobrenome: false,
-  separarTelefoneEmergencia: false,
-  juntarTelefoneEmergencia: false,
-  separarUnidade: false,
-  juntarUnidade: false,
-  separarFaixaEtaria: false,
-  juntarFaixaEtaria: false,
-  separarCelula: false,
-  juntarCelula: false
+/* ==========================================================================
+   ICONS — inline SVG set (no emoji, vector only)
+   ========================================================================== */
+const ICONS = {
+  calendar:'<path d="M8 2v4M16 2v4M3 9h18M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"/>',
+  settings:'<circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2.06 2.06 0 1 1-2.91 2.91l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2.06 2.06 0 1 1-4.12 0v-.09a1.7 1.7 0 0 0-1.11-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2.06 2.06 0 1 1-2.91-2.91l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2.06 2.06 0 1 1 0-4.12h.09A1.7 1.7 0 0 0 4.64 9.4a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2.06 2.06 0 1 1 2.91-2.91l.06.06a1.7 1.7 0 0 0 1.87.34H9.2a1.7 1.7 0 0 0 1-1.55V3a2.06 2.06 0 1 1 4.12 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2.06 2.06 0 1 1 2.91 2.91l-.06.06a1.7 1.7 0 0 0-.34 1.87V9.2a1.7 1.7 0 0 0 1.55 1H21a2.06 2.06 0 1 1 0 4.12h-.09a1.7 1.7 0 0 0-1.55 1Z"/>',
+  sliders:'<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
+  users:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+  crown:'<path d="M2 19h20M3.5 9 7 13l5-6 5 6 3.5-4-1.4 8.5a1 1 0 0 1-1 .5H5.9a1 1 0 0 1-1-.5L3.5 9Z"/>',
+  target:'<circle cx="12" cy="12" r="9.5"/><circle cx="12" cy="12" r="5.5"/><circle cx="12" cy="12" r="1.5"/>',
+  shuffle:'<path d="M18 4h3v3M2 20 21 4M21 17v3h-3M2 4l6 6M14 14l7 6"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  trash:'<path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m2 0-.7 12.4a1.6 1.6 0 0 1-1.6 1.6H8.3a1.6 1.6 0 0 1-1.6-1.6L6 7"/>',
+  edit:'<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+  upload:'<path d="M12 16V4M6 10l6-6 6 6M4 20h16"/>',
+  download:'<path d="M12 4v12M6 12l6 6 6-6M4 20h16"/>',
+  x:'<path d="M18 6 6 18M6 6l12 12"/>',
+  check:'<path d="M20 6 9 17l-5-5"/>',
+  chevronDown:'<path d="m6 9 6 6 6-6"/>',
+  grip:'<circle cx="9" cy="6" r="1.2"/><circle cx="15" cy="6" r="1.2"/><circle cx="9" cy="12" r="1.2"/><circle cx="15" cy="12" r="1.2"/><circle cx="9" cy="18" r="1.2"/><circle cx="15" cy="18" r="1.2"/>',
+  alert:'<circle cx="12" cy="12" r="9.5"/><path d="M12 8v5M12 16h.01"/>',
+  printer:'<path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-5a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1h-2M6 14h12v7H6z"/>',
+  fileText:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M9 13h6M9 17h6M9 9h1"/>',
+  inbox:'<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.4 5 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.4-7A2 2 0 0 0 16.8 4H7.2A2 2 0 0 0 5.4 5Z"/>',
+  arrowRight:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  home:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/>',
 };
+function icon(name, cls){ return `<svg class="icon ${cls||''}" viewBox="0 0 24 24">${ICONS[name]||''}</svg>`; }
+document.getElementById('iconBrand').innerHTML = icon('home','icon-lg');
+document.getElementById('btnBackupExport').innerHTML = icon('download')+' Exportar backup';
+document.getElementById('btnBackupImport').innerHTML = icon('upload')+' Importar backup';
 
-const REGRAS_LISTA = [
-  { id: "separarSobrenome", label: "Separar por Sobrenome (não colocar mesmos sobrenomes juntos)" },
-  { id: "juntarSobrenome", label: "Juntar por Sobrenome (agrupar mesmo sobrenome)" },
-  { id: "separarTelefoneEmergencia", label: "Separar por Telefone de Contato (não colocar mesmo contato)" },
-  { id: "juntarTelefoneEmergencia", label: "Juntar por Telefone de Contato (agrupar mesmo contato)" },
-  { id: "separarUnidade", label: "Separar por Unidade (dispersar mesma unidade)" },
-  { id: "juntarUnidade", label: "Juntar por Unidade (agrupar mesma unidade)" },
-  { id: "separarFaixaEtaria", label: "Separar por Faixa Etária (dispersar idades)" },
-  { id: "juntarFaixaEtaria", label: "Juntar por Faixa Etária (agrupar mesma faixa)" },
-  { id: "separarCelula", label: "Separar por Célula (dispersar mesma célula)" },
-  { id: "juntarCelula", label: "Juntar por Célula (agrupar mesma célula)" }
-];
+/* ==========================================================================
+   STATE / PERSISTENCE
+   ========================================================================== */
+const DB_KEY = 'chacara_organizador_data_v1';
+function uid(){ return (crypto.randomUUID ? crypto.randomUUID() : 'id-'+Date.now()+'-'+Math.random().toString(16).slice(2)); }
 
-// PARTICIPANTES DOS PDFs (66 pessoas com quarto definido)
-const PARTICIPANTES_COM_QUARTO = [
-  // Laranja (8)
-  { nome: "Marcos Felipe", sobrenome: "Sena Melo Martins", idade: 33, telefone: "61998505648", unidade: "Núcleo da Fé - Sede", celula: "não", emergenciaNome: "Vitória Sena", emergenciaTel: "61999882235", quartoDestino: "Laranja" },
-  { nome: "Francisco", sobrenome: "Claudio", idade: 44, telefone: "6198519901", unidade: "católica", celula: "Nao participa", emergenciaNome: "Juliana", emergenciaTel: "61998209901", quartoDestino: "Laranja" },
-  { nome: "Alessandro Roosevelt", sobrenome: "Gonçalves Lucas", idade: 46, telefone: "61984182988", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Sim", emergenciaTel: "82981053531", quartoDestino: "Laranja" },
-  { nome: "John Anderson", sobrenome: "Alves", idade: 42, telefone: "61985261597", unidade: "Núcleo da Fé - Jardim Botânico", celula: "Não", emergenciaNome: "Michele", emergenciaTel: "61986014061", quartoDestino: "Laranja" },
-  { nome: "Raphael Silva", sobrenome: "Corrêa", idade: 36, telefone: "61983361184", unidade: "Núcleo da Fé - Jardim Botânico", celula: "não", emergenciaNome: "Karol", emergenciaTel: "61986330833", quartoDestino: "Laranja" },
-  { nome: "Jean Juinior", sobrenome: "Ribeiro Fonseca", idade: 35, telefone: "61993307022", unidade: "Núcleo da Fé - Sede", celula: "Nao", emergenciaNome: "Tainara", emergenciaTel: "993307022", quartoDestino: "Laranja" },
-  { nome: "Rodrigo Regis", sobrenome: "Teles", idade: 51, telefone: "61992107454", unidade: "Núcleo da Fé - Planaltina", celula: "Casais", emergenciaNome: "Michelle Ribeiro Oliveira", emergenciaTel: "985033301", quartoDestino: "Laranja" },
-  { nome: "Lucas Seidii", sobrenome: "Shinohara Moura", idade: 21, telefone: "61994409743", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Rafaella", emergenciaTel: "61998489765", quartoDestino: "Laranja" },
-  // Vermelho (8)
-  { nome: "Marcos Uéric", sobrenome: "Gomes Pereira", idade: 39, telefone: "61990447754", unidade: "Núcleo da Fé - Sede", celula: "Aimda nao", emergenciaNome: "(Mãe Margarida) (amiga Taísa)", emergenciaTel: "48996166404", quartoDestino: "Vermelho" },
-  { nome: "Bruno Soares", sobrenome: "Da Silva", idade: 41, telefone: "61984528169", unidade: "Núcleo da Fé - Sede", celula: "Casais", emergenciaNome: "Raquel", emergenciaTel: "61982225224", quartoDestino: "Vermelho" },
-  { nome: "Anderson Macena", sobrenome: "da Silva", idade: 34, telefone: "81995431594", unidade: "Núcleo da Fé - Noroeste", celula: "Não", emergenciaNome: "Jéssica Rodrigues", emergenciaTel: "61991340276", quartoDestino: "Vermelho" },
-  { nome: "Iuri de Castro", sobrenome: "Carvalho", idade: 24, telefone: "61999890939", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Alliny Vitória Neves Lourenço", emergenciaTel: "61981219482", quartoDestino: "Vermelho" },
-  { nome: "Darlan Nunes", sobrenome: "do Nascimento", idade: 47, telefone: "61992002121", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Loreana", emergenciaTel: "61996246817", quartoDestino: "Vermelho" },
-  { nome: "Eid Yuji", sobrenome: "Lima Hirano", idade: 40, telefone: "61982892266", unidade: "Nova Vida", celula: "Nenhuma, sou de outra igreja", emergenciaNome: "N", emergenciaTel: "61986462934", quartoDestino: "Vermelho" },
-  { nome: "LUIZ CARLOS", sobrenome: "LEITE SAO JOSE", idade: 58, telefone: "61998357850", unidade: "Núcleo da Fé - Planaltina", celula: "Casais", emergenciaNome: "Igreja", emergenciaTel: "61998357850", quartoDestino: "Vermelho" },
-  { nome: "Diego Henrique", sobrenome: "Ramos Dos Santos", idade: 36, telefone: "61985954894", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Leiliane", emergenciaTel: "61985954894", quartoDestino: "Vermelho" },
-  // Marrom (8)
-  { nome: "josé Francisco", sobrenome: "Antunes dos Reis", idade: 61, telefone: "61999944880", unidade: "Núcleo da Fé - Sede", celula: "Sozo", emergenciaNome: "Samuel", emergenciaTel: "61998214870", quartoDestino: "Marrom" },
-  { nome: "Andre Luiz", sobrenome: "Arneitz Galante", idade: 50, telefone: "61996679333", unidade: "Núcleo da Fé - Sede", celula: "nenhuma", emergenciaNome: "Eder", emergenciaTel: "61981313026", quartoDestino: "Marrom" },
-  { nome: "Randerson Neves", sobrenome: "Barbosa", idade: 48, telefone: "61996171636", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Ana - esposa", emergenciaTel: "61999837277", quartoDestino: "Marrom" },
-  { nome: "Lucas Ribeiro", sobrenome: "Alves Pereira", idade: 34, telefone: "61995580223", unidade: "Não participa da igreja núcleo da fé", celula: "não", emergenciaNome: "Patrícia", emergenciaTel: "61996282820", quartoDestino: "Marrom" },
-  { nome: "daniel", sobrenome: "rota", idade: 46, telefone: "61981247254", unidade: "Núcleo da Fé - Noroeste", celula: "pncm 01", emergenciaNome: "Gislayne santos rota", emergenciaTel: "61981298436", quartoDestino: "Marrom" },
-  { nome: "Ruan Lucca", sobrenome: "Moura Diniz", idade: 22, telefone: "61985069933", unidade: "Núcleo da Fé - Sede", celula: "Nao", emergenciaNome: "Sofia Borges Guimarães", emergenciaTel: "61996092828", quartoDestino: "Marrom" },
-  { nome: "Juliano", sobrenome: "yonekawa", idade: 49, telefone: "61981515663", unidade: "Núcleo da Fé - Sede", celula: "Homens na forja", emergenciaNome: "Jardins inga", emergenciaTel: "61981515663", quartoDestino: "Marrom" },
-  { nome: "Everton Alves", sobrenome: "Dos Santos", idade: 31, telefone: "61993272442", unidade: "Núcleo da Fé - Planaltina", celula: "Célula de Casais", emergenciaNome: "Sara", emergenciaTel: "61995273099", quartoDestino: "Marrom" },
-  // Amarelo (8)
-  { nome: "Gustavo Costa", sobrenome: "Ribeiro Soares", idade: 33, telefone: "61994297900", unidade: "Núcleo da Fé - Sede", celula: "sim Seguidores de Cristo", emergenciaNome: "Kellen", emergenciaTel: "61994297900", quartoDestino: "Amarelo" },
-  { nome: "Elivelton", sobrenome: "Vieira", idade: 40, telefone: "61999966177", unidade: "Núcleo da Fé - Planaltina", celula: "sim, de casais", emergenciaNome: "Michelle S. Vieira", emergenciaTel: "61999738015", quartoDestino: "Amarelo" },
-  { nome: "Arthur Eduardo", sobrenome: "Nepomuceno Poli Landim", idade: 23, telefone: "61999456645", unidade: "Núcleo da Fé - Sede", celula: "não", emergenciaNome: "Carolina Poli", emergenciaTel: "61992446803", quartoDestino: "Amarelo" },
-  { nome: "Wagner Rodrigues", sobrenome: "de Lira", idade: 48, telefone: "61984823390", unidade: "Núcleo da Fé - Planaltina", celula: "Sim. De casais", emergenciaNome: "Carla", emergenciaTel: "61998525011", quartoDestino: "Amarelo" },
-  { nome: "Leandro", sobrenome: "Stutzel", idade: 43, telefone: "61995095048", unidade: "Núcleo da Fé - Jardim Botânico", celula: "Jardim Botânico", emergenciaNome: "Patrícia", emergenciaTel: "61995567776", quartoDestino: "Amarelo" },
-  { nome: "Renan Do Nascimento", sobrenome: "Venâncio", idade: 28, telefone: "61981050667", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Michelly", emergenciaTel: "61991604713", quartoDestino: "Amarelo" },
-  { nome: "Mateus de Souza", sobrenome: "Ribeiro", idade: 53, telefone: "61996777837", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Stela", emergenciaTel: "61996168914", quartoDestino: "Amarelo" },
-  { nome: "Levi Ribeiro", sobrenome: "Torres", idade: 24, telefone: "61996141017", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Ana Luíza", emergenciaTel: "61981414131", quartoDestino: "Amarelo" },
-  // Azul Escuro (8)
-  { nome: "BRUNO FREITAS", sobrenome: "DE SANTANA", idade: 34, telefone: "61986379788", unidade: "Núcleo da Fé - Sede", celula: "NÃO", emergenciaNome: "Tawana", emergenciaTel: "61985711866", quartoDestino: "Azul Escuro" },
-  { nome: "Matheus Vilela", sobrenome: "Gonçalves da Fonseca", idade: 38, telefone: "61981701567", unidade: "Núcleo da Fé - Noroeste", celula: "não", emergenciaNome: "Laís Vilela", emergenciaTel: "61996671737", quartoDestino: "Azul Escuro" },
-  { nome: "THIAGO OSVAIR", sobrenome: "CRUZ DE OLIVEIRA", idade: 36, telefone: "61991174707", unidade: "Núcleo da Fé - Sede", celula: "Nao", emergenciaNome: "LAYS", emergenciaTel: "61991324645", quartoDestino: "Azul Escuro" },
-  { nome: "Joao Victor", sobrenome: "Velloso Lira Granado", idade: 22, telefone: "61981463732", unidade: "Núcleo da Fé - Sede", celula: "Nao", emergenciaNome: "Eduardo velloso (Pai)", emergenciaTel: "61981161219", quartoDestino: "Azul Escuro" },
-  { nome: "Deivid Bandeira", sobrenome: "Magalhães", idade: 45, telefone: "61986082084", unidade: "Núcleo da Fé - Gama", celula: "Não", emergenciaNome: "Keyla Mary Santiago Carvalho", emergenciaTel: "61982320955", quartoDestino: "Azul Escuro" },
-  { nome: "Leonardo Silva", sobrenome: "Damasceno", idade: 45, telefone: "61981633013", unidade: "Núcleo da Fé - Sede", celula: "Pn trilha", emergenciaNome: "Cláudia", emergenciaTel: "61981299966", quartoDestino: "Azul Escuro" },
-  { nome: "Thiago Ribeiro", sobrenome: "Cavalcanti", idade: 29, telefone: "61983171091", unidade: "Núcleo da Fé - Sede", celula: "sim, Rodrigo e Isabela", emergenciaNome: "Lorrane", emergenciaTel: "61991766158", quartoDestino: "Azul Escuro" },
-  { nome: "Jânio Ferreira", sobrenome: "Breta", idade: 57, telefone: "61991755217", unidade: "Núcleo da Fé - Sede", celula: "sim, Regis e Angélica", emergenciaNome: "Viviane Matos", emergenciaTel: "62992409251", quartoDestino: "Azul Escuro" },
-  // Azul Claro (10)
-  { nome: "Leandro Augusto", sobrenome: "Abib", idade: 46, telefone: "61999946584", unidade: "Núcleo da Fé - Noroeste", celula: "dos homens", emergenciaNome: "Osvaldo abib", emergenciaTel: "61999856050", quartoDestino: "Azul Claro" },
-  { nome: "Hyago Moreira", sobrenome: "dos Santos", idade: 31, telefone: "61996560940", unidade: "Núcleo da Fé - Planaltina", celula: "PN Casais Planaltina", emergenciaNome: "Hinngridy Barbosa Dourado", emergenciaTel: "61999608252", quartoDestino: "Azul Claro" },
-  { nome: "Luiz Humberto", sobrenome: "Borges", idade: 66, telefone: "61984097389", unidade: "Núcleo da Fé - Jardim Botânico", celula: "Não", emergenciaNome: "Fabricio", emergenciaTel: "992685362", quartoDestino: "Azul Claro" },
-  { nome: "Rafael Cardoso", sobrenome: "Veras", idade: 38, telefone: "61995715453", unidade: "Núcleo da Fé - Planaltina", celula: "Não", emergenciaNome: "Rayssa Gonçalves", emergenciaTel: "999185184", quartoDestino: "Azul Claro" },
-  { nome: "Thiago Valentim", sobrenome: "de Souza", idade: 43, telefone: "61983406142", unidade: "Núcleo da Fé - Sede", celula: "não", emergenciaNome: "Laís", emergenciaTel: "61998620610", quartoDestino: "Azul Claro" },
-  { nome: "Carlos Henrique", sobrenome: "De Araujo Ramos", idade: 35, telefone: "61985251451", unidade: "Núcleo da Fé - Sede", celula: "Nao", emergenciaNome: "Jessica Diniz", emergenciaTel: "62995003883", quartoDestino: "Azul Claro" },
-  { nome: "Pedro Henrique", sobrenome: "Teles de Sousa", idade: 24, telefone: "61995238248", unidade: "Núcleo da Fé - Samambaia", celula: "não", emergenciaNome: "Flávia Teles (irmã)", emergenciaTel: "61996507127", quartoDestino: "Azul Claro" },
-  { nome: "Matheus Santos", sobrenome: "Lima", idade: 23, telefone: "61992013448", unidade: "Núcleo da Fé - Sede", celula: "ARTUR", emergenciaNome: "MARIA CLARA", emergenciaTel: "19984023868", quartoDestino: "Azul Claro" },
-  { nome: "Jurandi Arruda", sobrenome: "Da Silva Junior", idade: 47, telefone: "61998840250", unidade: "Núcleo da Fé - Sede", celula: "Nucleo de Homens", emergenciaNome: "Allana Sandes", emergenciaTel: "81985016672", quartoDestino: "Azul Claro" },
-  { nome: "Eduardo Reis", sobrenome: "Mota", idade: 30, telefone: "61995671139", unidade: "Núcleo da Fé - Planaltina", celula: "Expansores", emergenciaNome: "Luna Vieira Reis", emergenciaTel: "61992180087", quartoDestino: "Azul Claro" },
-  // Verde (8)
-  { nome: "Rodrigo Santana", sobrenome: "Arouca", idade: 37, telefone: "61996252134", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Flavia Arouca", emergenciaTel: "61999090244", quartoDestino: "Verde" },
-  { nome: "Kalebe Mendes", sobrenome: "Rodrigues", idade: 20, telefone: "61995058129", unidade: "Núcleo da Fé - Sede", celula: "Nenhuma", emergenciaNome: "Cristina Mendes", emergenciaTel: "61996980351", quartoDestino: "Verde" },
-  { nome: "Frederico Elil", sobrenome: "de Gois", idade: 49, telefone: "61992588002", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Não tenho conhecimento", emergenciaTel: "11915546892", quartoDestino: "Verde" },
-  { nome: "Ederson Freire", sobrenome: "Rodrigues Teixeira", idade: 43, telefone: "61984050057", unidade: "Núcleo da Fé - Sede", celula: "não", emergenciaNome: "Kelly", emergenciaTel: "61985284104", quartoDestino: "Verde" },
-  { nome: "João Paulo", sobrenome: "Cunha Botelho", idade: 33, telefone: "61992649116", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Angélica", emergenciaTel: "41997153024", quartoDestino: "Verde" },
-  { nome: "William Johnny", sobrenome: "Rodrigues coelho marques", idade: 33, telefone: "6194593311", unidade: "nao", celula: "Não", emergenciaNome: "Carolina do nascimento coelho marques", emergenciaTel: "61998817583", quartoDestino: "Verde" },
-  { nome: "Robert Souza", sobrenome: "de Araujo", idade: 39, telefone: "61996572076", unidade: "Núcleo da Fé - Sede", celula: "Célula de líderes BJJHOPE", emergenciaNome: "Sheilla (esposa)", emergenciaTel: "61996572033", quartoDestino: "Verde" },
-  { nome: "Matheus Augustus", sobrenome: "da Silva Batista Ribeiro", idade: 18, telefone: "61992223599", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Stela", emergenciaTel: "61996168914", quartoDestino: "Verde" },
-  // Cinza (8)
-  { nome: "Gleiviton Da Silva", sobrenome: "Oliveira", idade: 42, telefone: "6192550006", unidade: "Núcleo da Fé - Planaltina", celula: "Sim. Pequeno núcleo", emergenciaNome: "Nilma", emergenciaTel: "61993949628", quartoDestino: "Cinza" },
-  { nome: "Lucas José", sobrenome: "de Oliveira Cunha", idade: 37, telefone: "61981373070", unidade: "Núcleo da Fé - Sede", celula: "sim, Homens na forja", emergenciaNome: "Ruthenia", emergenciaTel: "61982783035", quartoDestino: "Cinza" },
-  { nome: "João Henrique", sobrenome: "Ortiz", idade: 33, telefone: "61999586496", unidade: "Núcleo da Fé - Sede", celula: "Nucleo da Fé", emergenciaNome: "Jaqueliny", emergenciaTel: "61999089651", quartoDestino: "Cinza" },
-  { nome: "Rauricio Puça", sobrenome: "dos Santos", idade: 49, telefone: "61991621133", unidade: "Núcleo da Fé - Sede", celula: "não", emergenciaNome: "Tamires", emergenciaTel: "61991621133", quartoDestino: "Cinza" },
-  { nome: "Pedro", sobrenome: "Sergio", idade: 29, telefone: "61981993450", unidade: "Núcleo da Fé - Sede", celula: "Sim, luis", emergenciaNome: "Larissa", emergenciaTel: "99794520", quartoDestino: "Cinza" },
-  { nome: "Thiago", sobrenome: "", idade: 37, telefone: "61982737373", unidade: "Núcleo da Fé - Noroeste", celula: "líderes do jiujitsu", emergenciaNome: "Aline", emergenciaTel: "61995443439", quartoDestino: "Cinza" },
-  { nome: "Otávio de Miranda", sobrenome: "Lins", idade: 41, telefone: "61991880633", unidade: "Núcleo da Fé - Sede", celula: "não", emergenciaNome: "ana beatriz Oliveira", emergenciaTel: "61999916144", quartoDestino: "Cinza" },
-  { nome: "Lissandro Landim", sobrenome: "Oliveira", idade: 47, telefone: "61984237850", unidade: "Núcleo da Fé - Sede", celula: "não", emergenciaNome: "Silvânia", emergenciaTel: "61998014493", quartoDestino: "Cinza" }
-];
-
-// PARTICIPANTES NOVOS (sem quarto)
-const PARTICIPANTES_NOVOS = [
-  { nome: "André Luiz", sobrenome: "Milani", idade: 29, telefone: "61982212026", unidade: "Núcleo da Fé - Noroeste", celula: "não", emergenciaNome: "Amanda", emergenciaTel: "61982168451" },
-  { nome: "VANDERLEY", sobrenome: "ANDRADE SANTOS", idade: 36, telefone: "61995613156", unidade: "Núcleo da Fé - Sede", celula: "nenhuma", emergenciaNome: "creuza (esposa)", emergenciaTel: "61983420301" },
-  { nome: "DIEGO", sobrenome: "RODRIGUES MAGALHAES", idade: 41, telefone: "61992229823", unidade: "Núcleo da Fé - Sede", celula: "nenhuma", emergenciaNome: "Maria auxiliadora (mãe)", emergenciaTel: "61991073922" },
-  { nome: "Bruno maike", sobrenome: "Duraes de melo", idade: 27, telefone: "61994484848", unidade: "Núcleo da Fé - Planaltina", celula: "não", emergenciaNome: "61991724897", emergenciaTel: "61994484848" },
-  { nome: "Pablo Braz", sobrenome: "Dos Santos Lopes", idade: 25, telefone: "61981594303", unidade: "Núcleo da Fé - Sede", celula: "Sim", emergenciaNome: "Luiza esposa", emergenciaTel: "61991783024" },
-  { nome: "Mauro", sobrenome: "Cury", idade: 44, telefone: "61981963700", unidade: "Núcleo da Fé - Samambaia", celula: "Andre", emergenciaNome: "Patrícia", emergenciaTel: "61996311901" },
-  { nome: "josé esmael", sobrenome: "do nascimento", idade: 48, telefone: "61991694899", unidade: "Núcleo da Fé - Planaltina", celula: "não.", emergenciaNome: "Lucineia afonso", emergenciaTel: "61994590510" },
-  { nome: "miguel afonso", sobrenome: "do nascimento", idade: 25, telefone: "61995709832", unidade: "Núcleo da Fé - Planaltina", celula: "sim, gps.", emergenciaNome: "michaely vasconcelos", emergenciaTel: "61992594002" },
-  { nome: "Manoel de Souza", sobrenome: "Silva", idade: 48, telefone: "61996012929", unidade: "Núcleo da Fé - Planaltina", celula: "não", emergenciaNome: "Camila", emergenciaTel: "61993219544" },
-  { nome: "Pedro Cesar", sobrenome: "De Pontes Lima", idade: 27, telefone: "61996620508", unidade: "Núcleo da Fé - Sede", celula: "Não", emergenciaNome: "Larissa", emergenciaTel: "61981817096" },
-  { nome: "Tiberio", sobrenome: "Rocha", idade: 50, telefone: "61984338020", unidade: "Núcleo da Fé - Sede", celula: "Célula de casais e estudo bíblico", emergenciaNome: "Malú", emergenciaTel: "61985160991" }
-];
-
-// ============================================================
-// SISTEMA PRINCIPAL
-// ============================================================
-
-let encontroAtual = null;
-let encontros = [];
-let sortables = [];
-
-function uid() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 8); }
-function toast(msg) { const el = document.getElementById('toast'); el.textContent = msg; el.style.display = 'block'; setTimeout(() => el.style.display = 'none', 2500); }
-function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
-function salvar() { localStorage.setItem('encontros_quartos_v4', JSON.stringify(encontros)); }
-
-function inicializarDadosPadrao() {
-  const quartos = QUARTOS_PADRAO.map(q => ({
-    id: uid(), nome: q.nome, cor: q.cor, capacidade: q.capacidade,
-    lideresPorQuarto: q.lideresPorQuarto, lideres: [...q.lideres], participantesIds: []
-  }));
-  
-  const mapaQuartos = new Map();
-  quartos.forEach(q => mapaQuartos.set(q.nome, q));
-  
-  const todosParticipantes = [];
-  
-  for (const p of PARTICIPANTES_COM_QUARTO) {
-    const id = uid();
-    todosParticipantes.push({
-      id, nome: p.nome, sobrenome: p.sobrenome, idade: p.idade, telefone: p.telefone,
-      unidade: p.unidade, celula: p.celula, emergenciaNome: p.emergenciaNome, emergenciaTel: p.emergenciaTel
-    });
-    const quartoDestino = mapaQuartos.get(p.quartoDestino);
-    if (quartoDestino) quartoDestino.participantesIds.push(id);
-  }
-  
-  for (const p of PARTICIPANTES_NOVOS) {
-    todosParticipantes.push({
-      id: uid(), nome: p.nome, sobrenome: p.sobrenome, idade: p.idade, telefone: p.telefone,
-      unidade: p.unidade, celula: p.celula, emergenciaNome: p.emergenciaNome, emergenciaTel: p.emergenciaTel
-    });
-  }
-  
-  const lideres = [];
-  for (const q of QUARTOS_PADRAO) {
-    for (const l of q.lideres) {
-      lideres.push({ id: uid(), nome: l, quartoId: null });
-    }
-  }
-  
-  const novoEncontro = {
-    id: uid(), nome: 'Acampamento de Homens 2026 - 15/05 a 17/05',
-    dataInicio: '2026-05-15', dataFim: '2026-05-17',
-    participantes: todosParticipantes, quartos: quartos, lideres: lideres,
-    regras: { ...REGRAS_PADRAO }
+function defaultData(){
+  return { encontros: [], activeEncontroId: null };
+}
+let DB = loadDB();
+function loadDB(){
+  try{
+    const raw = localStorage.getItem(DB_KEY);
+    if(!raw) return defaultData();
+    const parsed = JSON.parse(raw);
+    if(!parsed.encontros) return defaultData();
+    return parsed;
+  }catch(e){ console.error('Erro ao carregar dados', e); return defaultData(); }
+}
+function saveDB(){
+  localStorage.setItem(DB_KEY, JSON.stringify(DB));
+}
+function getActiveEncontro(){
+  return DB.encontros.find(e => e.id === DB.activeEncontroId) || null;
+}
+function newEncontro(nome, data){
+  return {
+    id: uid(), nome, data,
+    quartos: [],
+    regras: {
+      separarSobrenome:false, juntarSobrenome:false,
+      separarTelefoneEmergencia:false, juntarTelefoneEmergencia:false,
+      separarUnidade:false, juntarUnidade:false,
+      separarFaixaEtaria:false, juntarFaixaEtaria:false,
+      separarCelula:false, juntarCelula:false,
+    },
+    participantes: [],
+    lideres: [],
+    pdfSelecionados: {},
+    distribuido:false,
   };
-  
-  encontros = [novoEncontro];
-  salvar();
 }
 
-function carregar() {
-  const data = localStorage.getItem('encontros_quartos_v4');
-  if (data) {
-    try {
-      const parsed = JSON.parse(data);
-      if (parsed && parsed.length > 0 && parsed[0].participantes && parsed[0].quartos) {
-        encontros = parsed;
-      } else { inicializarDadosPadrao(); }
-    } catch(e) { inicializarDadosPadrao(); }
-  } else { inicializarDadosPadrao(); }
+/* ==========================================================================
+   TOASTS
+   ========================================================================== */
+function toast(msg, type){
+  const root = document.getElementById('toastRoot');
+  const el = document.createElement('div');
+  el.className = 'toast' + (type ? ' '+type : '');
+  el.innerHTML = `${icon(type==='error'?'alert':'check')}<span>${msg}</span>`;
+  root.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .25s'; setTimeout(()=>el.remove(),250); }, 3200);
 }
 
-function getEnc() { return encontros.find(e => e.id === encontroAtual); }
-
-function atualizarBages() {
-  const enc = getEnc();
-  if (!enc) return;
-  const alocados = new Set();
-  enc.quartos.forEach(q => (q.participantesIds || []).forEach(id => alocados.add(id)));
-  document.getElementById('totalParticipantesBadge').innerHTML = `${enc.participantes.length} participantes`;
-  document.getElementById('totalAlocadosBadge').innerHTML = `${alocados.size} alocados`;
+/* ==========================================================================
+   MODAL HELPERS
+   ========================================================================== */
+function openModal(html, opts){
+  opts = opts || {};
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = `<div class="modal-overlay" id="modalOverlay"><div class="modal ${opts.large?'modal-lg':''}">${html}</div></div>`;
+  document.getElementById('modalOverlay').addEventListener('click', (e)=>{ if(e.target.id==='modalOverlay') closeModal(); });
 }
+function closeModal(){ document.getElementById('modalRoot').innerHTML=''; }
 
-function renderEncontros() {
-  const container = document.getElementById('encontrosList');
-  if (!encontros.length) { container.innerHTML = '<div style="text-align:center;padding:40px">Nenhum encontro</div>'; return; }
-  container.innerHTML = encontros.map(enc => `
-    <div style="border:1px solid #e2e8f0;border-radius:16px;padding:16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
-      <div><strong>${enc.nome}</strong><br><span class="text-muted">${enc.participantes.length} participantes | ${enc.quartos.length} quartos</span></div>
-      <div><button class="btn btn-primary" onclick="selecionarEncontro('${enc.id}')">Selecionar</button>
-      <button class="btn btn-danger" onclick="excluirEncontro('${enc.id}')">Excluir</button></div>
-    </div>
-  `).join('');
-}
-
-window.selecionarEncontro = function(id) { encontroAtual = id; toast('Encontro selecionado'); renderDistribuir(); atualizarBages(); document.querySelector('[data-tab="distribuir"]').click(); };
-window.excluirEncontro = function(id) { encontros = encontros.filter(e => e.id !== id); if (encontroAtual === id) encontroAtual = null; salvar(); renderEncontros(); toast('Encontro excluído'); };
-
-function renderConfigQuartos() {
-  const enc = getEnc();
-  if (!enc) return;
-  const container = document.getElementById('quartosConfigList');
-  container.innerHTML = enc.quartos.map((q, i) => `
-    <div class="quarto-config-row">
-      <input type="color" value="${q.cor}" onchange="atualizarQuarto(${i}, 'cor', this.value)">
-      <input type="text" value="${q.nome}" onchange="atualizarQuarto(${i}, 'nome', this.value)" style="width:120px">
-      <span>Capacidade:</span>
-      <input type="number" value="${q.capacidade}" onchange="atualizarQuarto(${i}, 'capacidade', +this.value)" style="width:70px">
-      <span>Líderes/Quarto:</span>
-      <select onchange="atualizarQuarto(${i}, 'lideresPorQuarto', +this.value)">
-        <option value="1" ${q.lideresPorQuarto === 1 ? 'selected' : ''}>1</option>
-        <option value="2" ${q.lideresPorQuarto === 2 ? 'selected' : ''}>2</option>
-        <option value="3" ${q.lideresPorQuarto === 3 ? 'selected' : ''}>3</option>
-      </select>
-      <span class="text-muted">Vagas: ${(q.capacidade || 10) - (q.lideresPorQuarto || 2)}</span>
-    </div>
-  `).join('');
-}
-
-window.atualizarQuarto = function(idx, campo, valor) {
-  const enc = getEnc();
-  enc.quartos[idx][campo] = valor;
-  salvar();
-  renderConfigQuartos();
-  renderDistribuir();
-  toast('Quarto atualizado');
-};
-
-function renderRegras() {
-  const enc = getEnc();
-  if (!enc) return;
-  const regras = enc.regras || { ...REGRAS_PADRAO };
-  const grid = document.getElementById('regrasGrid');
-  grid.innerHTML = REGRAS_LISTA.map(r => `
-    <div class="regra-item ${regras[r.id] ? 'active' : ''}" onclick="toggleRegra(event, '${r.id}')">
-      <input type="checkbox" ${regras[r.id] ? 'checked' : ''} onchange="toggleRegra(event, '${r.id}')">
-      <label>${r.label}</label>
-    </div>
-  `).join('');
-}
-
-window.toggleRegra = function(event, regraId) {
-  event.stopPropagation();
-  const enc = getEnc();
-  if (!enc.regras) enc.regras = { ...REGRAS_PADRAO };
-  enc.regras[regraId] = !enc.regras[regraId];
-  salvar();
-  renderRegras();
-};
-
-function salvarRegras() { toast('Regras salvas'); }
-
-function renderParticipantes() {
-  const enc = getEnc();
-  if (!enc) return;
-  const quartoMap = new Map();
-  enc.quartos.forEach(q => (q.participantesIds || []).forEach(pid => quartoMap.set(pid, q.nome)));
-  const tbody = document.getElementById('participantesTbody');
-  tbody.innerHTML = enc.participantes.map(p => `
-    <tr>
-      <td><strong>${p.nome}</strong></td>
-      <td>${p.idade || '—'}</td>
-      <td>${p.sobrenome || '—'}</td>
-      <td>${p.telefone || '—'}</td>
-      <td>${p.unidade || '—'}</td>
-      <td>${p.celula || '—'}</td>
-      <td>${quartoMap.has(p.id) ? '<span class="badge-alocado">✓ Alocado</span>' : '<span class="badge-semquarto">⚠️ Sem quarto</span>'}</td>
-      <td>${quartoMap.get(p.id) || '—'}</td>
-      <td><button class="btn btn-outline" onclick="removerParticipante('${p.id}')" style="padding:4px 12px">✕</button></td>
-    </tr>
-  `).join('');
-  atualizarBages();
-}
-
-window.removerParticipante = function(id) {
-  const enc = getEnc();
-  enc.participantes = enc.participantes.filter(p => p.id !== id);
-  enc.quartos.forEach(q => { q.participantesIds = (q.participantesIds || []).filter(pid => pid !== id); });
-  salvar(); renderParticipantes(); renderDistribuir(); atualizarBages(); toast('Participante removido');
-};
-
-function renderLideres() {
-  const enc = getEnc();
-  if (!enc) return;
-  const quartoMap = new Map();
-  enc.quartos.forEach(q => { q.lideres.forEach(l => quartoMap.set(l, q.nome)); });
-  const tbody = document.getElementById('lideresTbody');
-  tbody.innerHTML = enc.lideres.map(l => `
-    <tr><td><strong>${l.nome}</strong></td><td>${quartoMap.get(l.nome) || '—'}</td>
-      <td><button class="btn btn-outline" onclick="removerLider('${l.id}')">✕</button></td>
-    </tr>
-  `).join('');
-}
-
-function adicionarLider() {
-  const nome = document.getElementById('addLiderNome').value.trim();
-  if (!nome) { toast('Nome obrigatório'); return; }
-  const enc = getEnc();
-  enc.lideres.push({ id: uid(), nome: nome, quartoId: null });
-  salvar(); renderLideres(); fecharModal('modalLider'); document.getElementById('addLiderNome').value = ''; toast('Líder adicionado');
-}
-
-window.removerLider = function(id) {
-  const enc = getEnc();
-  const lider = enc.lideres.find(l => l.id === id);
-  if (lider) {
-    enc.quartos.forEach(q => { q.lideres = q.lideres.filter(l => l !== lider.nome); });
-    enc.lideres = enc.lideres.filter(l => l.id !== id);
-    salvar(); renderLideres(); renderAlocarLideres(); renderDistribuir(); toast('Líder removido');
-  }
-};
-
-function renderAlocarLideres() {
-  const enc = getEnc();
-  if (!enc) return;
-  const container = document.getElementById('alocarLideresGrid');
-  container.innerHTML = enc.quartos.map((q, qi) => {
-    const vagas = (q.lideresPorQuarto || 2) - (q.lideres || []).length;
-    const disponiveis = enc.lideres.filter(l => !enc.quartos.some(q2 => q2.lideres.includes(l.nome)));
-    return `
-      <div class="card" style="margin-bottom:16px">
-        <div class="card-header" style="background:${q.cor}20; border-left:4px solid ${q.cor}">${q.nome} - ${q.lideres.length}/${q.lideresPorQuarto} líderes</div>
-        <div class="card-body">
-          <div class="lideres-list">${q.lideres.map(l => `<span class="lider-tag">${l} <button onclick="removerLiderDoQuarto(${qi}, '${l}')" style="background:none;border:none;cursor:pointer">✕</button></span>`).join('') || '<span class="text-muted">Nenhum líder</span>'}</div>
-          ${vagas > 0 ? `<div class="flex"><select id="selLider_${qi}" style="flex:1"><option value="">Selecionar líder...</option>${disponiveis.map(l => `<option value="${l.nome}">${l.nome}</option>`).join('')}</select><button class="btn btn-primary" onclick="adicionarLiderAoQuarto(${qi})">Adicionar</button></div>` : '<p class="text-muted">Limite atingido</p>'}
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-window.adicionarLiderAoQuarto = function(qi) {
-  const sel = document.getElementById(`selLider_${qi}`);
-  if (!sel || !sel.value) { toast('Selecione um líder'); return; }
-  const enc = getEnc();
-  const quarto = enc.quartos[qi];
-  if ((quarto.lideres.length) >= (quarto.lideresPorQuarto || 2)) { toast('Limite de líderes atingido'); return; }
-  quarto.lideres.push(sel.value);
-  salvar(); renderLideres(); renderAlocarLideres(); renderDistribuir(); toast('Líder alocado');
-};
-
-window.removerLiderDoQuarto = function(qi, nome) {
-  const enc = getEnc();
-  enc.quartos[qi].lideres = enc.quartos[qi].lideres.filter(l => l !== nome);
-  salvar(); renderLideres(); renderAlocarLideres(); renderDistribuir(); toast('Líder removido');
-};
-
-function faixaEtaria(idade) {
-  if (idade >= 18 && idade <= 25) return 'jovem';
-  if (idade >= 26 && idade <= 35) return 'adulto_jovem';
-  if (idade >= 36 && idade <= 50) return 'adulto';
-  if (idade >= 51) return 'senior';
-  return 'outro';
-}
-
-function distribuirAutomatico() {
-  const enc = getEnc();
-  if (!enc) return;
-  const regras = enc.regras || { ...REGRAS_PADRAO };
-  const alocadosIds = new Set();
-  enc.quartos.forEach(q => (q.participantesIds || []).forEach(id => alocadosIds.add(id)));
-  let novos = enc.participantes.filter(p => !alocadosIds.has(p.id));
-  if (novos.length === 0) { toast('Todos já estão alocados!'); return; }
-  
-  for (let i = novos.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [novos[i], novos[j]] = [novos[j], novos[i]]; }
-  
-  for (const p of novos) {
-    let disponiveis = enc.quartos.filter(q => {
-      const vagas = (q.capacidade || 10) - (q.lideresPorQuarto || 2);
-      return (q.participantesIds || []).length < vagas;
-    });
-    
-    if (regras.separarSobrenome) {
-      disponiveis = disponiveis.filter(q => !(q.participantesIds || []).some(pid => enc.participantes.find(part => part.id === pid)?.sobrenome === p.sobrenome));
-    }
-    if (regras.juntarSobrenome && p.sobrenome) {
-      const comMesmoSobrenome = disponiveis.filter(q => (q.participantesIds || []).some(pid => enc.participantes.find(part => part.id === pid)?.sobrenome === p.sobrenome));
-      if (comMesmoSobrenome.length) disponiveis = comMesmoSobrenome;
-    }
-    if (regras.separarTelefoneEmergencia && p.emergenciaTel) {
-      disponiveis = disponiveis.filter(q => !(q.participantesIds || []).some(pid => enc.participantes.find(part => part.id === pid)?.emergenciaTel === p.emergenciaTel));
-    }
-    if (regras.juntarTelefoneEmergencia && p.emergenciaTel) {
-      const mesmoTel = disponiveis.filter(q => (q.participantesIds || []).some(pid => enc.participantes.find(part => part.id === pid)?.emergenciaTel === p.emergenciaTel));
-      if (mesmoTel.length) disponiveis = mesmoTel;
-    }
-    if (regras.separarUnidade && p.unidade) {
-      disponiveis = disponiveis.filter(q => !(q.participantesIds || []).some(pid => enc.participantes.find(part => part.id === pid)?.unidade === p.unidade));
-    }
-    if (regras.juntarUnidade && p.unidade) {
-      const mesmaUnidade = disponiveis.filter(q => (q.participantesIds || []).some(pid => enc.participantes.find(part => part.id === pid)?.unidade === p.unidade));
-      if (mesmaUnidade.length) disponiveis = mesmaUnidade;
-    }
-    if (regras.separarFaixaEtaria) {
-      const faixa = faixaEtaria(p.idade);
-      disponiveis = disponiveis.filter(q => !(q.participantesIds || []).some(pid => faixaEtaria(enc.participantes.find(part => part.id === pid)?.idade) === faixa));
-    }
-    if (regras.juntarFaixaEtaria) {
-      const faixa = faixaEtaria(p.idade);
-      const mesmaFaixa = disponiveis.filter(q => (q.participantesIds || []).some(pid => faixaEtaria(enc.participantes.find(part => part.id === pid)?.idade) === faixa));
-      if (mesmaFaixa.length) disponiveis = mesmaFaixa;
-    }
-    if (regras.separarCelula && p.celula) {
-      disponiveis = disponiveis.filter(q => !(q.participantesIds || []).some(pid => enc.participantes.find(part => part.id === pid)?.celula === p.celula));
-    }
-    if (regras.juntarCelula && p.celula) {
-      const mesmaCelula = disponiveis.filter(q => (q.participantesIds || []).some(pid => enc.participantes.find(part => part.id === pid)?.celula === p.celula));
-      if (mesmaCelula.length) disponiveis = mesmaCelula;
-    }
-    
-    if (disponiveis.length) {
-      disponiveis.sort((a, b) => (a.participantesIds || []).length - (b.participantesIds || []).length);
-      disponiveis[0].participantesIds.push(p.id);
-    }
-  }
-  salvar();
-  renderDistribuir();
-  renderParticipantes();
-  atualizarBages();
-  toast('Distribuição automática concluída!');
-}
-
-function renderDistribuir() {
-  const enc = getEnc();
-  if (!enc) return;
-  const grid = document.getElementById('quartosDistribuirGrid');
-  sortables.forEach(s => { try { s.destroy(); } catch(e) {} }); sortables = [];
-  if (!enc.quartos.length) { grid.innerHTML = '<div class="card-body">Nenhum quarto</div>'; return; }
-  
-  grid.innerHTML = enc.quartos.map((q, idx) => {
-    const participantesQuarto = (q.participantesIds || []).map(pid => enc.participantes.find(p => p.id === pid)).filter(Boolean);
-    const vagas = (q.capacidade || 10) - (q.lideresPorQuarto || 2);
-    const total = participantesQuarto.length;
-    const pct = vagas > 0 ? (total / vagas) * 100 : 100;
-    let progressClass = pct >= 100 ? 'full' : (pct >= 80 ? 'warning' : '');
-    return `
-      <div class="quarto-card">
-        <div class="checkbox-container">
-          <input type="checkbox" class="selecionar-quarto" data-quarto-idx="${idx}" data-quarto-id="${q.id}">
-          <span style="font-weight:500">Selecionar para PDF</span>
-        </div>
-        <div class="quarto-header" style="background:${q.cor}"><strong>🛏️ ${q.nome}</strong><span>${total}/${vagas}</span></div>
-        <div class="quarto-body">
-          <div class="lideres-list">${(q.lideres || []).map(l => `<span class="lider-tag">👑 ${l}</span>`).join('') || '<span class="text-muted">Nenhum líder</span>'}</div>
-          <div class="pessoas-drop" data-quarto-id="${q.id}">
-            ${participantesQuarto.length ? participantesQuarto.map(p => `<div class="pessoa-row" data-id="${p.id}"><span class="pessoa-nome">${p.nome} ${p.sobrenome || ''}</span><span class="pessoa-idade">${p.idade || '?'}a</span></div>`).join('') : '<div class="empty-drop">📌 Arraste participantes para cá</div>'}
-          </div>
-          <div class="progress-bar"><div class="progress-fill ${progressClass}" style="width:${Math.min(100, pct)}%"></div></div>
-        </div>
-      </div>
-    `;
-  }).join('');
-  
-  document.querySelectorAll('.pessoas-drop').forEach(zone => {
-    const s = new Sortable(zone, {
-      group: 'quartos', animation: 200,
-      onEnd: (evt) => {
-        const pessoaId = evt.item.dataset.id;
-        const quartoOrigemId = evt.from.dataset.quartoId;
-        const quartoDestinoId = evt.to.dataset.quartoId;
-        if (quartoOrigemId === quartoDestinoId) return;
-        const enc = getEnc();
-        const quartoOrigem = enc.quartos.find(q => q.id === quartoOrigemId);
-        const quartoDestino = enc.quartos.find(q => q.id === quartoDestinoId);
-        const pessoa = enc.participantes.find(p => p.id === pessoaId);
-        if (!pessoa || !quartoOrigem || !quartoDestino) return;
-        const vagasDestino = (quartoDestino.capacidade || 10) - (quartoDestino.lideresPorQuarto || 2);
-        if ((quartoDestino.participantesIds || []).length >= vagasDestino) { toast(`Quarto ${quartoDestino.nome} cheio`); renderDistribuir(); return; }
-        quartoOrigem.participantesIds = (quartoOrigem.participantesIds || []).filter(id => id !== pessoaId);
-        if (!quartoDestino.participantesIds) quartoDestino.participantesIds = [];
-        quartoDestino.participantesIds.push(pessoaId);
-        salvar(); renderDistribuir(); renderParticipantes(); atualizarBages(); toast(`${pessoa.nome} → ${quartoDestino.nome}`);
-      }
-    });
-    sortables.push(s);
+/* ==========================================================================
+   TABS
+   ========================================================================== */
+const TABS = [
+  { id:'encontros', label:'Encontros', icon:'calendar' },
+  { id:'quartos', label:'Configurar Quartos', icon:'settings' },
+  { id:'regras', label:'Regras', icon:'sliders' },
+  { id:'participantes', label:'Participantes', icon:'users' },
+  { id:'lideres', label:'Líderes', icon:'crown' },
+  { id:'alocar', label:'Alocar Líderes', icon:'target' },
+  { id:'distribuir', label:'Distribuir', icon:'shuffle' },
+];
+let currentTab = 'encontros';
+function renderTabsNav(){
+  const nav = document.getElementById('tabsNav');
+  nav.innerHTML = TABS.map(t => `
+    <button class="tab-btn ${t.id===currentTab?'active':''}" data-tab="${t.id}">
+      ${icon(t.icon)} <span>${t.label}</span>
+    </button>`).join('');
+  nav.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> switchTab(btn.dataset.tab));
   });
 }
-
-function getQuartosSelecionados() {
-  const checkboxes = document.querySelectorAll('.selecionar-quarto:checked');
-  const ids = Array.from(checkboxes).map(cb => cb.dataset.quartoId);
-  const enc = getEnc();
-  return enc.quartos.filter(q => ids.includes(q.id));
+function switchTab(id){
+  currentTab = id;
+  renderTabsNav();
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  renderAll();
+}
+function updateHeaderPill(){
+  const e = getActiveEncontro();
+  document.getElementById('activeEncontroLabel').textContent = e ? `${e.nome} · ${formatDateBR(e.data)}` : 'Nenhum selecionado';
+}
+function formatDateBR(iso){
+  if(!iso) return '—';
+  const [y,m,d] = iso.split('-');
+  if(!y||!m||!d) return iso;
+  return `${d}/${m}/${y}`;
 }
 
-function gerarPDFPublico(q, enc) {
-  const doc = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-  const participantesQuarto = (q.participantesIds || []).map(pid => enc.participantes.find(p => p.id === pid)).filter(Boolean);
-  const r = parseInt(q.cor.slice(1,3),16), g = parseInt(q.cor.slice(3,5),16), b = parseInt(q.cor.slice(5,7),16);
-  
-  // Cabeçalho colorido
-  doc.setFillColor(r, g, b);
-  doc.rect(0, 0, 297, 35, 'F');
-  doc.setTextColor(255,255,255);
-  doc.setFontSize(18);
-  doc.text(`Quarto: ${q.nome}`, 148.5, 16, { align: 'center' });
-  doc.setFontSize(10);
-  doc.text(`Líderes: ${q.lideres.join(', ')}`, 148.5, 26, { align: 'center' });
-  doc.setTextColor(0,0,0);
-  doc.setFontSize(8);
-  doc.text(enc.nome, 148.5, 33, { align: 'center' });
-  
-  // Lista de participantes com altura de linha REDUZIDA PELA METADE
-  const body = participantesQuarto.map(p => [`${p.nome} ${p.sobrenome || ''}`]);
-  
-  if (body.length) {
-    doc.autoTable({
-      head: [['PARTICIPANTES']],
-      body: body,
-      startY: 42,
-      styles: {
-        fontSize: 14,
-        cellPadding: 3,        // <--- ANTES era 6, agora é 3 (metade)
-        halign: 'center',
-        valign: 'middle',
-        lineWidth: 0.1,
-        lineColor: [200,200,200]
-      },
-      headStyles: {
-        fillColor: [r, g, b],
-        textColor: [255,255,255],
-        fontSize: 12,
-        fontStyle: 'bold',
-        cellPadding: 3
-      },
-      margin: { left: 40, right: 40 },
-      tableWidth: 'auto'
+/* Helper: wrapper shown on tabs that require an active encontro */
+function requireEncontroWrap(bodyHtml){
+  const e = getActiveEncontro();
+  if(!e){
+    return `<div class="empty-state">${icon('alert')}
+      <h4>Nenhum encontro selecionado</h4>
+      <p>Vá até a aba <b>Encontros</b> para criar ou selecionar um encontro antes de continuar.</p>
+      <div style="margin-top:16px;"><button class="btn btn-primary" onclick="switchTab('encontros')">${icon('calendar')} Ir para Encontros</button></div>
+    </div>`;
+  }
+  return bodyHtml(e);
+}
+
+/* ==========================================================================
+   RENDER: ENCONTROS
+   ========================================================================== */
+function renderEncontros(){
+  const el = document.getElementById('tab-encontros');
+  const rows = DB.encontros.map(e=>{
+    const active = e.id === DB.activeEncontroId;
+    return `<div class="list-row ${active?'selected':''}" data-id="${e.id}">
+      <div style="cursor:pointer; flex:1;" class="encontro-select">
+        <div class="row-title">${escapeHtml(e.nome)}</div>
+        <div class="row-sub">${formatDateBR(e.data)} · ${e.participantes.length} participante(s) · ${e.quartos.length} quarto(s)</div>
+      </div>
+      <div class="row-actions">
+        ${active ? `<span class="badge badge-success">${icon('check')} Ativo</span>` : `<button class="btn btn-outline btn-sm encontro-select">Selecionar</button>`}
+        <button class="btn btn-ghost btn-icon" data-action="del-encontro" title="Excluir">${icon('trash')}</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="page-head">
+      <div>
+        <div class="page-eyebrow">Aba · Encontros</div>
+        <h1 class="page-title">Encontros</h1>
+        <p class="page-desc">Crie encontros (Homens, Mulheres, etc.), selecione qual está ativo e gerencie backups de cada evento.</p>
+      </div>
+      <button class="btn btn-primary" id="btnNovoEncontro">${icon('plus')} Novo encontro</button>
+    </div>
+    ${DB.encontros.length===0 ? `
+      <div class="empty-state">${icon('calendar')}
+        <h4>Nenhum encontro cadastrado</h4>
+        <p>Crie o primeiro encontro para começar a organizar os quartos.</p>
+      </div>` : `<div>${rows}</div>`}
+  `;
+
+  document.getElementById('btnNovoEncontro').addEventListener('click', openNovoEncontroModal);
+  el.querySelectorAll('.encontro-select').forEach(node=>{
+    node.addEventListener('click', ()=>{
+      const id = node.closest('.list-row').dataset.id;
+      DB.activeEncontroId = id; saveDB(); updateHeaderPill(); renderEncontros();
+      toast('Encontro selecionado.');
     });
-  } else {
-    doc.text("Nenhum participante alocado", 148.5, 65, { align: 'center' });
-  }
-  
-  doc.save(`${q.nome}_PUBLICO.pdf`);
-}
-
-function gerarPDFPrivado(q, enc) {
-  const doc = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-  const participantesQuarto = (q.participantesIds || []).map(pid => enc.participantes.find(p => p.id === pid)).filter(Boolean);
-  const r = parseInt(q.cor.slice(1,3),16), g = parseInt(q.cor.slice(3,5),16), b = parseInt(q.cor.slice(5,7),16);
-  doc.setFillColor(r, g, b); doc.rect(0, 0, 297, 40, 'F');
-  doc.setTextColor(255,255,255); doc.setFontSize(20); doc.text(`Quarto: ${q.nome}`, 148.5, 18, { align: 'center' });
-  doc.setFontSize(11); doc.text(`Líderes: ${q.lideres.join(', ')}`, 148.5, 30, { align: 'center' });
-  doc.setTextColor(0,0,0); doc.setFontSize(9); doc.text(enc.nome, 148.5, 38, { align: 'center' });
-  const body = participantesQuarto.map(p => [`${p.nome} ${p.sobrenome || ''}`, p.idade || '—', p.telefone || '—', p.emergenciaNome || '—', p.emergenciaTel || '—', p.unidade || '—', p.celula || '—']);
-  doc.autoTable({ head: [['Nome', 'Idade', 'Telefone', 'Emergência Nome', 'Emergência Tel', 'Unidade', 'Célula']], body: body, startY: 48, styles: { fontSize: 8, cellPadding: 3, halign: 'center' }, headStyles: { fillColor: [r, g, b], textColor: [255,255,255], fontSize: 9, fontStyle: 'bold' }, margin: { left: 8, right: 8 }, columnStyles: { 0: { cellWidth: 45, halign: 'left' }, 1: { cellWidth: 18 }, 2: { cellWidth: 32 }, 3: { cellWidth: 40, halign: 'left' }, 4: { cellWidth: 32 }, 5: { cellWidth: 45, halign: 'left' }, 6: { cellWidth: 45, halign: 'left' } } });
-  doc.save(`${q.nome}_PRIVADO.pdf`);
-}
-
-function gerarPDFsSelecionados(tipo) {
-  const quartos = getQuartosSelecionados();
-  if (!quartos.length) { toast('Selecione pelo menos um quarto'); return; }
-  const enc = getEnc();
-  let count = 0;
-  for (const q of quartos) {
-    if (tipo === 'publico') { gerarPDFPublico(q, enc); count++; }
-    else if (tipo === 'privado') { gerarPDFPrivado(q, enc); count++; }
-    else if (tipo === 'ambos') { gerarPDFPublico(q, enc); gerarPDFPrivado(q, enc); count += 2; }
-  }
-  toast(`${count} PDF(s) gerado(s)!`);
-}
-
-function gerarPDFsTodos(tipo) {
-  const enc = getEnc();
-  let count = 0;
-  for (const q of enc.quartos) {
-    if (tipo === 'publico') { gerarPDFPublico(q, enc); count++; }
-    else if (tipo === 'privado') { gerarPDFPrivado(q, enc); count++; }
-    else if (tipo === 'ambos') { gerarPDFPublico(q, enc); gerarPDFPrivado(q, enc); count += 2; }
-  }
-  toast(`${count} PDF(s) gerado(s)!`);
-}
-
-function verSemQuarto() {
-  const enc = getEnc();
-  const alocados = new Set();
-  enc.quartos.forEach(q => (q.participantesIds || []).forEach(id => alocados.add(id)));
-  const sem = enc.participantes.filter(p => !alocados.has(p.id));
-  const container = document.getElementById('semQuartoLista');
-  container.innerHTML = !sem.length ? '<div style="padding:20px;text-align:center">✅ Todos alocados!</div>' : `<div style="margin-bottom:12px">${sem.length} participante(s) sem quarto:</div>${sem.map(p => `<div style="padding:10px;background:#f1f5f9;border-radius:12px;margin-bottom:8px"><strong>${p.nome} ${p.sobrenome || ''}</strong> (${p.idade || '?'}a)</div>`).join('')}`;
-  document.getElementById('modalSemQuarto').classList.add('open');
-}
-
-function gerarListaGeralPDF() {
-  const enc = getEnc();
-  const doc = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-  const quartoMap = new Map();
-  enc.quartos.forEach(q => (q.participantesIds || []).forEach(pid => quartoMap.set(pid, { nome: q.nome, cor: q.cor })));
-  const lista = enc.participantes.map(p => ({ nome: `${p.nome} ${p.sobrenome || ''}`, idade: p.idade || '—', unidade: p.unidade || '—', telefone: p.telefone || '—', emergNome: p.emergenciaNome || '—', emergTel: p.emergenciaTel || '—', quarto: quartoMap.get(p.id) })).sort((a,b) => a.nome.localeCompare(b.nome));
-  doc.setFontSize(18); doc.text('Lista Geral de Participantes', 148.5, 20, { align: 'center' });
-  doc.setFontSize(10); doc.text(enc.nome, 148.5, 30, { align: 'center' });
-  doc.text(`Total: ${enc.participantes.length} participantes`, 148.5, 37, { align: 'center' });
-  const body = lista.map(p => [p.quarto ? `■ ${p.quarto.nome}` : 'Sem quarto', p.nome, p.idade, p.unidade, p.telefone, p.emergNome, p.emergTel]);
-  doc.autoTable({ head: [['Quarto', 'Nome', 'Idade', 'Unidade', 'Telefone', 'Emergência', 'Emergência Tel']], body, startY: 45, styles: { fontSize: 8, cellPadding: 2, halign: 'center' }, headStyles: { fillColor: [37, 99, 235], textColor: [255,255,255] }, margin: { left: 8, right: 8 }, columnStyles: { 0: { cellWidth: 35 }, 1: { cellWidth: 55, halign: 'left' }, 2: { cellWidth: 18 }, 3: { cellWidth: 45, halign: 'left' }, 4: { cellWidth: 32 }, 5: { cellWidth: 45, halign: 'left' }, 6: { cellWidth: 32 } }, didDrawCell: (data) => { if (data.column.index === 0 && data.cell.section === 'body') { const item = lista[data.row.index]; if (item?.quarto?.cor) { const c = item.quarto.cor; doc.setFillColor(parseInt(c.slice(1,3),16), parseInt(c.slice(3,5),16), parseInt(c.slice(5,7),16)); doc.rect(data.cell.x + 3, data.cell.y + 4, 4, 4, 'F'); } } } });
-  doc.save('Lista_Geral.pdf'); toast('PDF gerado!');
-}
-
-function adicionarParticipanteManual() {
-  const nome = document.getElementById('addNome').value.trim();
-  if (!nome) { toast('Nome obrigatório'); return; }
-  const enc = getEnc();
-  enc.participantes.push({
-    id: uid(), nome: nome, sobrenome: document.getElementById('addSobrenome').value.trim(),
-    idade: parseInt(document.getElementById('addIdade').value) || 0,
-    telefone: document.getElementById('addTelefone').value,
-    unidade: document.getElementById('addUnidade').value,
-    celula: document.getElementById('addCelula').value,
-    emergenciaNome: document.getElementById('addEmergNome').value,
-    emergenciaTel: document.getElementById('addEmergTel').value
   });
-  salvar(); renderParticipantes(); renderDistribuir(); atualizarBages(); fecharModal('modalParticipante');
-  document.getElementById('addNome').value = ''; toast('Participante adicionado');
+  el.querySelectorAll('[data-action="del-encontro"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.closest('.list-row').dataset.id;
+      const enc = DB.encontros.find(x=>x.id===id);
+      confirmAction(`Excluir o encontro "${enc.nome}"? Todos os dados (quartos, participantes, líderes) serão apagados permanentemente.`, ()=>{
+        DB.encontros = DB.encontros.filter(x=>x.id!==id);
+        if(DB.activeEncontroId===id) DB.activeEncontroId = DB.encontros[0]?.id || null;
+        saveDB(); updateHeaderPill(); renderEncontros();
+        toast('Encontro excluído.');
+      });
+    });
+  });
+}
+function openNovoEncontroModal(){
+  openModal(`
+    <div class="modal-head"><h3>Novo encontro</h3><button class="btn btn-ghost btn-icon" onclick="closeModal()">${icon('x')}</button></div>
+    <div class="modal-body">
+      <div class="field-row"><label class="field-label">Nome do encontro</label>
+        <input class="input" id="novoEncontroNome" placeholder="Ex: Encontro de Homens - Maio 2026"></div>
+      <div class="field-row"><label class="field-label">Data</label>
+        <input class="input" id="novoEncontroData" type="date"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" id="btnSalvarEncontro">${icon('check')} Criar encontro</button>
+    </div>
+  `);
+  document.getElementById('btnSalvarEncontro').addEventListener('click', ()=>{
+    const nome = document.getElementById('novoEncontroNome').value.trim();
+    const data = document.getElementById('novoEncontroData').value;
+    if(!nome){ toast('Informe o nome do encontro.','error'); return; }
+    const e = newEncontro(nome, data);
+    DB.encontros.push(e);
+    DB.activeEncontroId = e.id;
+    saveDB(); updateHeaderPill(); closeModal(); renderEncontros();
+    toast('Encontro criado com sucesso!');
+  });
+}
+function confirmAction(msg, onConfirm){
+  openModal(`
+    <div class="modal-head"><h3>Confirmar ação</h3><button class="btn btn-ghost btn-icon" onclick="closeModal()">${icon('x')}</button></div>
+    <div class="modal-body"><p style="font-size:14px; line-height:1.55;">${msg}</p></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-danger" id="btnConfirmYes">${icon('trash')} Confirmar</button>
+    </div>
+  `);
+  document.getElementById('btnConfirmYes').addEventListener('click', ()=>{ closeModal(); onConfirm(); });
+}
+function escapeHtml(str){
+  if(str===undefined||str===null) return '';
+  return String(str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-function resetarSistema() {
-  if (confirm('⚠️ Isso vai APAGAR todos os dados e recriar o sistema do zero. Continuar?')) {
-    localStorage.removeItem('encontros_quartos_v4');
-    inicializarDadosPadrao();
-    if (encontros.length) encontroAtual = encontros[0].id;
-    renderDistribuir(); renderParticipantes(); atualizarBages();
-    toast('✅ Sistema resetado com sucesso!');
-  }
-}
-
-function exportarBackup() {
-  const enc = getEnc();
-  const blob = new Blob([JSON.stringify(enc, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `backup_${enc.nome.replace(/ /g, '_')}.json`; a.click(); toast('Backup exportado');
-}
-
-function importarBackup(file) {
+/* backup export/import */
+document.getElementById('btnBackupExport').addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(DB,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `chacara-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  toast('Backup exportado.');
+});
+document.getElementById('btnBackupImport').addEventListener('click', ()=> document.getElementById('backupFileInput').click());
+document.getElementById('backupFileInput').addEventListener('change', (e)=>{
+  const file = e.target.files[0]; if(!file) return;
   const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (data.id && data.participantes && data.quartos) {
-        encontros.unshift(data);
-        salvar(); renderEncontros(); toast('Backup importado!');
-      } else { toast('Arquivo inválido'); }
-    } catch(e) { toast('Erro ao ler arquivo'); }
+  reader.onload = ()=>{
+    try{
+      const parsed = JSON.parse(reader.result);
+      if(!parsed.encontros) throw new Error('formato inválido');
+      DB = parsed; saveDB(); updateHeaderPill(); renderAll();
+      toast('Backup importado com sucesso!');
+    }catch(err){ toast('Arquivo de backup inválido.','error'); }
   };
   reader.readAsText(file);
-}
-
-// Eventos
-document.getElementById('btnNovoEncontro')?.addEventListener('click', () => { const nome = prompt('Nome do encontro:'); if (nome) { const novo = { id: uid(), nome: nome, dataInicio: '2026-05-15', dataFim: '2026-05-17', participantes: [], quartos: [], lideres: [], regras: { ...REGRAS_PADRAO } }; encontros.unshift(novo); salvar(); renderEncontros(); toast('Encontro criado'); } });
-document.getElementById('btnSalvarConfigQuartos')?.addEventListener('click', () => { salvar(); toast('Configurações salvas'); });
-document.getElementById('btnSalvarRegras')?.addEventListener('click', salvarRegras);
-document.getElementById('btnDistribuirAutomatico')?.addEventListener('click', distribuirAutomatico);
-document.getElementById('btnGerarListaGeral')?.addEventListener('click', gerarListaGeralPDF);
-document.getElementById('btnVerSemQuarto')?.addEventListener('click', verSemQuarto);
-document.getElementById('btnDistribuirSemQuarto')?.addEventListener('click', () => { distribuirAutomatico(); document.getElementById('modalSemQuarto').classList.remove('open'); });
-document.getElementById('btnAdicionarManual')?.addEventListener('click', () => { document.getElementById('modalParticipante').classList.add('open'); });
-document.getElementById('btnSalvarParticipante')?.addEventListener('click', adicionarParticipanteManual);
-document.getElementById('btnAddLider')?.addEventListener('click', () => { document.getElementById('addLiderNome').value = ''; document.getElementById('modalLider').classList.add('open'); });
-document.getElementById('btnSalvarLider')?.addEventListener('click', adicionarLider);
-document.getElementById('btnResetarSistema')?.addEventListener('click', resetarSistema);
-document.getElementById('btnExportarBackup')?.addEventListener('click', exportarBackup);
-document.getElementById('btnImportarBackup')?.addEventListener('click', () => { document.getElementById('importBackupInput').click(); });
-document.getElementById('importBackupInput')?.addEventListener('change', e => { if (e.target.files[0]) importarBackup(e.target.files[0]); e.target.value = ''; });
-
-// PDFs
-document.getElementById('btnGerarPDFsSelecionadosPublicos')?.addEventListener('click', () => gerarPDFsSelecionados('publico'));
-document.getElementById('btnGerarPDFsSelecionadosPrivados')?.addEventListener('click', () => gerarPDFsSelecionados('privado'));
-document.getElementById('btnGerarPDFsSelecionadosAmbos')?.addEventListener('click', () => gerarPDFsSelecionados('ambos'));
-document.getElementById('btnGerarPDFsTodosPublicos')?.addEventListener('click', () => gerarPDFsTodos('publico'));
-document.getElementById('btnGerarPDFsTodosPrivados')?.addEventListener('click', () => gerarPDFsTodos('privado'));
-document.getElementById('btnGerarPDFsTodosAmbos')?.addEventListener('click', () => gerarPDFsTodos('ambos'));
-
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    const tabName = tab.dataset.tab;
-    document.querySelectorAll('.tab-content').forEach(tc => tc.style.display = 'none');
-    document.getElementById(`tab-${tabName}`).style.display = 'block';
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    if (tabName === 'encontros') renderEncontros();
-    else if (tabName === 'configurar') renderConfigQuartos();
-    else if (tabName === 'regras') renderRegras();
-    else if (tabName === 'participantes') renderParticipantes();
-    else if (tabName === 'lideres') renderLideres();
-    else if (tabName === 'alocar') renderAlocarLideres();
-    else if (tabName === 'distribuir') renderDistribuir();
-    if (getEnc()) atualizarBages();
-  });
+  e.target.value = '';
 });
 
-carregar();
-if (encontros.length) { encontroAtual = encontros[0].id; renderDistribuir(); atualizarBages(); }
+/* ==========================================================================
+   RENDER: CONFIGURAR QUARTOS
+   ========================================================================== */
+const VOCACOES = [
+  { id:'concentrar-25', label:'Concentrar -25' },
+  { id:'concentrar+50', label:'Concentrar +50' },
+  { id:'neutro', label:'Neutro' },
+];
+function vocacaoLabel(id){ return (VOCACOES.find(v=>v.id===id)||{}).label || 'Neutro'; }
+
+function renderQuartos(){
+  const el = document.getElementById('tab-quartos');
+  el.innerHTML = requireEncontroWrap((enc)=>{
+    const rows = enc.quartos.map(q=>{
+      const vagas = q.capacidade - q.numLideres;
+      return `<div class="list-row" data-id="${q.id}">
+        <div style="display:flex; align-items:center; gap:12px; flex:1;">
+          <span class="color-dot" style="background:${q.cor}; width:20px; height:20px;"></span>
+          <div>
+            <div class="row-title">${escapeHtml(q.nome)}</div>
+            <div class="row-sub">Capacidade ${q.capacidade} · ${q.numLideres} líder(es) · ${vagas} vaga(s) p/ participantes · ${vocacaoLabel(q.vocacao)}</div>
+          </div>
+        </div>
+        <div class="row-actions">
+          <button class="btn btn-ghost btn-icon" data-action="edit-quarto" title="Editar">${icon('edit')}</button>
+          <button class="btn btn-ghost btn-icon" data-action="del-quarto" title="Excluir">${icon('trash')}</button>
+        </div>
+      </div>`;
+    }).join('');
+    return `
+      <div class="page-head">
+        <div>
+          <div class="page-eyebrow">Aba · Configurar Quartos</div>
+          <h1 class="page-title">Quartos</h1>
+          <p class="page-desc">Defina nome, cor, capacidade, número de líderes e a vocação de cada quarto (faixa etária a concentrar).</p>
+        </div>
+        <button class="btn btn-primary" id="btnNovoQuarto">${icon('plus')} Novo quarto</button>
+      </div>
+      ${enc.quartos.length===0 ? `<div class="empty-state">${icon('settings')}<h4>Nenhum quarto cadastrado</h4><p>Cadastre os quartos disponíveis na chácara para este encontro.</p></div>` : `<div>${rows}</div>`}
+    `;
+  });
+  const enc = getActiveEncontro(); if(!enc) return;
+  document.getElementById('btnNovoQuarto').addEventListener('click', ()=> openQuartoModal(null));
+  el.querySelectorAll('[data-action="edit-quarto"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.closest('.list-row').dataset.id;
+      openQuartoModal(enc.quartos.find(q=>q.id===id));
+    });
+  });
+  el.querySelectorAll('[data-action="del-quarto"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.closest('.list-row').dataset.id;
+      confirmAction('Excluir este quarto? Participantes alocados nele ficarão sem quarto.', ()=>{
+        enc.quartos = enc.quartos.filter(q=>q.id!==id);
+        enc.participantes.forEach(p=>{ if(p.quartoId===id) p.quartoId=null; });
+        enc.lideres.forEach(l=>{ if(l.quartoId===id) l.quartoId=null; });
+        saveDB(); renderQuartos();
+        toast('Quarto excluído.');
+      });
+    });
+  });
+}
+function openQuartoModal(quarto){
+  const enc = getActiveEncontro();
+  const editing = !!quarto;
+  quarto = quarto || { id:null, nome:'', cor:'#e85d3a', capacidade:8, numLideres:1, vocacao:'neutro' };
+  openModal(`
+    <div class="modal-head"><h3>${editing?'Editar quarto':'Novo quarto'}</h3><button class="btn btn-ghost btn-icon" onclick="closeModal()">${icon('x')}</button></div>
+    <div class="modal-body">
+      <div class="field-row"><label class="field-label">Nome do quarto</label>
+        <input class="input" id="qNome" placeholder="Ex: Laranja" value="${escapeHtml(quarto.nome)}"></div>
+      <div class="field-grid field-row">
+        <div><label class="field-label">Cor</label><input class="input" id="qCor" type="color" value="${quarto.cor}"></div>
+        <div><label class="field-label">Vocação</label>
+          <select class="select" id="qVocacao">
+            ${VOCACOES.map(v=>`<option value="${v.id}" ${quarto.vocacao===v.id?'selected':''}>${v.label}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="field-grid field-row">
+        <div><label class="field-label">Capacidade máxima</label><input class="input" id="qCapacidade" type="number" min="1" value="${quarto.capacidade}"></div>
+        <div><label class="field-label">Nº de líderes</label><input class="input" id="qNumLideres" type="number" min="0" value="${quarto.numLideres}"></div>
+      </div>
+      <p class="hint-text">Vagas para participantes = Capacidade − Nº de líderes.</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" id="btnSalvarQuarto">${icon('check')} Salvar</button>
+    </div>
+  `);
+  document.getElementById('btnSalvarQuarto').addEventListener('click', ()=>{
+    const nome = document.getElementById('qNome').value.trim();
+    const cor = document.getElementById('qCor').value;
+    const vocacao = document.getElementById('qVocacao').value;
+    const capacidade = parseInt(document.getElementById('qCapacidade').value)||0;
+    const numLideres = parseInt(document.getElementById('qNumLideres').value)||0;
+    if(!nome){ toast('Informe o nome do quarto.','error'); return; }
+    if(capacidade < numLideres){ toast('Capacidade não pode ser menor que o número de líderes.','error'); return; }
+    if(editing){
+      Object.assign(quarto, {nome,cor,vocacao,capacidade,numLideres});
+    }else{
+      enc.quartos.push({ id:uid(), nome, cor, vocacao, capacidade, numLideres });
+    }
+    saveDB(); closeModal(); renderQuartos();
+    toast('Quarto salvo.');
+  });
+}
+
+/* ==========================================================================
+   RENDER: REGRAS
+   ========================================================================== */
+const REGRAS_DEFS = [
+  { key:'separarSobrenome', label:'Separar por Sobrenome', desc:'Evita colocar pessoas com o mesmo sobrenome no mesmo quarto.' },
+  { key:'juntarSobrenome', label:'Juntar por Sobrenome', desc:'Tenta manter pessoas com o mesmo sobrenome no mesmo quarto.' },
+  { key:'separarTelefoneEmergencia', label:'Separar por Telefone de Emergência', desc:'Evita colocar pessoas com o mesmo contato de emergência no mesmo quarto.' },
+  { key:'juntarTelefoneEmergencia', label:'Juntar por Telefone de Emergência', desc:'Tenta manter pessoas com o mesmo contato de emergência juntas.' },
+  { key:'separarUnidade', label:'Separar por Unidade/Igreja', desc:'Evita concentrar pessoas da mesma unidade no mesmo quarto.' },
+  { key:'juntarUnidade', label:'Juntar por Unidade/Igreja', desc:'Tenta manter pessoas da mesma unidade juntas.' },
+  { key:'separarFaixaEtaria', label:'Separar por Faixa Etária', desc:'Evita concentrar a mesma faixa etária no mesmo quarto (ignora a vocação do quarto).' },
+  { key:'juntarFaixaEtaria', label:'Juntar por Faixa Etária', desc:'Reforça o agrupamento por faixa etária dentro dos quartos vocacionados.' },
+  { key:'separarCelula', label:'Separar por Célula', desc:'Evita colocar pessoas da mesma célula no mesmo quarto.' },
+  { key:'juntarCelula', label:'Juntar por Célula', desc:'Tenta manter pessoas da mesma célula juntas.' },
+];
+function renderRegras(){
+  const el = document.getElementById('tab-regras');
+  el.innerHTML = requireEncontroWrap((enc)=>{
+    const rows = REGRAS_DEFS.map(r=>`
+      <label class="checkbox-row">
+        <input type="checkbox" data-key="${r.key}" ${enc.regras[r.key]?'checked':''}>
+        <div class="cb-text"><b>${r.label}</b><span>${r.desc}</span></div>
+      </label>`).join('');
+    return `
+      <div class="page-head">
+        <div>
+          <div class="page-eyebrow">Aba · Regras</div>
+          <h1 class="page-title">Regras de distribuição</h1>
+          <p class="page-desc">Ative as regras que a distribuição automática deve considerar. Regras de "separar" têm prioridade sobre as de "juntar" quando entram em conflito.</p>
+        </div>
+      </div>
+      <div class="card"><div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">${rows}</div></div>
+    `;
+  });
+  const enc = getActiveEncontro(); if(!enc) return;
+  el.querySelectorAll('input[data-key]').forEach(cb=>{
+    cb.addEventListener('change', ()=>{
+      enc.regras[cb.dataset.key] = cb.checked;
+      saveDB();
+      toast('Regras atualizadas.');
+    });
+  });
+}
+
+/* ==========================================================================
+   PARTICIPANTES — model + column-mapping importer
+   ========================================================================== */
+const PARTICIPANT_FIELDS = [
+  { key:'nome', label:'Nome', required:true },
+  { key:'sobrenome', label:'Sobrenome', required:false },
+  { key:'idade', label:'Idade', required:true },
+  { key:'telefone', label:'Telefone', required:false },
+  { key:'unidade', label:'Unidade/Igreja', required:false },
+  { key:'celula', label:'Célula', required:false },
+  { key:'alergia', label:'Alergias/Restrição', required:false },
+  { key:'remedio', label:'Toma remédio?', required:false },
+  { key:'emergenciaNome', label:'Contato Emergência (Nome)', required:false },
+  { key:'emergenciaTelefone', label:'Contato Emergência (Tel)', required:false },
+];
+// synonyms used for auto-detection of spreadsheet headers (normalized: lowercase, no accents)
+const FIELD_SYNONYMS = {
+  nome: ['nome completo','nome do participante','nome','participante'],
+  sobrenome: ['sobrenome'],
+  idade: ['idade'],
+  telefone: ['celular','telefone','celular do participante','telefone do participante','whatsapp'],
+  unidade: ['qual unidade do nucleo da fe voce participa','unidade/igreja','unidade','igreja','igreja do comprador','unidade da igreja'],
+  celula: ['participa de celula? qual?','participa de celula','celula','qual celula'],
+  alergia: ['tem restricao medica ou alimentar?','alergias/restricao','alergia','restricao','alergias'],
+  remedio: ['toma remedio?','toma remedio','medicacao continua','usa medicacao'],
+  emergenciaNome: ['nome contato de emergencia','contato emergencia (nome)','nome do contato de emergencia','contato de emergencia nome'],
+  emergenciaTelefone: ['telefone contato de emergencia','contato emergencia (tel)','telefone do contato de emergencia','contato de emergencia telefone'],
+};
+function normalizeHeader(str){
+  return String(str||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim().replace(/[?.]/g,'');
+}
+function autoDetectMapping(headers){
+  const mapping = {};
+  const normHeaders = headers.map(h=>normalizeHeader(h));
+  PARTICIPANT_FIELDS.forEach(f=>{
+    const syns = FIELD_SYNONYMS[f.key] || [];
+    let bestIdx = -1;
+    for(const syn of syns){
+      const idx = normHeaders.findIndex(h => h === syn);
+      if(idx !== -1){ bestIdx = idx; break; }
+    }
+    if(bestIdx === -1){
+      for(const syn of syns){
+        const idx = normHeaders.findIndex(h => h.includes(syn) || syn.includes(h));
+        if(idx !== -1){ bestIdx = idx; break; }
+      }
+    }
+    mapping[f.key] = bestIdx;
+  });
+  return mapping;
+}
+
+let importState = null; // { headers, rows, mapping }
+
+function renderParticipantes(){
+  const el = document.getElementById('tab-participantes');
+  el.innerHTML = requireEncontroWrap((enc)=>{
+    const total = enc.participantes.length;
+    const alocados = enc.participantes.filter(p=>p.quartoId).length;
+    const rows = enc.participantes.map(p=>{
+      const q = enc.quartos.find(q=>q.id===p.quartoId);
+      return `<tr data-id="${p.id}">
+        <td>${escapeHtml(p.nome)} ${escapeHtml(p.sobrenome)}</td>
+        <td>${p.idade ?? '—'}</td>
+        <td>${escapeHtml(p.telefone)||'—'}</td>
+        <td>${escapeHtml(p.unidade)||'—'}</td>
+        <td>${escapeHtml(p.celula)||'—'}</td>
+        <td>${q ? `<span class="badge" style="background:${q.cor}22; color:${q.cor}; border:1px solid ${q.cor}55;">${escapeHtml(q.nome)}</span>` : `<span class="badge badge-warn">${icon('alert')} Sem quarto</span>`}</td>
+        <td><div class="action-icons">
+          <button class="btn btn-ghost btn-icon" data-action="edit-part" title="Editar">${icon('edit')}</button>
+          <button class="btn btn-ghost btn-icon" data-action="del-part" title="Remover">${icon('trash')}</button>
+        </div></td>
+      </tr>`;
+    }).join('');
+    return `
+      <div class="page-head">
+        <div>
+          <div class="page-eyebrow">Aba · Participantes</div>
+          <h1 class="page-title">Participantes</h1>
+          <p class="page-desc">Importe a planilha de inscritos ou adicione participantes manualmente.</p>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-outline" id="btnAddParticipante">${icon('plus')} Adicionar manualmente</button>
+          <button class="btn btn-primary" id="btnImportarExcel">${icon('upload')} Importar planilha</button>
+          <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" style="display:none">
+        </div>
+      </div>
+      <div class="stats-row" style="margin-bottom:18px; max-width:460px;">
+        <div class="stat-box"><div class="stat-label">Total</div><div class="stat-value">${total}</div></div>
+        <div class="stat-box"><div class="stat-label">Alocados</div><div class="stat-value">${alocados}</div></div>
+        <div class="stat-box ${total-alocados>0?'warn':''}"><div class="stat-label">Sem quarto</div><div class="stat-value">${total-alocados}</div></div>
+      </div>
+      ${total===0 ? `<div class="empty-state">${icon('users')}<h4>Nenhum participante cadastrado</h4><p>Importe uma planilha Excel ou adicione participantes manualmente.</p></div>` : `
+      <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>Nome</th><th>Idade</th><th>Telefone</th><th>Unidade</th><th>Célula</th><th>Status</th><th></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>`}
+    `;
+  });
+  const enc = getActiveEncontro(); if(!enc) return;
+  document.getElementById('btnAddParticipante').addEventListener('click', ()=> openParticipanteModal(null));
+  document.getElementById('btnImportarExcel').addEventListener('click', ()=> document.getElementById('excelFileInput').click());
+  document.getElementById('excelFileInput').addEventListener('change', handleExcelFile);
+  el.querySelectorAll('[data-action="edit-part"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.closest('tr').dataset.id;
+      openParticipanteModal(enc.participantes.find(p=>p.id===id));
+    });
+  });
+  el.querySelectorAll('[data-action="del-part"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.closest('tr').dataset.id;
+      confirmAction('Remover este participante?', ()=>{
+        enc.participantes = enc.participantes.filter(p=>p.id!==id);
+        saveDB(); renderParticipantes();
+        toast('Participante removido.');
+      });
+    });
+  });
+}
+
+function openParticipanteModal(participante){
+  const enc = getActiveEncontro();
+  const editing = !!participante;
+  participante = participante || { id:null, nome:'', sobrenome:'', idade:'', telefone:'', unidade:'', celula:'', alergia:'', remedio:'', emergenciaNome:'', emergenciaTelefone:'' };
+  openModal(`
+    <div class="modal-head"><h3>${editing?'Editar participante':'Novo participante'}</h3><button class="btn btn-ghost btn-icon" onclick="closeModal()">${icon('x')}</button></div>
+    <div class="modal-body">
+      <div class="field-grid field-row">
+        <div><label class="field-label">Nome</label><input class="input" id="pNome" value="${escapeHtml(participante.nome)}"></div>
+        <div><label class="field-label">Sobrenome</label><input class="input" id="pSobrenome" value="${escapeHtml(participante.sobrenome)}"></div>
+      </div>
+      <div class="field-grid field-row">
+        <div><label class="field-label">Idade</label><input class="input" id="pIdade" type="number" min="0" value="${participante.idade}"></div>
+        <div><label class="field-label">Telefone</label><input class="input" id="pTelefone" value="${escapeHtml(participante.telefone)}"></div>
+      </div>
+      <div class="field-grid field-row">
+        <div><label class="field-label">Unidade/Igreja</label><input class="input" id="pUnidade" value="${escapeHtml(participante.unidade)}"></div>
+        <div><label class="field-label">Célula</label><input class="input" id="pCelula" value="${escapeHtml(participante.celula)}"></div>
+      </div>
+      <div class="field-row"><label class="field-label">Alergias/Restrição</label><input class="input" id="pAlergia" value="${escapeHtml(participante.alergia)}"></div>
+      <div class="field-row"><label class="field-label">Toma remédio?</label><input class="input" id="pRemedio" value="${escapeHtml(participante.remedio)}"></div>
+      <div class="field-grid field-row">
+        <div><label class="field-label">Contato emergência (nome)</label><input class="input" id="pEmergNome" value="${escapeHtml(participante.emergenciaNome)}"></div>
+        <div><label class="field-label">Contato emergência (tel)</label><input class="input" id="pEmergTel" value="${escapeHtml(participante.emergenciaTelefone)}"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" id="btnSalvarParticipante">${icon('check')} Salvar</button>
+    </div>
+  `);
+  document.getElementById('btnSalvarParticipante').addEventListener('click', ()=>{
+    const nome = document.getElementById('pNome').value.trim();
+    const idade = parseInt(document.getElementById('pIdade').value);
+    if(!nome){ toast('Informe o nome.','error'); return; }
+    if(isNaN(idade)){ toast('Informe a idade.','error'); return; }
+    const data = {
+      nome, sobrenome: document.getElementById('pSobrenome').value.trim(),
+      idade, telefone: document.getElementById('pTelefone').value.trim(),
+      unidade: document.getElementById('pUnidade').value.trim(),
+      celula: document.getElementById('pCelula').value.trim(),
+      alergia: document.getElementById('pAlergia').value.trim(),
+      remedio: document.getElementById('pRemedio').value.trim(),
+      emergenciaNome: document.getElementById('pEmergNome').value.trim(),
+      emergenciaTelefone: document.getElementById('pEmergTel').value.trim(),
+    };
+    if(editing){ Object.assign(participante, data); }
+    else{ participante.id = uid(); Object.assign(participante, data); enc.participantes.push(participante); }
+    saveDB(); closeModal(); renderParticipantes();
+    toast('Participante salvo.');
+  });
+}
+
+/* ---- Excel import flow ---- */
+function handleExcelFile(e){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (evt)=>{
+    try{
+      const data = new Uint8Array(evt.target.result);
+      const wb = XLSX.read(data, {type:'array'});
+      const sheetName = wb.SheetNames[0];
+      const ws = wb.Sheets[sheetName];
+      const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+      if(rows.length < 2){ toast('Planilha vazia ou sem dados.','error'); return; }
+      const headers = rows[0].map(h=>String(h));
+      const dataRows = rows.slice(1).filter(r => r.some(c => String(c).trim() !== ''));
+      const mapping = autoDetectMapping(headers);
+      importState = { headers, rows: dataRows, mapping };
+      openMappingModal();
+    }catch(err){
+      console.error(err);
+      toast('Não foi possível ler a planilha. Verifique o arquivo.','error');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+  e.target.value = '';
+}
+function openMappingModal(){
+  const { headers } = importState;
+  const rowsHtml = PARTICIPANT_FIELDS.map(f=>{
+    const opts = [`<option value="-1">— Não importar —</option>`]
+      .concat(headers.map((h,i)=>`<option value="${i}" ${importState.mapping[f.key]===i?'selected':''}>${escapeHtml(h)}</option>`));
+    return `<div class="map-row">
+      <div class="map-field-name">${escapeHtml(f.label)} ${f.required?'<span style="color:var(--ember)">*</span>':''}</div>
+      <select class="select" data-field="${f.key}">${opts.join('')}</select>
+    </div>`;
+  }).join('');
+  openModal(`
+    <div class="modal-head"><h3>Mapear colunas da planilha</h3><button class="btn btn-ghost btn-icon" onclick="closeModal()">${icon('x')}</button></div>
+    <div class="modal-body">
+      <p class="hint-text" style="margin-bottom:14px;">Detectamos automaticamente as colunas correspondentes. Confira e ajuste se necessário antes de importar (${importState.rows.length} linha(s) encontrada(s)). "Nome" pode ser o nome completo — o sobrenome será separado automaticamente se a coluna de sobrenome não for informada.</p>
+      <div class="card" style="padding:14px 18px;">${rowsHtml}</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" id="btnConfirmarImport">${icon('check')} Importar ${importState.rows.length} participante(s)</button>
+    </div>
+  `, {large:true});
+  document.querySelectorAll('#modalRoot select[data-field]').forEach(sel=>{
+    sel.addEventListener('change', ()=>{ importState.mapping[sel.dataset.field] = parseInt(sel.value); });
+  });
+  document.getElementById('btnConfirmarImport').addEventListener('click', confirmImport);
+}
+function confirmImport(){
+  const enc = getActiveEncontro();
+  const { rows, mapping } = importState;
+  let count = 0;
+  rows.forEach(row=>{
+    const get = (key)=>{
+      const idx = mapping[key];
+      return (idx!==undefined && idx>=0 && row[idx]!==undefined) ? String(row[idx]).trim() : '';
+    };
+    let nome = get('nome');
+    let sobrenome = get('sobrenome');
+    if(nome && !sobrenome && mapping['sobrenome']===-1){
+      const parts = nome.split(/\s+/);
+      if(parts.length > 1){ nome = parts[0]; sobrenome = parts.slice(1).join(' '); }
+    }
+    if(!nome) return;
+    const idadeRaw = get('idade');
+    const idade = parseInt(idadeRaw) || 0;
+    enc.participantes.push({
+      id: uid(), nome, sobrenome, idade,
+      telefone: get('telefone'), unidade: get('unidade'), celula: get('celula'),
+      alergia: get('alergia'), remedio: get('remedio'),
+      emergenciaNome: get('emergenciaNome'), emergenciaTelefone: get('emergenciaTelefone'),
+      quartoId: null,
+    });
+    count++;
+  });
+  saveDB(); closeModal(); renderParticipantes();
+  toast(`${count} participante(s) importado(s) com sucesso!`);
+}
+
+/* ==========================================================================
+   RENDER: LIDERES
+   ========================================================================== */
+function renderLideres(){
+  const el = document.getElementById('tab-lideres');
+  el.innerHTML = requireEncontroWrap((enc)=>{
+    const rows = enc.lideres.map(l=>{
+      const q = enc.quartos.find(q=>q.id===l.quartoId);
+      return `<div class="list-row" data-id="${l.id}">
+        <div style="flex:1;">
+          <div class="row-title">${escapeHtml(l.nome)}</div>
+          <div class="row-sub">${q ? `Alocado em ${escapeHtml(q.nome)}` : 'Ainda não alocado a um quarto'}</div>
+        </div>
+        <div class="row-actions">
+          <button class="btn btn-ghost btn-icon" data-action="del-lider" title="Remover">${icon('trash')}</button>
+        </div>
+      </div>`;
+    }).join('');
+    return `
+      <div class="page-head">
+        <div>
+          <div class="page-eyebrow">Aba · Líderes</div>
+          <h1 class="page-title">Líderes</h1>
+          <p class="page-desc">Cadastre os líderes que acompanharão os participantes durante o encontro.</p>
+        </div>
+        <button class="btn btn-primary" id="btnNovoLider">${icon('plus')} Novo líder</button>
+      </div>
+      ${enc.lideres.length===0 ? `<div class="empty-state">${icon('crown')}<h4>Nenhum líder cadastrado</h4><p>Adicione os líderes que participarão deste encontro.</p></div>` : `<div>${rows}</div>`}
+    `;
+  });
+  const enc = getActiveEncontro(); if(!enc) return;
+  document.getElementById('btnNovoLider').addEventListener('click', ()=>{
+    openModal(`
+      <div class="modal-head"><h3>Novo líder</h3><button class="btn btn-ghost btn-icon" onclick="closeModal()">${icon('x')}</button></div>
+      <div class="modal-body"><label class="field-label">Nome</label><input class="input" id="lNome" placeholder="Nome do líder"></div>
+      <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" id="btnSalvarLider">${icon('check')} Salvar</button></div>
+    `);
+    document.getElementById('btnSalvarLider').addEventListener('click', ()=>{
+      const nome = document.getElementById('lNome').value.trim();
+      if(!nome){ toast('Informe o nome do líder.','error'); return; }
+      enc.lideres.push({ id:uid(), nome, quartoId:null });
+      saveDB(); closeModal(); renderLideres();
+      toast('Líder adicionado.');
+    });
+  });
+  el.querySelectorAll('[data-action="del-lider"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.closest('.list-row').dataset.id;
+      confirmAction('Remover este líder?', ()=>{
+        enc.lideres = enc.lideres.filter(l=>l.id!==id);
+        saveDB(); renderLideres();
+        toast('Líder removido.');
+      });
+    });
+  });
+}
+
+/* ==========================================================================
+   RENDER: ALOCAR LIDERES
+   ========================================================================== */
+function renderAlocar(){
+  const el = document.getElementById('tab-alocar');
+  el.innerHTML = requireEncontroWrap((enc)=>{
+    const semAlocar = enc.lideres.filter(l=>!l.quartoId);
+    const roomsHtml = enc.quartos.map(q=>{
+      const lideresNoQuarto = enc.lideres.filter(l=>l.quartoId===q.id);
+      const cheio = lideresNoQuarto.length >= q.numLideres;
+      const chips = lideresNoQuarto.map(l=>`
+        <span class="leader-chip">${escapeHtml(l.nome)}
+          <button data-action="unassign-lider" data-lid="${l.id}" style="background:none; border:none; color:inherit; cursor:pointer; padding:0; display:flex;">${icon('x')}</button>
+        </span>`).join('');
+      return `<div class="card" data-qid="${q.id}">
+        <div class="card-header">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="color-dot" style="background:${q.cor}; width:16px; height:16px;"></span>
+            <div><h3>${escapeHtml(q.nome)}</h3><div class="card-sub">${lideresNoQuarto.length}/${q.numLideres} líder(es)</div></div>
+          </div>
+          ${!cheio ? `<select class="select" style="width:auto;" data-action="assign-select" data-qid="${q.id}">
+              <option value="">+ Adicionar líder</option>
+              ${semAlocar.map(l=>`<option value="${l.id}">${escapeHtml(l.nome)}</option>`).join('')}
+            </select>` : `<span class="badge badge-success">${icon('check')} Completo</span>`}
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">${chips || '<span class="hint-text">Nenhum líder alocado.</span>'}</div>
+      </div>`;
+    }).join('');
+    return `
+      <div class="page-head">
+        <div>
+          <div class="page-eyebrow">Aba · Alocar Líderes</div>
+          <h1 class="page-title">Alocar líderes aos quartos</h1>
+          <p class="page-desc">Cada quarto respeita o limite de líderes definido em Configurar Quartos.</p>
+        </div>
+        <div class="stat-box" style="width:auto; min-width:160px;"><div class="stat-label">Líderes sem quarto</div><div class="stat-value">${semAlocar.length}</div></div>
+      </div>
+      ${enc.quartos.length===0 ? `<div class="empty-state">${icon('target')}<h4>Nenhum quarto cadastrado</h4><p>Cadastre quartos na aba Configurar Quartos primeiro.</p></div>` : `<div class="grid-2">${roomsHtml}</div>`}
+    `;
+  });
+  const enc = getActiveEncontro(); if(!enc) return;
+  el.querySelectorAll('[data-action="assign-select"]').forEach(sel=>{
+    sel.addEventListener('change', ()=>{
+      if(!sel.value) return;
+      const lider = enc.lideres.find(l=>l.id===sel.value);
+      lider.quartoId = sel.dataset.qid;
+      saveDB(); renderAlocar();
+      toast('Líder alocado.');
+    });
+  });
+  el.querySelectorAll('[data-action="unassign-lider"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const lider = enc.lideres.find(l=>l.id===btn.dataset.lid);
+      lider.quartoId = null;
+      saveDB(); renderAlocar();
+    });
+  });
+}
+
+/* ==========================================================================
+   DISTRIBUTION ALGORITHM
+   ========================================================================== */
+function faixaEtaria(idade){
+  if(idade < 25) return 'jovem';
+  if(idade > 50) return 'idoso';
+  return 'neutro';
+}
+function campoRegra(participante, campo){
+  switch(campo){
+    case 'sobrenome': return (participante.sobrenome||'').trim().toLowerCase();
+    case 'telefoneEmergencia': return (participante.emergenciaTelefone||'').trim();
+    case 'unidade': return (participante.unidade||'').trim().toLowerCase();
+    case 'faixaEtaria': return faixaEtaria(participante.idade);
+    case 'celula': return (participante.celula||'').trim().toLowerCase();
+  }
+  return '';
+}
+const REGRA_CAMPOS = [
+  ['Sobrenome','sobrenome'], ['TelefoneEmergencia','telefoneEmergencia'],
+  ['Unidade','unidade'], ['FaixaEtaria','faixaEtaria'], ['Celula','celula'],
+];
+function chaveJuntar(participante, regras){
+  const parts = [];
+  REGRA_CAMPOS.forEach(([sufixo, campo])=>{
+    if(regras['juntar'+sufixo]){
+      const v = campoRegra(participante, campo);
+      if(v) parts.push(campo+':'+v);
+    }
+  });
+  return parts.join('|');
+}
+function respeitaSepara(participante, roomId, ocupantesPorQuarto, regras){
+  const ocupantes = ocupantesPorQuarto[roomId] || [];
+  for(const [sufixo, campo] of REGRA_CAMPOS){
+    if(regras['separar'+sufixo]){
+      const v = campoRegra(participante, campo);
+      if(!v) continue;
+      if(ocupantes.some(o => campoRegra(o, campo) === v)) return false;
+    }
+  }
+  return true;
+}
+function distribuirAutomatico(enc){
+  if(enc.quartos.length === 0){ toast('Cadastre ao menos um quarto antes de distribuir.','error'); return; }
+  const regras = enc.regras;
+  enc.participantes.forEach(p=> p.quartoId = null);
+
+  const vagas = {};
+  enc.quartos.forEach(q => vagas[q.id] = Math.max(0, q.capacidade - q.numLideres));
+  const ocupantesPorQuarto = {};
+  enc.quartos.forEach(q => ocupantesPorQuarto[q.id] = []);
+
+  const jovens = enc.participantes.filter(p => faixaEtaria(p.idade) === 'jovem');
+  const idosos = enc.participantes.filter(p => faixaEtaria(p.idade) === 'idoso');
+  const neutros = enc.participantes.filter(p => faixaEtaria(p.idade) === 'neutro');
+
+  const roomsJovem = enc.quartos.filter(q => q.vocacao === 'concentrar-25');
+  const roomsIdoso = enc.quartos.filter(q => q.vocacao === 'concentrar+50');
+
+  const filaGeral = [];
+
+  function ordenarPorJuntar(lista){
+    return lista.map(p=>({p, key: chaveJuntar(p, regras)}))
+      .sort((a,b)=> (a.key||'\uffff').localeCompare(b.key||'\uffff'))
+      .map(x=>x.p);
+  }
+
+  function alocarGrupo(grupo, rooms){
+    if(rooms.length === 0){ filaGeral.push(...grupo); return; }
+    const ordenado = ordenarPorJuntar(grupo);
+    let pointer = 0, lastKey = null;
+    for(const p of ordenado){
+      const key = chaveJuntar(p, regras);
+      const ordem = [];
+      if(key && key === lastKey) ordem.push(pointer);
+      for(let i=0;i<rooms.length;i++) if(!ordem.includes(i)) ordem.push(i);
+      let placed = false;
+      for(const idx of ordem){
+        const room = rooms[idx];
+        if(vagas[room.id] > 0 && respeitaSepara(p, room.id, ocupantesPorQuarto, regras)){
+          p.quartoId = room.id; vagas[room.id]--; ocupantesPorQuarto[room.id].push(p);
+          pointer = idx; placed = true; break;
+        }
+      }
+      lastKey = key;
+      if(!placed) filaGeral.push(p);
+    }
+  }
+
+  alocarGrupo(jovens, roomsJovem.length ? roomsJovem : enc.quartos);
+  alocarGrupo(idosos, roomsIdoso.length ? roomsIdoso : enc.quartos);
+
+  const restantes = ordenarPorJuntar([...neutros, ...filaGeral]);
+  filaGeral.length = 0;
+  let pointer = 0, lastKey = null;
+  for(const p of restantes){
+    const key = chaveJuntar(p, regras);
+    const ordem = [];
+    if(key && key === lastKey) ordem.push(pointer);
+    for(let i=0;i<enc.quartos.length;i++) if(!ordem.includes(i)) ordem.push(i);
+    let placed = false;
+    for(const idx of ordem){
+      const room = enc.quartos[idx];
+      if(vagas[room.id] > 0 && respeitaSepara(p, room.id, ocupantesPorQuarto, regras)){
+        p.quartoId = room.id; vagas[room.id]--; ocupantesPorQuarto[room.id].push(p);
+        pointer = idx; placed = true; break;
+      }
+    }
+    lastKey = key;
+    if(!placed) filaGeral.push(p);
+  }
+
+  enc.distribuido = true;
+  saveDB();
+  const semQuarto = filaGeral.length;
+  if(semQuarto>0){ toast(`Distribuição concluída. ${semQuarto} participante(s) ficaram sem quarto (capacidade insuficiente ou conflito de regras).`); }
+  else{ toast('Distribuição automática concluída com sucesso!'); }
+}
+
+/* ==========================================================================
+   RENDER: DISTRIBUIR
+   ========================================================================== */
+let draggedParticipantId = null;
+function renderDistribuir(){
+  const el = document.getElementById('tab-distribuir');
+  el.innerHTML = requireEncontroWrap((enc)=>{
+    const totalCapacity = enc.quartos.reduce((s,q)=> s + (q.capacidade - q.numLideres), 0);
+    const totalOcupado = enc.participantes.filter(p=>p.quartoId).length;
+    const semQuarto = enc.participantes.filter(p=>!p.quartoId);
+
+    const roomsHtml = enc.quartos.map(q=>{
+      const membros = enc.participantes.filter(p=>p.quartoId===q.id);
+      const vagas = q.capacidade - q.numLideres;
+      const pct = vagas>0 ? Math.round((membros.length/vagas)*100) : 0;
+      const lideres = enc.lideres.filter(l=>l.quartoId===q.id);
+      const checked = enc.pdfSelecionados[q.id] !== false;
+      return `<div class="room-card" data-qid="${q.id}">
+        <div class="room-color-bar" style="background:${q.cor};"></div>
+        <div class="room-body">
+          <div class="room-top">
+            <div class="room-name-wrap">
+              <span class="room-swatch" style="background:${q.cor};"></span>
+              <div><div class="room-name">${escapeHtml(q.nome)}</div><div class="room-vocacao">${vocacaoLabel(q.vocacao)}</div></div>
+            </div>
+            <label class="room-pdf-check"><input type="checkbox" data-action="toggle-pdf" data-qid="${q.id}" ${checked?'checked':''}> PDF</label>
+          </div>
+          <div class="room-leaders">
+            ${lideres.length ? lideres.map(l=>`<span class="leader-chip">${icon('crown')} ${escapeHtml(l.nome)}</span>`).join('') : '<span class="hint-text">Sem líder alocado</span>'}
+          </div>
+          <div class="room-members" data-dropzone="${q.id}">
+            ${membros.map(p=>`
+              <div class="member-chip" draggable="true" data-pid="${p.id}">
+                <span class="grip">${icon('grip')}</span>
+                <span>${escapeHtml(p.nome)} ${escapeHtml(p.sobrenome)}</span>
+              </div>`).join('') || '<span class="hint-text" style="padding:6px 2px;">Nenhum participante alocado.</span>'}
+          </div>
+          <div class="room-progress">
+            <div class="progress-top"><span>Ocupação</span><span style="font-family:var(--font-serif); font-size:14px; color:var(--fg);">${membros.length}/${vagas}</span></div>
+            <div class="progress-track"><div class="progress-fill" style="width:${Math.min(pct,100)}%; background:${pct>=100?'var(--ember)':q.cor};"></div></div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+
+    return `
+      <div class="page-head">
+        <div>
+          <div class="page-eyebrow">Aba principal</div>
+          <h1 class="page-title">Distribuir participantes</h1>
+          <p class="page-desc">Rode a distribuição automática, ajuste manualmente (arraste ou clique num participante) e gere os PDFs.</p>
+        </div>
+        <div class="stats-row" style="min-width:340px;">
+          <div class="stat-box"><div class="stat-label">Quartos</div><div class="stat-value">${enc.quartos.length}</div></div>
+          <div class="stat-box"><div class="stat-label">Alocados</div><div class="stat-value">${totalOcupado}/${totalCapacity}</div></div>
+          <div class="stat-box ${semQuarto.length>0?'warn':''}"><div class="stat-label">Sem quarto</div><div class="stat-value">${semQuarto.length}</div></div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;">
+        <button class="btn btn-primary" id="btnDistribuirAuto">${icon('shuffle')} Distribuir automático</button>
+        <button class="btn btn-outline" id="btnVerSemQuarto">${icon('alert')} Ver sem quarto (${semQuarto.length})</button>
+        <div style="width:1px; background:var(--border); margin:0 6px;"></div>
+        <button class="btn btn-outline" id="btnPdfGeral">${icon('fileText')} Lista Geral (PDF)</button>
+        <button class="btn btn-outline" id="btnPdfPublicosSel">Públicos (Selecionados)</button>
+        <button class="btn btn-outline" id="btnPdfPrivadosSel">Privados (Selecionados)</button>
+        <button class="btn btn-outline" id="btnPdfAmbosSel">Ambos (Selecionados)</button>
+        <button class="btn btn-outline" id="btnPdfPublicosTodos">Todos Públicos</button>
+        <button class="btn btn-outline" id="btnPdfPrivadosTodos">Todos Privados</button>
+        <button class="btn btn-outline" id="btnPdfAmbosTodos">Todos Ambos</button>
+      </div>
+
+      ${enc.quartos.length===0 ? `<div class="empty-state">${icon('shuffle')}<h4>Nenhum quarto cadastrado</h4><p>Cadastre quartos e participantes antes de distribuir.</p></div>` : `<div class="room-grid">${roomsHtml}</div>`}
+
+      <div class="semquarto-dropzone" data-dropzone="__sem_quarto__">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px; color:var(--muted-fg); font-size:12.5px; text-transform:uppercase; letter-spacing:.08em; font-weight:700;">${icon('inbox')} Sem quarto — solte aqui para desalocar</div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          ${semQuarto.length ? semQuarto.map(p=>`
+            <div class="member-chip" draggable="true" data-pid="${p.id}" style="border:1px dashed var(--border);">
+              <span class="grip">${icon('grip')}</span><span>${escapeHtml(p.nome)} ${escapeHtml(p.sobrenome)}</span>
+            </div>`).join('') : '<span class="hint-text">Todos os participantes estão alocados.</span>'}
+        </div>
+      </div>
+    `;
+  });
+  const enc = getActiveEncontro(); if(!enc) return;
+
+  document.getElementById('btnDistribuirAuto').addEventListener('click', ()=>{
+    confirmAction('Isso irá redistribuir todos os participantes automaticamente, substituindo alocações manuais atuais. Deseja continuar?', ()=>{
+      distribuirAutomatico(enc); renderDistribuir();
+    });
+  });
+  document.getElementById('btnVerSemQuarto').addEventListener('click', openSemQuartoModal);
+  document.getElementById('btnPdfGeral').addEventListener('click', ()=> gerarPdfListaGeral(enc));
+  document.getElementById('btnPdfPublicosSel').addEventListener('click', ()=> gerarPdfsQuartos(enc, 'publico', true));
+  document.getElementById('btnPdfPrivadosSel').addEventListener('click', ()=> gerarPdfsQuartos(enc, 'privado', true));
+  document.getElementById('btnPdfAmbosSel').addEventListener('click', ()=> gerarPdfsQuartos(enc, 'ambos', true));
+  document.getElementById('btnPdfPublicosTodos').addEventListener('click', ()=> gerarPdfsQuartos(enc, 'publico', false));
+  document.getElementById('btnPdfPrivadosTodos').addEventListener('click', ()=> gerarPdfsQuartos(enc, 'privado', false));
+  document.getElementById('btnPdfAmbosTodos').addEventListener('click', ()=> gerarPdfsQuartos(enc, 'ambos', false));
+
+  el.querySelectorAll('[data-action="toggle-pdf"]').forEach(cb=>{
+    cb.addEventListener('change', ()=>{ enc.pdfSelecionados[cb.dataset.qid] = cb.checked; saveDB(); });
+  });
+
+  // click chip -> move modal
+  el.querySelectorAll('.member-chip').forEach(chip=>{
+    chip.addEventListener('click', (e)=>{
+      if(chip.classList.contains('dragging')) return;
+      openMoveParticipanteModal(chip.dataset.pid);
+    });
+    chip.addEventListener('dragstart', (e)=>{
+      draggedParticipantId = chip.dataset.pid;
+      chip.classList.add('dragging');
+      e.dataTransfer.setData('text/plain', chip.dataset.pid);
+    });
+    chip.addEventListener('dragend', ()=> chip.classList.remove('dragging'));
+  });
+
+  el.querySelectorAll('[data-dropzone]').forEach(zone=>{
+    zone.addEventListener('dragover', (e)=>{ e.preventDefault(); zone.closest('.room-card, .semquarto-dropzone')?.classList.add('dragover'); });
+    zone.addEventListener('dragleave', ()=>{ zone.closest('.room-card, .semquarto-dropzone')?.classList.remove('dragover'); });
+    zone.addEventListener('drop', (e)=>{
+      e.preventDefault();
+      zone.closest('.room-card, .semquarto-dropzone')?.classList.remove('dragover');
+      const pid = e.dataTransfer.getData('text/plain') || draggedParticipantId;
+      if(!pid) return;
+      const target = zone.dataset.dropzone;
+      moveParticipante(pid, target === '__sem_quarto__' ? null : target);
+    });
+  });
+}
+function moveParticipante(participantId, quartoId){
+  const enc = getActiveEncontro();
+  const p = enc.participantes.find(x=>x.id===participantId);
+  if(!p) return;
+  if(quartoId){
+    const q = enc.quartos.find(x=>x.id===quartoId);
+    const ocupados = enc.participantes.filter(x=>x.quartoId===quartoId).length;
+    const vagas = q.capacidade - q.numLideres;
+    if(ocupados >= vagas){ toast(`O quarto ${q.nome} está com capacidade máxima.`, 'error'); return; }
+  }
+  p.quartoId = quartoId;
+  saveDB(); renderDistribuir();
+}
+function openMoveParticipanteModal(participantId){
+  const enc = getActiveEncontro();
+  const p = enc.participantes.find(x=>x.id===participantId);
+  if(!p) return;
+  const opts = enc.quartos.map(q=>{
+    const ocupados = enc.participantes.filter(x=>x.quartoId===q.id).length;
+    const vagas = q.capacidade - q.numLideres;
+    return `<option value="${q.id}" ${p.quartoId===q.id?'selected':''} ${ocupados>=vagas && p.quartoId!==q.id ? 'disabled':''}>${escapeHtml(q.nome)} (${ocupados}/${vagas})</option>`;
+  }).join('');
+  openModal(`
+    <div class="modal-head"><h3>Mover ${escapeHtml(p.nome)} ${escapeHtml(p.sobrenome)}</h3><button class="btn btn-ghost btn-icon" onclick="closeModal()">${icon('x')}</button></div>
+    <div class="modal-body">
+      <label class="field-label">Quarto de destino</label>
+      <select class="select" id="moveSelect">
+        <option value="">— Sem quarto —</option>
+        ${opts}
+      </select>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" id="btnConfirmarMove">${icon('check')} Mover</button>
+    </div>
+  `);
+  document.getElementById('btnConfirmarMove').addEventListener('click', ()=>{
+    const val = document.getElementById('moveSelect').value;
+    closeModal();
+    moveParticipante(participantId, val || null);
+  });
+}
+function openSemQuartoModal(){
+  const enc = getActiveEncontro();
+  const semQuarto = enc.participantes.filter(p=>!p.quartoId);
+  const rows = semQuarto.map(p=>`
+    <div class="list-row" data-id="${p.id}">
+      <div><div class="row-title">${escapeHtml(p.nome)} ${escapeHtml(p.sobrenome)}</div><div class="row-sub">${p.idade} anos · ${escapeHtml(p.unidade)||'—'}</div></div>
+      <button class="btn btn-outline btn-sm" data-action="mover">Mover para quarto</button>
+    </div>`).join('');
+  openModal(`
+    <div class="modal-head"><h3>Participantes sem quarto (${semQuarto.length})</h3><button class="btn btn-ghost btn-icon" onclick="closeModal()">${icon('x')}</button></div>
+    <div class="modal-body">${semQuarto.length ? rows : '<p class="hint-text">Todos os participantes estão alocados.</p>'}</div>
+    <div class="modal-foot"><button class="btn btn-outline" onclick="closeModal()">Fechar</button></div>
+  `, {large:true});
+  document.querySelectorAll('#modalRoot [data-action="mover"]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.closest('.list-row').dataset.id;
+      closeModal();
+      openMoveParticipanteModal(id);
+    });
+  });
+}
+
+/* ==========================================================================
+   PDF GENERATION
+   ========================================================================== */
+function hexToRgb(hex){
+  hex = (hex||'#888888').replace('#','');
+  if(hex.length===3) hex = hex.split('').map(c=>c+c).join('');
+  const num = parseInt(hex,16);
+  return [ (num>>16)&255, (num>>8)&255, num&255 ];
+}
+function gerarPdfListaGeral(enc){
+  if(enc.participantes.length===0){ toast('Não há participantes para gerar o PDF.','error'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:'portrait', unit:'pt', format:'a4' });
+  const pageW = doc.internal.pageSize.getWidth();
+  doc.setFont('helvetica','bold'); doc.setFontSize(16);
+  doc.text(enc.nome, 40, 42);
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(90);
+  doc.text(`${formatDateBR(enc.data)}  ·  ${enc.participantes.length} participante(s)`, 40, 58);
+  doc.setTextColor(0);
+
+  const ordenado = [...enc.participantes].sort((a,b)=> (a.nome+a.sobrenome).localeCompare(b.nome+b.sobrenome));
+  const body = ordenado.map(p=>{
+    const q = enc.quartos.find(q=>q.id===p.quartoId);
+    return ['', `${p.nome} ${p.sobrenome}`, q?q.nome:'Sem quarto', p.unidade||'—', p.telefone||'—'];
+  });
+  doc.autoTable({
+    startY: 72,
+    head: [['','Nome','Quarto','Igreja/Unidade','Telefone']],
+    body,
+    styles:{ font:'helvetica', fontSize:9.5, cellPadding:5 },
+    headStyles:{ fillColor:[35,35,35], textColor:255 },
+    columnStyles:{ 0:{ cellWidth:14 } },
+    didDrawCell: (data)=>{
+      if(data.section==='body' && data.column.index===0){
+        const p = ordenado[data.row.index];
+        const q = enc.quartos.find(q=>q.id===p.quartoId);
+        if(q){
+          const [r,g,b] = hexToRgb(q.cor);
+          doc.setFillColor(r,g,b);
+          doc.rect(data.cell.x+3, data.cell.y+data.cell.height/2-4, 8, 8, 'F');
+        }
+      }
+    },
+    margin:{ left:40, right:40 },
+  });
+  doc.save(`${slug(enc.nome)}-lista-geral.pdf`);
+  toast('PDF da lista geral gerado.');
+}
+function slug(str){ return String(str).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
+
+function gerarPdfsQuartos(enc, tipo, apenasSelecionados){
+  let quartos = enc.quartos;
+  if(apenasSelecionados) quartos = quartos.filter(q => enc.pdfSelecionados[q.id] !== false);
+  if(quartos.length===0){ toast('Nenhum quarto selecionado.','error'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:'landscape', unit:'pt', format:'a4' });
+  let first = true;
+  quartos.forEach(q=>{
+    if(tipo==='publico' || tipo==='ambos'){
+      if(!first) doc.addPage(); first=false;
+      desenharCabecalhoQuarto(doc, enc, q);
+      desenharCorpoPublico(doc, enc, q);
+    }
+    if(tipo==='privado' || tipo==='ambos'){
+      if(!first) doc.addPage(); first=false;
+      desenharCabecalhoQuarto(doc, enc, q);
+      desenharCorpoPrivado(doc, enc, q);
+    }
+  });
+  doc.save(`${slug(enc.nome)}-quartos-${tipo}.pdf`);
+  toast('PDF(s) de quarto gerado(s) com sucesso.');
+}
+function desenharCabecalhoQuarto(doc, enc, q){
+  const pageW = doc.internal.pageSize.getWidth();
+  const [r,g,b] = hexToRgb(q.cor);
+  doc.setFillColor(r,g,b);
+  doc.rect(0,0,pageW,80,'F');
+  const brightness = (r*299+g*587+b*114)/1000;
+  const textColor = brightness > 150 ? 20 : 255;
+  doc.setTextColor(textColor);
+  doc.setFont('helvetica','bold'); doc.setFontSize(24);
+  doc.text(q.nome, 40, 40);
+  doc.setFont('helvetica','normal'); doc.setFontSize(11);
+  doc.text(enc.nome + '  ·  ' + formatDateBR(enc.data), 40, 60);
+  const lideres = enc.lideres.filter(l=>l.quartoId===q.id).map(l=>l.nome).join(', ') || 'Sem líder alocado';
+  doc.setFontSize(10);
+  doc.text('Líder(es): ' + lideres, pageW-40, 60, {align:'right'});
+  doc.setTextColor(0);
+}
+function desenharCorpoPublico(doc, enc, q){
+  const membros = enc.participantes.filter(p=>p.quartoId===q.id).sort((a,b)=>(a.nome+a.sobrenome).localeCompare(b.nome+b.sobrenome));
+  const pageW = doc.internal.pageSize.getWidth();
+  doc.setFont('helvetica','normal'); doc.setFontSize(18); doc.setTextColor(30);
+  let y = 130;
+  const colWidth = pageW/2;
+  membros.forEach((p,i)=>{
+    const col = i % 2;
+    const x = col===0 ? pageW/2 - colWidth/2 : pageW/2 + colWidth/2 - 40;
+    if(col===0 && i>0) y += 30;
+    doc.text(`${p.nome} ${p.sobrenome}`, x, y, {align:'center'});
+  });
+  if(membros.length===0) doc.text('Nenhum participante alocado.', pageW/2, 140, {align:'center'});
+}
+function desenharCorpoPrivado(doc, enc, q){
+  const membros = enc.participantes.filter(p=>p.quartoId===q.id).sort((a,b)=>(a.nome+a.sobrenome).localeCompare(b.nome+b.sobrenome));
+  const body = membros.map(p=>[
+    `${p.nome} ${p.sobrenome}`, p.telefone||'—', p.emergenciaTelefone||'—', p.emergenciaNome||'—', p.unidade||'—', p.alergia||'—'
+  ]);
+  doc.autoTable({
+    startY: 96,
+    head:[['Nome','Telefone','Tel. Emergência','Nome Emergência','Igreja/Unidade','Alergia/Restrição']],
+    body,
+    styles:{ font:'helvetica', fontSize:9.5, cellPadding:5 },
+    headStyles:{ fillColor:[35,35,35], textColor:255 },
+    margin:{ left:40, right:40 },
+  });
+}
+
+/* ==========================================================================
+   INIT
+   ========================================================================== */
+function renderAll(){
+  updateHeaderPill();
+  if(!document.getElementById('tab-encontros').innerHTML || currentTab==='encontros') renderEncontros();
+  if(currentTab==='quartos') renderQuartos();
+  if(currentTab==='regras') renderRegras();
+  if(currentTab==='participantes') renderParticipantes();
+  if(currentTab==='lideres') renderLideres();
+  if(currentTab==='alocar') renderAlocar();
+  if(currentTab==='distribuir') renderDistribuir();
+  // pre-render all so switching is instant / data stays fresh
+  renderEncontros(); renderQuartos(); renderRegras(); renderParticipantes(); renderLideres(); renderAlocar(); renderDistribuir();
+}
+renderTabsNav();
+document.getElementById('tab-'+currentTab).classList.add('active');
+renderAll();
 </script>
 </body>
 </html>
-```
