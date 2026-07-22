@@ -1452,23 +1452,42 @@ function gerarPdfListaGeral(enc){
   doc.setTextColor(0);
 
   const ordenado = [...enc.participantes].sort((a,b)=> (a.nome+a.sobrenome).localeCompare(b.nome+b.sobrenome));
+  // Cada linha carrega sua própria cor de quarto (dataKey "cor"). Isso evita
+  // qualquer dependência do índice interno de paginação do autoTable —
+  // era essa dependência (ordenado[data.row.index]) que causava o erro
+  // "Cannot read properties of undefined (reading 'quartoId')".
   const body = ordenado.map(p=>{
-    const q = enc.quartos.find(q=>q.id===p.quartoId);
-    return ['', `${p.nome} ${p.sobrenome}`, q?q.nome:'Sem quarto', p.unidade||'—', p.telefone||'—'];
+    const q = enc.quartos.find(qt=>qt.id===p.quartoId);
+    return {
+      cor: q ? q.cor : null,
+      nome: `${p.nome} ${p.sobrenome}`,
+      quarto: q ? q.nome : 'Sem quarto',
+      unidade: p.unidade || '—',
+      telefone: p.telefone || '—',
+    };
   });
   doc.autoTable({
     startY: 72,
-    head: [['','Nome','Quarto','Igreja/Unidade','Telefone']],
+    columns: [
+      { header:'', dataKey:'cor' },
+      { header:'Nome', dataKey:'nome' },
+      { header:'Quarto', dataKey:'quarto' },
+      { header:'Igreja/Unidade', dataKey:'unidade' },
+      { header:'Telefone', dataKey:'telefone' },
+    ],
     body,
     styles:{ font:'helvetica', fontSize:9.5, cellPadding:5 },
     headStyles:{ fillColor:[35,35,35], textColor:255 },
-    columnStyles:{ 0:{ cellWidth:14 } },
+    columnStyles:{ cor:{ cellWidth:14 } },
+    didParseCell: (data)=>{
+      // a coluna "cor" guarda o hex ou null — nunca deve aparecer como texto
+      if(data.column.dataKey==='cor') data.cell.text = [''];
+    },
     didDrawCell: (data)=>{
-      if(data.section==='body' && data.column.index===0){
-        const p = ordenado[data.row.index];
-        const q = enc.quartos.find(q=>q.id===p.quartoId);
-        if(q){
-          const [r,g,b] = hexToRgb(q.cor);
+      if(data.section==='body' && data.column.dataKey==='cor'){
+        const cor = data.row.raw.cor;
+        if(cor){
+          const [r,g,b] = hexToRgb(cor);
           doc.setFillColor(r,g,b);
           doc.rect(data.cell.x+3, data.cell.y+data.cell.height/2-4, 8, 8, 'F');
         }
@@ -1491,12 +1510,10 @@ function gerarPdfsQuartos(enc, tipo, apenasSelecionados){
   quartos.forEach(q=>{
     if(tipo==='publico' || tipo==='ambos'){
       if(!first) doc.addPage(); first=false;
-      desenharCabecalhoQuarto(doc, enc, q);
       desenharCorpoPublico(doc, enc, q);
     }
     if(tipo==='privado' || tipo==='ambos'){
       if(!first) doc.addPage(); first=false;
-      desenharCabecalhoQuarto(doc, enc, q);
       desenharCorpoPrivado(doc, enc, q);
     }
   });
@@ -1521,31 +1538,38 @@ function desenharCabecalhoQuarto(doc, enc, q){
   doc.setTextColor(0);
 }
 function desenharCorpoPublico(doc, enc, q){
-  const membros = enc.participantes.filter(p=>p.quartoId===q.id).sort((a,b)=>(a.nome+a.sobrenome).localeCompare(b.nome+b.sobrenome));
   const pageW = doc.internal.pageSize.getWidth();
-  doc.setFont('helvetica','normal'); doc.setFontSize(22); doc.setTextColor(30);
-  let y = 130;
-  const colWidth = pageW/2;
-  membros.forEach((p,i)=>{
-    const col = i % 2;
-    const x = col===0 ? pageW/2 - colWidth/2 : pageW/2 + colWidth/2 - 40;
-    if(col===0 && i>0) y += 60;
-    doc.text(`${p.nome} ${p.sobrenome}`, x, y, {align:'center'});
+  const membros = enc.participantes.filter(p=>p.quartoId===q.id).sort((a,b)=>(a.nome+a.sobrenome).localeCompare(b.nome+b.sobrenome));
+  const body = membros.map(p=>[`${p.nome} ${p.sobrenome}`]);
+  // Tabela de coluna única, fonte grande e centralizada — layout limpo para
+  // afixar na porta do quarto. Largura reduzida (margens laterais maiores)
+  // para não esticar uma única coluna por toda a página paisagem.
+  doc.autoTable({
+    startY: 100,
+    head: [['Nome']],
+    body: body.length ? body : [['Nenhum participante alocado.']],
+    styles:{ font:'helvetica', fontSize:15, cellPadding:5, halign:'center', valign:'middle', textColor:30 },
+    headStyles:{ fillColor:[35,35,35], textColor:255, fontSize:11, halign:'center' },
+    margin:{ left: pageW*0.22, right: pageW*0.22, top:100 },
+    didDrawPage: ()=> desenharCabecalhoQuarto(doc, enc, q),
   });
-  if(membros.length===0) doc.text('Nenhum participante alocado.', pageW/2, 140, {align:'center'});
 }
 function desenharCorpoPrivado(doc, enc, q){
   const membros = enc.participantes.filter(p=>p.quartoId===q.id).sort((a,b)=>(a.nome+a.sobrenome).localeCompare(b.nome+b.sobrenome));
   const body = membros.map(p=>[
     `${p.nome} ${p.sobrenome}`, p.telefone||'—', p.emergenciaTelefone||'—', p.emergenciaNome||'—', p.unidade||'—', p.alergia||'—'
   ]);
+  // Espaçamento: o espaço que antes acomodava 8 nomes (fontSize 11 / padding 7)
+  // agora acomoda 10, mantendo a mesma fonte (não reduzida) e só encolhendo
+  // o preenchimento vertical de cada linha na proporção 8/10.
   doc.autoTable({
-    startY: 96,
+    startY: 100,
     head:[['Nome','Telefone','Tel. Emergência','Nome Emergência','Igreja/Unidade','Alergia/Restrição']],
     body,
-    styles:{ font:'helvetica', fontSize:12, cellPadding:10 },
+    styles:{ font:'helvetica', fontSize:11, cellPadding:4.5 },
     headStyles:{ fillColor:[35,35,35], textColor:255 },
-    margin:{ left:40, right:40 },
+    margin:{ left:40, right:40, top:100 },
+    didDrawPage: ()=> desenharCabecalhoQuarto(doc, enc, q),
   });
 }
 
